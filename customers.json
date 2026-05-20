@@ -10,5 +10,9 @@
   {
     "name": "Solaris",
     "prefix": "SOL"
+  },
+  {
+    "name": "NewPower",
+    "prefix": "NP"
   }
 ]
