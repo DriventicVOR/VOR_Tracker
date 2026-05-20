@@ -1275,14 +1275,14 @@ function showTokenModal(){
 function hideTokenModal(){
   document.getElementById('token-modal').style.display='none';
 }
-async async function submitToken(){
+async function handleSubmitToken(){
   const t=document.getElementById('token-inp').value.trim();
   const err=document.getElementById('token-error');
   if(!t){err.textContent='Please enter a token';err.style.display='';return;}
   saveToken(t);
   err.style.display='none';
   hideTokenModal();
-  await connectGitHub();
+  connectGitHub();
 }
 // Allow Enter key in token input
 // token-inp keydown handled via onkeydown attribute
@@ -1294,8 +1294,8 @@ async async function submitToken(){
   <div style="background:var(--surf);border-radius:10px;border:1px solid var(--bdr);padding:28px;width:420px;box-shadow:0 8px 30px rgba(0,0,0,.25)">
     <div style="font-size:18px;font-weight:700;margin-bottom:6px;color:var(--tx)">&#128274; Enter GitHub Token</div>
     <div style="font-size:13px;color:var(--txm);margin-bottom:16px;line-height:1.5">Enter your GitHub Personal Access Token to connect. This is saved to your browser and only needs to be entered once on this device.</div>
-    <input type="password" id="token-inp" placeholder="ghp_..." onkeydown="if(event.key==='Enter')submitToken()" style="width:100%;padding:10px;border:1px solid var(--bdr);border-radius:6px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);box-sizing:border-box;margin-bottom:12px">
-    <button onclick="submitToken()" style="width:100%;padding:10px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Connect</button>
+    <input type="password" id="token-inp" placeholder="ghp_..." onkeydown="if(event.key==='Enter')handleSubmitToken()" style="width:100%;padding:10px;border:1px solid var(--bdr);border-radius:6px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);box-sizing:border-box;margin-bottom:12px">
+    <button onclick="handleSubmitToken()" style="width:100%;padding:10px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Connect</button>
     <div id="token-error" style="color:#e74c3c;font-size:12px;margin-top:8px;display:none"></div>
   </div>
 </div>
@@ -1571,8 +1571,8 @@ input::placeholder,textarea::placeholder{color:var(--txf)}
   <div style="background:var(--surf);border-radius:10px;border:1px solid var(--bdr);padding:28px;width:420px;box-shadow:0 8px 30px rgba(0,0,0,.25)">
     <div style="font-size:18px;font-weight:700;margin-bottom:6px;color:var(--tx)">&#128274; Enter GitHub Token</div>
     <div style="font-size:13px;color:var(--txm);margin-bottom:16px;line-height:1.5">Enter your GitHub Personal Access Token to connect. This is saved to your browser and only needs to be entered once on this device.</div>
-    <input type="password" id="token-inp" placeholder="ghp_..." onkeydown="if(event.key==='Enter')submitToken()" style="width:100%;padding:10px;border:1px solid var(--bdr);border-radius:6px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);box-sizing:border-box;margin-bottom:12px">
-    <button onclick="submitToken()" style="width:100%;padding:10px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Connect</button>
+    <input type="password" id="token-inp" placeholder="ghp_..." onkeydown="if(event.key==='Enter')handleSubmitToken()" style="width:100%;padding:10px;border:1px solid var(--bdr);border-radius:6px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);box-sizing:border-box;margin-bottom:12px">
+    <button onclick="handleSubmitToken()" style="width:100%;padding:10px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Connect</button>
     <div id="token-error" style="color:#e74c3c;font-size:12px;margin-top:8px;display:none"></div>
   </div>
 </div>
@@ -2550,7 +2550,9 @@ async function connectGitHub(){
 }
 
 // ── Boot ───────────────────────────────────────────────────────────
-if(getToken()){connectGitHub();}else{showTokenModal();}
+window.addEventListener('DOMContentLoaded',function(){
+  if(getToken()){connectGitHub();}else{showTokenModal();}
+});
 </script>
 
 </body>
