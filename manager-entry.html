@@ -2272,7 +2272,7 @@ function showTokenModal(){
 function hideTokenModal(){
   document.getElementById('token-modal').style.display='none';
 }
-async function submitToken(){
+async async function submitToken(){
   const t=document.getElementById('token-inp').value.trim();
   const err=document.getElementById('token-error');
   if(!t){err.textContent='Please enter a token';err.style.display='';return;}
