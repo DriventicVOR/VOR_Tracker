@@ -827,7 +827,7 @@ const DEFAULT_CONFIG = {
   ]
 };
 
-let folderHandle=null, config=JSON.parse(JSON.stringify(DEFAULT_CONFIG)), activeTab='operators';
+let config=JSON.parse(JSON.stringify(DEFAULT_CONFIG)), activeTab='operators';
 let customers=[{name:'WrightBus',prefix:'WB'}];
 let activeCustomer=customers[0];
 
@@ -835,17 +835,6 @@ function customerConfigFile(){return(activeCustomer?.prefix||'WB')+'-config.json
 function customerRecordsFile(){return(activeCustomer?.prefix||'WB')+'-records.json';}
 
 // ── File write permission helper ─────────────────────────────────
-async function ensureWritePermission(){
-  if(!folderHandle) return false;
-  try{
-    // Request write permission if not already granted
-    const perm = await folderHandle.requestPermission({mode:'readwrite'});
-    return perm === 'granted';
-  }catch(e){
-    // requestPermission may not be available in all contexts
-    return true; // assume granted and let the write fail naturally
-  }
-}
 
 // ── GitHub storage ────────────────────────────────────────────────
 const GH_OWNER='DriventicVOR';
@@ -1004,7 +993,7 @@ function validate(){
 }
 async function saveRecord(){
   if(!validate()){showToast('Fill in all required fields','error');return}
-  if(!folderHandle){showToast('Link the Data folder first','error');return}
+  
   const num=parseInt(gv('sr-number'));const ref=fmtRef(num);
   const recs=await readRecords();
   if(recs.find(r=>r.ref===ref)){showToast(ref+' already exists','error');return}
@@ -1019,7 +1008,7 @@ function openConfirm(title,msg,cb){document.getElementById('cd-title').textConte
 function closeConfirm(){document.getElementById('confirm-bk').classList.remove('open')}
 
 // ── Admin modal ────────────────────────────────────────────────────
-function openAdmin(){if(!folderHandle){showToast('Link the Data folder first','error');return}document.getElementById('admin-modal').classList.add('open');renderRail();renderContent()}
+function openAdmin(){document.getElementById('admin-modal').classList.add('open');renderRail();renderContent()}
 function closeAdmin(){
   document.getElementById('admin-modal').classList.remove('open');
   applyConfig();
