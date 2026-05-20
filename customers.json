@@ -2,5 +2,9 @@
   {
     "name": "WrightBus",
     "prefix": "WB"
+  },
+  {
+    "name": "Alexander Dennis",
+    "prefix": "ADL"
   }
 ]
