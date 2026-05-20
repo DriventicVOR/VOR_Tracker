@@ -123,7 +123,7 @@ input::placeholder,textarea::placeholder{color:var(--txf)}
     </div>
   </div>
   <div class="hr">
-    <div class="hstat" id="hstat">No folder linked</div>
+    <div class="hstat" id="hstat">Not connected</div>
     <div id="customer-sel-wrap" style="display:none;align-items:center;gap:8px">
       <select id="customer-sel" onchange="switchCustomer()" style="font-family:'IBM Plex Sans',sans-serif;font-size:12px;padding:4px 28px 4px 10px;border-radius:5px;border:1px solid rgba(0,241,193,.3);background:rgba(0,241,193,.12);color:#00F1C1;font-weight:600;appearance:none;cursor:pointer;background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'11\' height=\'7\' viewBox=\'0 0 11 7\'%3E%3Cpath d=\'M1 1l4.5 4.5L10 1\' stroke=\'%2300F1C1\' stroke-width=\'1.5\' fill=\'none\'/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center"></select>
     </div>
@@ -135,22 +135,22 @@ input::placeholder,textarea::placeholder{color:var(--txf)}
 <div class="page">
   <div class="reconnect-bar" id="reconnect-bar">
     <div class="rb-text">
-      <strong>&#128193; Reconnect to last folder</strong>
-      <span id="rb-label">Folder remembered from last session</span>
+      <strong>&#128193; Reconnect</strong>
+      <span id="rb-label">Click to reconnect</span>
     </div>
     <button class="rb-btn" onclick="reconnect()">Reconnect</button>
-    <button class="btn sm" style="white-space:nowrap" onclick="dismissReconnect()">Use different folder</button>
+    <button class="btn sm" style="white-space:nowrap" onclick="dismissReconnect()">Connect</button>
   </div>
   <div class="banner warn" id="no-folder-banner">
     <span class="bico">&#9888;&#65039;</span>
-    <div><strong>Data folder not linked</strong>Click "Link Data Folder" to connect, or use the Reconnect button above if shown.</div>
+    <div><strong>Not connected</strong>Click "Connect" to connect.</div>
   </div>
 
   <div class="lcard">
     <div class="ltitle">Select service request to open</div>
     <div class="lrow">
       <select class="sr-sel" id="sr-select" onchange="loadRecord()">
-        <option value="">— Link data folder to load records —</option>
+        <option value="">— Connect to load records —</option>
       </select>
       <button class="refresh-btn" onclick="safeRefreshRecords()" title="Reload records from file">&#8635; Refresh</button>
       <span class="lcount" id="lcount"></span>
@@ -630,7 +630,7 @@ const DEFAULT_CONFIG = {
   ]
 };
 
-let folderHandle=null,config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+let config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 let allRecords=[],currentRef=null;
 let customers=[{name:'WrightBus',prefix:'WB'}];
 let activeCustomer=customers[0];
@@ -639,17 +639,6 @@ function customerConfigFile(){return(activeCustomer?.prefix||'WB')+'-config.json
 function customerRecordsFile(){return(activeCustomer?.prefix||'WB')+'-records.json';}
 
 // ── File write permission helper ─────────────────────────────────
-async function ensureWritePermission(){
-  if(!folderHandle) return false;
-  try{
-    // Request write permission if not already granted
-    const perm = await folderHandle.requestPermission({mode:'readwrite'});
-    return perm === 'granted';
-  }catch(e){
-    // requestPermission may not be available in all contexts
-    return true; // assume granted and let the write fail naturally
-  }
-}
 
 // ── GitHub storage ────────────────────────────────────────────────
 const GH_OWNER='DriventicVOR';
@@ -1097,35 +1086,10 @@ function gv(id){return document.getElementById(id)?.value?.trim()||''}
 
 // ── Toast ──────────────────────────────────────────────────────────
 async function reloadData(){
-  
+  if(!window._connected){showToast('Not connected','error');return;}
   await loadConfig();
-  // Re-read records.json fresh
-  try{
-    const fh=await folderHandle.getFileHandle(customerRecordsFile(),{create:false});
-    allRecords=JSON.parse(await(await fh.getFile()).text());
-  }catch{allRecords=[]}
-  // Reload the currently-open record's data from the fresh JSON
-  if(currentRef){
-    const rec=allRecords.find(r=>r.ref===currentRef);
-    if(rec){
-      sv('e-engineer',rec.engineer);sv('e-region',rec.region);
-      sv('e-date-att',rec.dateAttended);sv('e-date-repair',rec.dateRepair);
-      sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);
-      loadInterimVisits(rec.interimVisits||[]);updateVisitCount();
-      sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);
-      sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);
-      sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
-      window._currentProductType=rec.productType||'VEDS';
-      buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));
-      populateInfoPanel(rec);
-      renderCustomEngineerFields(rec.customFields||{});
-      enableForm(); // ensure custom section cards are not greyed out after reload
-    }
-  } else {
-    renderCustomEngineerFields({});
-  }
-  populateSRSelect();
-  showToast('Data reloaded','success');
+  await refreshRecords();
+  showToast('Updated','success');
 }
 
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=({success:'✓',error:'✕',info:'ℹ'}[type]||'')+' '+msg;t.className='toast '+type+' show';clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),3400)}
@@ -1192,7 +1156,7 @@ async function connectGitHub(){
     renderCustomerSelect();
     await loadConfig();
     await refreshRecords();
-    showToast('Connected','success');
+    window._connected=true;showToast('Connected','success');
   }catch(e){
     showToast('Connection failed: '+e.message,'error');
   }finally{window._connecting=false;}
