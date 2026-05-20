@@ -904,6 +904,17 @@ function safeReloadData(){
   }
 }
 
+async function loadConfig(){
+  try{
+    const data=await readJSON(customerConfigFile());
+    if(data){config=Object.assign({},DEFAULT_CONFIG,data);}
+    else{config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));}
+    if(!config.customFields)config.customFields=[];
+    if(!config.customSections)config.customSections=[];
+  }catch(e){config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));}
+  applyConfig();
+}
+
 async function refreshRecords(){
   try{
     const data=await readJSON(customerRecordsFile());
