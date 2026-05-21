@@ -684,6 +684,9 @@ async function writeJSON(filename,data){
 
 
 
+const CSEL_STYLE='flex:1;font-family:\'IBM Plex Sans\',sans-serif;font-size:13px;padding:7px 26px 7px 10px;border:1px solid var(--bdr);border-radius:5px;background:var(--surf);color:var(--tx);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'11\' height=\'7\' viewBox=\'0 0 11 7\'%3E%3Cpath d=\'M1 1l4.5 4.5L10 1\' stroke=\'%23546070\' stroke-width=\'1.5\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;cursor:pointer';
+
+
 function compRowHTML(val,idx){
   const pt=window._currentProductType||'VEDS';
   const names=getCompsForProductType(pt);
