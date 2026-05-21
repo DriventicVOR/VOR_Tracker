@@ -363,6 +363,23 @@
       "productTypes": [
         "VEDS"
       ]
+    },
+    {
+      "id": "cf_1779325562221",
+      "label": "Test 1",
+      "type": "dropdown",
+      "form": "customer",
+      "section": "Test",
+      "required": false,
+      "options": [
+        "TEST A",
+        "TEST B"
+      ],
+      "optionsRef": "",
+      "productTypes": [
+        "VEDS",
+        "DIWA"
+      ]
     }
   ]
 }
