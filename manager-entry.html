@@ -998,9 +998,10 @@ async function saveRecord(){
   const recs=await readRecords();
   if(recs.find(r=>r.ref===ref)){showToast(ref+' already exists','error');return}
   const customData={};document.querySelectorAll('[data-cfid]').forEach(el=>{customData[el.dataset.cfid]=el.value.trim()});
-  recs.push({ref,srNumber:num,status:'Awaiting report',createdAt:new Date().toISOString(),operator:gv('c-operator'),location:gv('c-location'),address:gv('c-address'),contactName:gv('c-contact-name'),contactNum:gv('c-contact-num'),vehicle:gv('c-vehicle').toUpperCase(),mileage:gv('c-mileage'),productType:gv('c-product-type'),productSubType:gv('c-sub-field'),dateService:gv('c-date-service'),dateReported:gv('c-date-reported'),vor:gv('c-vor'),dmu:gv('c-dmu'),diana:gv('c-diana'),failure:gv('c-failure'),occurrence:gv('c-occurrence'),warnings:gv('c-warnings'),defect:gv('c-defect'),engineer:'',region:'',dateAttended:'',dateRepair:'',warranty:'',voithFault:'',rectified:'',comp1:'',comp2:'',comp3:'',swInitial:'',swFinal:'',inverter:'',diagnosis:'',comments:'',updatedAt:'',customFields:customData});
+  const rec={ref,srNumber:num,status:'Awaiting report',createdAt:new Date().toISOString(),operator:gv('c-operator'),location:gv('c-location'),address:gv('c-address'),contactName:gv('c-contact-name'),contactNum:gv('c-contact-num'),vehicle:gv('c-vehicle').toUpperCase(),mileage:gv('c-mileage'),productType:gv('c-product-type'),productSubType:gv('c-sub-field'),dateService:gv('c-date-service'),dateReported:gv('c-date-reported'),vor:gv('c-vor'),dmu:gv('c-dmu'),diana:gv('c-diana'),failure:gv('c-failure'),occurrence:gv('c-occurrence'),warnings:gv('c-warnings'),defect:gv('c-defect'),engineer:'',region:'',dateAttended:'',dateRepair:'',warranty:'',voithFault:'',rectified:'',comp1:'',comp2:'',comp3:'',swInitial:'',swFinal:'',inverter:'',diagnosis:'',comments:'',updatedAt:'',interimVisits:[],components:[],customFields:customData};
+  recs.push(rec);
   allRecordsCache.push(rec);
-  await writeRecords(allRecordsCache);
+  await writeRecords(recs);
   showToast(ref+' saved','success');
   clearForm();
   await loadAllRecordsForView();
