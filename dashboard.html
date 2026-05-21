@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOR — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surf:#161b22;--surf2:#21262d;--bdr:#30363d;
+  --tx:#e6edf3;--txm:#8b949e;--txf:#6e7681;
+  --blu:#1D4D73;--teal:#00F1C1;--grn:#2ea043;
+  --red:#f85149;--yel:#d29922;--pur:#bc8cff;
+  --chart1:#00F1C1;--chart2:#1D4D73;--chart3:#d29922;--chart4:#f85149;--chart5:#bc8cff;--chart6:#2ea043;
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--blu);padding:0 24px;display:flex;align-items:center;justify-content:space-between;min-height:56px;flex-wrap:wrap;gap:8px;flex-shrink:0}
+.logo img{height:26px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1);display:block}
+.logo span{font-size:9px;color:rgba(255,255,255,.45);font-family:'IBM Plex Mono',monospace}
+.htitle{color:#fff;font-weight:600;font-size:15px}
+.hstat{font-size:11px;color:rgba(255,255,255,.6);font-family:'IBM Plex Mono',monospace}
+.hbtn{padding:6px 14px;border-radius:5px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-family:inherit;cursor:pointer;font-weight:500}
+.hbtn:hover{background:rgba(255,255,255,.15)}
+.hbtn.pri{background:var(--teal);color:var(--blu);border-color:var(--teal)}
+main{flex:1;padding:20px;display:flex;flex-direction:column;gap:16px}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.customers-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.customers-panel label{font-size:12px;color:var(--txm);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-right:4px}
+.cust-check{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:500;padding:4px 10px;border-radius:5px;border:1px solid var(--bdr);background:var(--surf2);transition:all .15s}
+.cust-check input{accent-color:var(--teal);width:14px;height:14px;cursor:pointer}
+.cust-check:has(input:checked){border-color:var(--teal);background:rgba(0,241,193,.08);color:var(--teal)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat-card{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:16px 18px}
+.stat-card .label{font-size:11px;color:var(--txm);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-card .value{font-size:28px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--tx)}
+.stat-card .sub{font-size:11px;color:var(--txf);margin-top:4px}
+.stat-card.teal .value{color:var(--teal)}
+.stat-card.red .value{color:var(--red)}
+.stat-card.yel .value{color:var(--yel)}
+.stat-card.grn .value{color:var(--grn)}
+.charts-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.chart-card{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:16px}
+.chart-card h3{font-size:12px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+.chart-wrap{position:relative;height:220px}
+.records-card{background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:0;overflow:hidden}
+.records-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:8px}
+.records-head h3{font-size:12px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em}
+.search-wrap{display:flex;align-items:center;gap:8px}
+.search-wrap input{padding:6px 10px;border:1px solid var(--bdr);border-radius:5px;background:var(--surf2);color:var(--tx);font-size:12px;font-family:inherit;width:220px}
+.filter-sel{padding:6px 10px;border:1px solid var(--bdr);border-radius:5px;background:var(--surf2);color:var(--tx);font-size:12px;font-family:inherit}
+.records-table{width:100%;border-collapse:collapse;font-size:12px}
+.records-table th{padding:8px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--txf);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--bdr);background:var(--surf2);white-space:nowrap}
+.records-table td{padding:9px 12px;border-bottom:1px solid rgba(48,54,61,.5);color:var(--tx);vertical-align:middle}
+.records-table tr:last-child td{border-bottom:none}
+.records-table tr:hover td{background:rgba(255,255,255,.03);cursor:pointer}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;font-family:'IBM Plex Mono',monospace;text-transform:uppercase}
+.b-pend{background:rgba(210,153,34,.15);color:var(--yel)}
+.b-done{background:rgba(46,160,67,.15);color:var(--grn)}
+.b-ong{background:rgba(188,140,255,.15);color:var(--pur)}
+.empty{padding:40px;text-align:center;color:var(--txf);font-size:13px}
+.modal-bk{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:400;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.modal-bk.open{display:flex}
+.modal{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;width:100%;max-width:680px;margin:auto;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bdr)}
+.modal-head h2{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--txm);font-size:18px;cursor:pointer;padding:2px 6px;border-radius:4px}
+.modal-close:hover{color:var(--tx);background:var(--surf2)}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
+.detail-section{background:var(--surf2);border-radius:6px;padding:12px 14px}
+.detail-section h4{font-size:10px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}
+.detail-item label{font-size:10px;color:var(--txf);display:block;margin-bottom:1px}
+.detail-item span{font-size:13px;font-weight:500}
+.detail-item.full{grid-column:1/-1}
+.tok-modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center}
+.tok-box{background:#1a1a2e;border-radius:10px;padding:28px;width:400px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.tok-box h2{font-size:17px;font-weight:700;margin-bottom:8px;color:#fff}
+.tok-box p{font-size:13px;color:#888;margin-bottom:16px;line-height:1.5}
+.tok-box input{width:100%;padding:10px;border:1px solid #444;border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:10px;background:#111;color:#fff}
+.tok-box button{width:100%;padding:11px;background:var(--teal);border:none;border-radius:6px;color:var(--blu);font-size:14px;font-weight:600;cursor:pointer}
+.tok-err{color:var(--red);font-size:12px;margin-top:8px;min-height:16px}
+@media(max-width:600px){
+  header{padding:10px 14px}
+  .stat-card .value{font-size:22px}
+  .search-wrap input{width:140px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/wAARCABkAGQDASIAAhEBAxEB/8QAGwABAAMBAQEBAAAAAAAAAAAAAAQFBgMCAQf/xAAsEAABAwMDAwQCAgMAAAAAAAABAAIDBAUREiExBhNBUWEicYGRoRQy/8QAGQEAAwEBAQAAAAAAAAAAAAAAAAECAwT/xAAiEQACAgICAgMBAAAAAAAAAAAAAQIREiExA0FB8FH/2gAMAwEAAhEDEQA/AP2REREAREQBERAEREAREQBERYgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgP/Z" alt="Driventic" style="height:26px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1);display:block">
+      <span>v1.0</span>
+    </div>
+    <div>
+      <div class="htitle">VOR Dashboard</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span class="hstat" id="hstat">Not connected</span>
+    <button class="hbtn pri" onclick="connectStorage()" id="connect-btn">&#9654; Connect</button>
+  </div>
+</header>
+
+<main id="main-content" style="display:none">
+
+  <!-- Customer selector -->
+  <div class="customers-panel" id="customers-panel">
+    <label>Customers</label>
+    <div id="customer-checks"></div>
+    <button class="hbtn" style="font-size:11px;padding:4px 10px" onclick="selectAll()">All</button>
+    <button class="hbtn" style="font-size:11px;padding:4px 10px" onclick="selectNone()">None</button>
+    <button class="hbtn pri" style="font-size:11px;padding:4px 10px" onclick="reloadData()">&#8635; Refresh</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card">
+      <div class="label">Total Records</div>
+      <div class="value" id="stat-total">—</div>
+    </div>
+    <div class="stat-card yel">
+      <div class="label">Awaiting Report</div>
+      <div class="value" id="stat-pending">—</div>
+    </div>
+    <div class="stat-card pur">
+      <div class="label">Ongoing</div>
+      <div class="value" id="stat-ongoing">—</div>
+    </div>
+    <div class="stat-card grn">
+      <div class="label">Rectified</div>
+      <div class="value" id="stat-rectified">—</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="label">VOR Active</div>
+      <div class="value" id="stat-vor">—</div>
+      <div class="sub">Vehicle Off Road</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Avg Days Open</div>
+      <div class="value" id="stat-avgdays">—</div>
+      <div class="sub">open records only</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Status Breakdown</h3>
+      <div class="chart-wrap"><canvas id="chart-status"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Records by Operator</h3>
+      <div class="chart-wrap"><canvas id="chart-operator"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Records by Failure Type</h3>
+      <div class="chart-wrap"><canvas id="chart-failure"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Records by Product Type</h3>
+      <div class="chart-wrap"><canvas id="chart-product"></canvas></div>
+    </div>
+    <div class="chart-card" style="grid-column:1/-1">
+      <h3>Records Over Time (by date reported)</h3>
+      <div class="chart-wrap" style="height:200px"><canvas id="chart-timeline"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Records table -->
+  <div class="records-card">
+    <div class="records-head">
+      <h3>All Records (<span id="rec-count">0</span>)</h3>
+      <div class="search-wrap">
+        <input type="text" id="search-inp" placeholder="Search ref, vehicle, operator…" oninput="renderTable()">
+        <select class="filter-sel" id="filter-status" onchange="renderTable()">
+          <option value="">All statuses</option>
+          <option value="Awaiting report">Awaiting report</option>
+          <option value="Ongoing">Ongoing</option>
+          <option value="Rectified">Rectified</option>
+        </select>
+        <select class="filter-sel" id="filter-pt" onchange="renderTable()">
+          <option value="">All product types</option>
+          <option value="VEDS">VEDS</option>
+          <option value="DIWA">DIWA</option>
+        </select>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="records-table">
+        <thead>
+          <tr>
+            <th onclick="sortBy('ref')" style="cursor:pointer">Ref &#8597;</th>
+            <th onclick="sortBy('customer')" style="cursor:pointer">Customer &#8597;</th>
+            <th onclick="sortBy('operator')" style="cursor:pointer">Operator &#8597;</th>
+            <th onclick="sortBy('vehicle')" style="cursor:pointer">Vehicle &#8597;</th>
+            <th onclick="sortBy('productType')" style="cursor:pointer">Product &#8597;</th>
+            <th onclick="sortBy('dateReported')" style="cursor:pointer">Reported &#8597;</th>
+            <th onclick="sortBy('dateRepair')" style="cursor:pointer">Repaired &#8597;</th>
+            <th onclick="sortBy('status')" style="cursor:pointer">Status &#8597;</th>
+            <th>Engineer</th>
+          </tr>
+        </thead>
+        <tbody id="records-tbody"></tbody>
+      </table>
+    </div>
+    <div id="table-empty" class="empty" style="display:none">No records match the current filters</div>
+  </div>
+
+</main>
+
+<!-- Record detail modal -->
+<div class="modal-bk" id="detail-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="detail-title">Record Detail</h2>
+      <button class="modal-close" onclick="closeDetail()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+  </div>
+</div>
+
+<!-- Token modal -->
+<div class="tok-modal" id="token-modal" style="display:none">
+  <form class="tok-box" onsubmit="return false" autocomplete="off">
+    <h2>&#128274; Access Key</h2>
+    <p>Enter your access key to connect. Saved in your browser — only needed once per device.</p>
+    <input type="password" id="token-inp" placeholder="Enter access key…" autocomplete="new-password" onkeydown="if(event.key==='Enter')document.getElementById('token-submit-btn').click()">
+    <button id="token-submit-btn" type="button">Connect</button>
+    <div class="tok-err" id="token-error"></div>
+  </form>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────
+const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
+const SB_KEY='sb_publishable_bpd9qIOrqVxtgcfejgFriQ_QVLYWjuP';
+const SB_BUCKET='vor-data';
+
+// ── State ─────────────────────────────────────────────────────────
+let customers=[];
+let allRecords=[]; // {...record, _customer: prefix}
+let selectedCustomers=new Set();
+let sortCol='dateReported';
+let sortDir=-1; // -1=desc, 1=asc
+let charts={};
+
+// ── Storage ───────────────────────────────────────────────────────
+function getToken(){return localStorage.getItem('sb_token')||'';}
+function saveToken(t){localStorage.setItem('sb_token',t);}
+
+async function readJSON(filename){
+  const token=getToken()||SB_KEY;
+  const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,{headers:{'Authorization':'Bearer '+token,'apikey':token}});
+  if(r.status===404||r.status===400)return null;
+  if(!r.ok)throw new Error('Read '+filename+' failed ('+r.status+')');
+  return await r.json();
+}
+
+// ── Connection ────────────────────────────────────────────────────
+async function connectStorage(){
+  document.getElementById('hstat').textContent='Connecting…';
+  try{
+    const data=await readJSON('customers.json');
+    customers=data||[{name:'WrightBus',prefix:'WB'}];
+    selectedCustomers=new Set(customers.map(c=>c.prefix));
+    renderCustomerChecks();
+    await loadAllRecords();
+    document.getElementById('main-content').style.display='flex';
+    document.getElementById('main-content').style.flexDirection='column';
+    document.getElementById('hstat').textContent='✓ Connected';
+    document.getElementById('connect-btn').textContent='↺ Refresh';
+    document.getElementById('connect-btn').onclick=reloadData;
+  }catch(e){
+    document.getElementById('hstat').textContent='Connection failed';
+    alert('Connection failed: '+e.message);
+  }
+}
+
+async function loadAllRecords(){
+  allRecords=[];
+  await Promise.all(customers.map(async cu=>{
+    try{
+      const recs=await readJSON(cu.prefix+'-records.json');
+      if(recs&&recs.length){
+        recs.forEach(r=>{allRecords.push({...r,_customer:cu.prefix,_customerName:cu.name});});
+      }
+    }catch(e){console.warn('Could not load',cu.prefix,e);}
+  }));
+  updateDashboard();
+}
+
+async function reloadData(){
+  document.getElementById('hstat').textContent='Refreshing…';
+  await loadAllRecords();
+  document.getElementById('hstat').textContent='✓ Connected';
+}
+
+// ── Customer checkboxes ───────────────────────────────────────────
+function renderCustomerChecks(){
+  const wrap=document.getElementById('customer-checks');
+  wrap.innerHTML=customers.map(cu=>`
+    <label class="cust-check">
+      <input type="checkbox" ${selectedCustomers.has(cu.prefix)?'checked':''} onchange="toggleCustomer('${cu.prefix}')">
+      ${cu.name} (${cu.prefix})
+    </label>
+  `).join('');
+}
+
+function toggleCustomer(prefix){
+  if(selectedCustomers.has(prefix))selectedCustomers.delete(prefix);
+  else selectedCustomers.add(prefix);
+  updateDashboard();
+}
+
+function selectAll(){selectedCustomers=new Set(customers.map(c=>c.prefix));renderCustomerChecks();updateDashboard();}
+function selectNone(){selectedCustomers=new Set();renderCustomerChecks();updateDashboard();}
+
+// ── Filtered records ──────────────────────────────────────────────
+function getFiltered(){
+  return allRecords.filter(r=>selectedCustomers.has(r._customer));
+}
+
+// ── Dashboard update ──────────────────────────────────────────────
+function updateDashboard(){
+  const recs=getFiltered();
+  updateStats(recs);
+  updateCharts(recs);
+  renderTable();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────
+function updateStats(recs){
+  const pending=recs.filter(r=>r.status==='Awaiting report').length;
+  const ongoing=recs.filter(r=>r.status==='Ongoing').length;
+  const rectified=recs.filter(r=>r.status==='Rectified').length;
+  const vor=recs.filter(r=>r.vor==='Y'&&!r.dateRepair).length;
+  const openRecs=recs.filter(r=>!r.dateRepair);
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=openRecs.map(r=>{
+    const d=new Date(r.dateReported);d.setHours(0,0,0,0);
+    return Math.floor((today-d)/86400000);
+  }).filter(d=>!isNaN(d));
+  const avgDays=days.length?Math.round(days.reduce((a,b)=>a+b,0)/days.length):0;
+  document.getElementById('stat-total').textContent=recs.length;
+  document.getElementById('stat-pending').textContent=pending;
+  document.getElementById('stat-ongoing').textContent=ongoing;
+  document.getElementById('stat-rectified').textContent=rectified;
+  document.getElementById('stat-vor').textContent=vor;
+  document.getElementById('stat-avgdays').textContent=days.length?avgDays+'d':'—';
+}
+
+// ── Charts ────────────────────────────────────────────────────────
+const CHART_COLORS=['#00F1C1','#d29922','#bc8cff','#f85149','#2ea043','#58a6ff','#ffa657','#ff7b72'];
+
+function count(recs,key){
+  const m={};
+  recs.forEach(r=>{const v=r[key]||'Unknown';m[v]=(m[v]||0)+1;});
+  return m;
+}
+
+function makeChart(id,type,labels,data,colors){
+  const ctx=document.getElementById(id).getContext('2d');
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart(ctx,{
+    type,
+    data:{labels,datasets:[{data,backgroundColor:colors||CHART_COLORS,borderColor:type==='line'?'#00F1C1':undefined,borderWidth:type==='line'?2:0,fill:type==='line',tension:0.3,pointRadius:3,pointBackgroundColor:'#00F1C1'}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:type==='doughnut',position:'right',labels:{color:'#8b949e',font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:function(ctx){return ' '+ctx.label+': '+ctx.raw;}}}},
+      scales:type!=='doughnut'&&type!=='pie'?{
+        x:{ticks:{color:'#6e7681',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}},
+        y:{ticks:{color:'#6e7681',font:{size:10},stepSize:1},grid:{color:'rgba(48,54,61,.5)'}}
+      }:undefined
+    }
+  });
+}
+
+function updateCharts(recs){
+  // Status doughnut
+  const statMap={'Awaiting report':0,'Ongoing':0,'Rectified':0};
+  recs.forEach(r=>{statMap[r.status||'Awaiting report']=(statMap[r.status||'Awaiting report']||0)+1;});
+  makeChart('chart-status','doughnut',Object.keys(statMap),Object.values(statMap),['#d29922','#bc8cff','#2ea043']);
+
+  // Operator bar
+  const opMap=count(recs,'operator');
+  const opSorted=Object.entries(opMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  makeChart('chart-operator','bar',opSorted.map(x=>x[0]),opSorted.map(x=>x[1]));
+
+  // Failure bar
+  const failMap=count(recs,'failure');
+  const failSorted=Object.entries(failMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  makeChart('chart-failure','bar',failSorted.map(x=>x[0]),failSorted.map(x=>x[1]),failSorted.map((_,i)=>CHART_COLORS[i%CHART_COLORS.length]));
+
+  // Product type doughnut
+  const ptMap=count(recs,'productType');
+  makeChart('chart-product','doughnut',Object.keys(ptMap),Object.values(ptMap));
+
+  // Timeline
+  const monthMap={};
+  recs.forEach(r=>{
+    if(!r.dateReported)return;
+    const d=new Date(r.dateReported);
+    if(isNaN(d))return;
+    const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    monthMap[key]=(monthMap[key]||0)+1;
+  });
+  const months=Object.keys(monthMap).sort();
+  makeChart('chart-timeline','line',months,months.map(m=>monthMap[m]));
+}
+
+// ── Table ─────────────────────────────────────────────────────────
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;
+  else{sortCol=col;sortDir=-1;}
+  renderTable();
+}
+
+function renderTable(){
+  const search=(document.getElementById('search-inp').value||'').toLowerCase();
+  const filterStatus=document.getElementById('filter-status').value;
+  const filterPT=document.getElementById('filter-pt').value;
+  let recs=getFiltered();
+  if(search)recs=recs.filter(r=>[r.ref,r.vehicle,r.operator,r.engineer,r._customerName].some(v=>(v||'').toLowerCase().includes(search)));
+  if(filterStatus)recs=recs.filter(r=>(r.status||'')=== filterStatus);
+  if(filterPT)recs=recs.filter(r=>r.productType===filterPT);
+  recs.sort((a,b)=>{
+    const av=a[sortCol]||'';const bv=b[sortCol]||'';
+    return av<bv?-sortDir:av>bv?sortDir:0;
+  });
+  document.getElementById('rec-count').textContent=recs.length;
+  const tbody=document.getElementById('records-tbody');
+  const empty=document.getElementById('table-empty');
+  if(!recs.length){tbody.innerHTML='';empty.style.display='';return;}
+  empty.style.display='none';
+  const statusClass={
+    'Awaiting report':'b-pend','Ongoing':'b-ong','Rectified':'b-done'
+  };
+  tbody.innerHTML=recs.map(r=>`
+    <tr onclick="openDetail(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+      <td style="font-family:'IBM Plex Mono',monospace;font-weight:500">${r.ref||'—'}</td>
+      <td>${r._customerName||r._customer||'—'}</td>
+      <td>${r.operator||'—'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace">${r.vehicle||'—'}</td>
+      <td>${r.productType||'—'}${r.productSubType?' / '+r.productSubType:''}</td>
+      <td>${fmtDate(r.dateReported)}</td>
+      <td>${r.dateRepair?fmtDate(r.dateRepair):'<span style="color:var(--txf)">Open</span>'}</td>
+      <td><span class="badge ${statusClass[r.status]||'b-pend'}">${r.status||'Awaiting report'}</span></td>
+      <td>${r.engineer||'<span style="color:var(--txf)">—</span>'}</td>
+    </tr>
+  `).join('');
+}
+
+function fmtDate(d){
+  if(!d)return '—';
+  const dt=new Date(d);if(isNaN(dt))return d;
+  return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+// ── Detail modal ──────────────────────────────────────────────────
+function openDetail(rec){
+  if(typeof rec==='string')rec=JSON.parse(rec);
+  document.getElementById('detail-title').textContent=rec.ref+' — '+(rec.vehicle||'')+'  ('+(rec.operator||'')+')';
+  const di=(label,val,full)=>`<div class="detail-item${full?' full':''}"><label>${label}</label><span>${val||'—'}</span></div>`;
+  const statusClass={'Awaiting report':'b-pend','Ongoing':'b-ong','Rectified':'b-done'};
+  document.getElementById('detail-body').innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="badge ${statusClass[rec.status]||'b-pend'}">${rec.status||'Awaiting report'}</span>
+      <span style="font-size:12px;color:var(--txm)">Customer: ${rec._customerName||rec._customer||'—'}</span>
+    </div>
+    <div class="detail-section"><h4>Operator &amp; Vehicle</h4><div class="detail-grid">
+      ${di('Operator',rec.operator)}${di('Location',rec.location)}
+      ${di('Vehicle ID',rec.vehicle)}${di('Product Type',rec.productType+(rec.productSubType?' / '+rec.productSubType:''))}
+      ${di('Mileage',rec.mileage)}${di('Date In Service',fmtDate(rec.dateService))}
+      ${di('VOR',rec.vor)}${di('DMU Supplied',rec.dmu)}
+      ${di('Contact',rec.contactName+(rec.contactNum?' — '+rec.contactNum:''))}
+      ${rec.address?di('Address',rec.address,true):''}
+    </div></div>
+    <div class="detail-section"><h4>Reported Fault</h4><div class="detail-grid">
+      ${di('Date Reported',fmtDate(rec.dateReported))}${di('Failure Type',rec.failure)}
+      ${di('Occurrence',rec.occurrence)}${di('Warning Lights',rec.warnings)}
+      ${di('Defect',rec.defect,true)}
+    </div></div>
+    <div class="detail-section"><h4>Engineer Report</h4><div class="detail-grid">
+      ${di('Engineer',rec.engineer)}${di('Region',rec.region)}
+      ${di('Date First Attended',fmtDate(rec.dateAttended))}${di('Repair Date',fmtDate(rec.dateRepair))}
+      ${di('Warranty',rec.warranty)}${di('Voith Fault',rec.voithFault)}
+      ${di('Defect Rectified',rec.rectified)}${di('Inverter S/N',rec.inverter)}
+      ${di('Initial SW',rec.swInitial)}${di('Final SW',rec.swFinal)}
+      ${(Array.isArray(rec.components)&&rec.components.length?di('Components Replaced',rec.components.join(', '),true):di('Components Replaced',[rec.comp1,rec.comp2,rec.comp3].filter(Boolean).join(', ')||'—',true))}
+      ${rec.diagnosis?di('Diagnosis',rec.diagnosis,true):''}
+      ${rec.comments?di('Comments',rec.comments,true):''}
+    </div></div>
+  `;
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+// Close modal on backdrop click
+document.getElementById('detail-modal').addEventListener('click',function(e){
+  if(e.target===this)closeDetail();
+});
+
+// ── Boot ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('token-submit-btn').addEventListener('click',function(){
+    const t=document.getElementById('token-inp').value.trim();
+    const err=document.getElementById('token-error');
+    if(!t){err.textContent='Please enter an access key';return;}
+    saveToken(t);err.textContent='';
+    document.getElementById('token-modal').style.display='none';
+    connectStorage();
+  });
+  if(getToken())connectStorage();
+  else document.getElementById('token-modal').style.display='flex';
+});
+</script>
+</body>
+</html>
