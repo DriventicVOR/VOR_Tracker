@@ -2,7 +2,7 @@
   {
     "ref": "WB-SR00235",
     "srNumber": 235,
-    "status": "Awaiting report",
+    "status": "Rectified",
     "createdAt": "2026-05-20T20:35:28.242Z",
     "operator": "ABELLIO",
     "location": "BEXLEY HEATH",
@@ -22,23 +22,50 @@
     "occurrence": "",
     "warnings": "",
     "defect": "",
-    "engineer": "",
-    "region": "",
-    "dateAttended": "",
-    "dateRepair": "",
-    "warranty": "",
-    "voithFault": "",
-    "rectified": "",
+    "engineer": "ALEX HAMILTON",
+    "region": "NORTH",
+    "dateAttended": "2026-05-01",
+    "dateRepair": "2026-05-20",
+    "warranty": "Y",
+    "voithFault": "Y",
+    "rectified": "Y",
     "comp1": "",
     "comp2": "",
     "comp3": "",
-    "swInitial": "",
-    "swFinal": "",
+    "swInitial": "VEDS1.5 - 1.0.0.5",
+    "swFinal": "VEDS1.5 - 1.0.0.5",
     "inverter": "",
-    "diagnosis": "",
-    "comments": "",
-    "updatedAt": "",
-    "customFields": {}
+    "diagnosis": "a",
+    "comments": "b",
+    "updatedAt": "2026-05-21T01:15:52.097Z",
+    "customFields": {
+      "cf_1779149595551": "",
+      "cf_1779151562513": "",
+      "cf_1779325959435": "1"
+    },
+    "interimVisits": [
+      {
+        "date": "2026-05-02",
+        "comments": "a"
+      },
+      {
+        "date": "2026-05-03",
+        "comments": "b"
+      },
+      {
+        "date": "2026-05-04",
+        "comments": "c"
+      },
+      {
+        "date": "2026-05-05",
+        "comments": "d"
+      }
+    ],
+    "components": [
+      "PDB - EACU FUSE",
+      "PDB - COMPLETE UNIT",
+      "PDB - ISOLATION MONITOR"
+    ]
   },
   {
     "ref": "WB-SR01234",
@@ -52,8 +79,8 @@
     "contactNum": "",
     "vehicle": "1234",
     "mileage": "",
-    "productType": "VEDS",
-    "productSubType": "VEDS 1.5",
+    "productType": "",
+    "productSubType": "",
     "dateService": "",
     "dateReported": "",
     "vor": "",
@@ -78,9 +105,8 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "2026-05-21T01:13:58.089Z",
-    "customFields": {},
-    "components": []
+    "updatedAt": "",
+    "customFields": {}
   },
   {
     "ref": "WB-SR03333",
