@@ -15,8 +15,8 @@
     "productSubType": "",
     "dateService": "",
     "dateReported": "",
-    "vor": "",
-    "dmu": "Y",
+    "vor": "Y",
+    "dmu": "",
     "diana": "",
     "failure": "CHARGE LOCKS",
     "occurrence": "",
@@ -37,7 +37,7 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "2026-05-21T01:28:37.322Z",
+    "updatedAt": "2026-05-21T01:29:57.088Z",
     "customFields": {},
     "components": []
   }
