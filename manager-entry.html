@@ -865,19 +865,16 @@ async function readJSON(filename){
 
 async function writeJSON(filename,data){
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
-  // Always refresh SHA immediately before writing to avoid conflicts
-  if(!_shas[filename]){await readJSON(filename);}
-  const body={message:'Update '+filename,content,branch:GH_BRANCH};
-  if(_shas[filename])body.sha=_shas[filename];
   for(let attempt=1;attempt<=5;attempt++){
+    // Always read fresh SHA before every attempt
+    await readJSON(filename);
+    const body={message:'Update '+filename,content,branch:GH_BRANCH};
+    if(_shas[filename])body.sha=_shas[filename];
     const r=await ghRequest(filename,'PUT',body);
     if(r.ok){_shas[filename]=(await r.json()).content.sha;return true;}
     const errText=await r.text();
     if((r.status===409||r.status===422)&&attempt<5){
-      // SHA conflict — re-read and retry
-      await readJSON(filename);
-      if(_shas[filename])body.sha=_shas[filename];
-      await new Promise(res=>setTimeout(res,300*attempt));
+      await new Promise(res=>setTimeout(res,500*attempt));
       continue;
     }
     showToast('Save failed ('+r.status+'): '+errText.slice(0,80),'error');
