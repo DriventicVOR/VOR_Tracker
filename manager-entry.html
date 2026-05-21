@@ -1624,6 +1624,10 @@ async function loadAllRecordsForView(){
   if(document.getElementById('tab-closed')?.classList.contains('active')) populateClosedDropdown();
 }
 
+function populateInfoPanel(rec){
+  // Manager doesn't use a live info panel but function needed for compatibility
+}
+
 function openRecordModal(){
   const ref=document.getElementById('view-rec-sel').value;
   if(!ref){showToast('Select a record first','error');return}

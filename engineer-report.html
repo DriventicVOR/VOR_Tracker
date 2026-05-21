@@ -706,6 +706,19 @@ function addCompRow(){
   window._compCount=idx+1;
 }
 
+function daysSince(dateStr){
+  if(!dateStr)return null;
+  const d=new Date(dateStr);if(isNaN(d))return null;
+  const now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);
+  return Math.floor((now-d)/86400000);
+}
+
+function getCompsForProductType(pt){
+  return(config.components||[])
+    .filter(c=>typeof c==='string'||(c.productTypes||[]).includes(pt))
+    .map(c=>typeof c==='string'?c:c.name);
+}
+
 function refreshCompOptions(){
   // Update options in all existing comp row selects without losing current selections
   const pt=window._currentProductType||'VEDS';
