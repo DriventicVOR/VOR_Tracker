@@ -840,27 +840,29 @@ const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
 const SB_KEY='sb_publishable_bpd9qIOrqVxtgcfejgFriQ_QVLYWjuP';
 const SB_BUCKET='vor-data';
 
-async function sbStorage(path, method='GET', body=null){
-  const url=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+path;
-  const opts={method,headers:{'Authorization':'Bearer '+(getToken()||SB_KEY),'apikey':(getToken()||SB_KEY)}};
-  if(body){opts.headers['Content-Type']='application/json';opts.body=body;}
-  return await fetch(url,opts);
-}
-
 async function readJSON(filename){
-  const r=await sbStorage(filename);
+  const token=getToken()||SB_KEY;
+  const url=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename;
+  const r=await fetch(url,{headers:{'Authorization':'Bearer '+token,'apikey':token}});
   if(r.status===404)return null;
   if(!r.ok)throw new Error('Read '+filename+' failed ('+r.status+')');
   return await r.json();
 }
 
 async function writeJSON(filename,data){
-  const r=await sbStorage(filename,'POST',JSON.stringify(data));
-  if(!r.ok){
-    // Try PUT (update existing)
-    const r2=await sbStorage(filename,'PUT',JSON.stringify(data));
-    if(!r2.ok){const err=await r2.text();throw new Error('Write '+filename+' failed ('+r2.status+'): '+err.slice(0,80));}
-  }
+  const token=getToken()||SB_KEY;
+  const url=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename;
+  const r=await fetch(url,{
+    method:'POST',
+    headers:{
+      'Authorization':'Bearer '+token,
+      'apikey':token,
+      'Content-Type':'application/json',
+      'x-upsert':'true'
+    },
+    body:JSON.stringify(data)
+  });
+  if(!r.ok){const err=await r.text();throw new Error('Write '+filename+' failed ('+r.status+'): '+err.slice(0,80));}
   return true;
 }
 
