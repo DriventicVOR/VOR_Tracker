@@ -1642,6 +1642,10 @@ document.getElementById('record-modal').addEventListener('click',e=>{if(e.target
 
 function rfv(id){return document.getElementById(id)?.value?.trim()||''}
 
+function fg(label,input){return`<div class="fg"><label>${label}</label>${input}</div>`;}
+function sel(arr,id,val,ph){return`<select id="${id}"><option value="">${ph}</option>${arr.map(v=>`<option value="${v}"${v===val?' selected':''}>${v}</option>`).join('')}</select>`;}
+function inp(id,val,ph){return`<input type="text" id="${id}" value="${(val||'').replace(/"/g,'&quot;')}" placeholder="${ph}">`;}
+
 function renderRecordEditForm(rec){
   const pts=config.productTypes||['VEDS','DIWA'];
   const sel=(arr,id,cur,ph)=>{const opts=(arr||[]).map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');return`<select id="${id}"><option value="">${ph}</option>${opts}</select>`};
