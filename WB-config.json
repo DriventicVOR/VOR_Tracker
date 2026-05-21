@@ -336,6 +336,9 @@
     "VEDS1.5 - 1.0.0.4",
     "VEDS1.5 - 1.0.0.5"
   ],
+  "customSections": [
+    "Test"
+  ],
   "customFields": [
     {
       "id": "cf_1779149595551",
