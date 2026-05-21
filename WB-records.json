@@ -16,7 +16,7 @@
     "dateService": "",
     "dateReported": "",
     "vor": "",
-    "dmu": "N",
+    "dmu": "Y",
     "diana": "",
     "failure": "FUEL CELL CHARGE",
     "occurrence": "",
@@ -37,7 +37,7 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "2026-05-21T01:22:00.057Z",
+    "updatedAt": "2026-05-21T01:23:28.772Z",
     "customFields": {
       "cf_1779149595551": "",
       "cf_1779151562513": "",
