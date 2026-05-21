@@ -32,12 +32,12 @@
     "comp1": "",
     "comp2": "",
     "comp3": "",
-    "swInitial": "VEDS1.5 - 1.0.0.5",
-    "swFinal": "VEDS1.5 - 1.0.0.5",
+    "swInitial": "",
+    "swFinal": "",
     "inverter": "",
-    "diagnosis": "a",
-    "comments": "b",
-    "updatedAt": "2026-05-21T01:15:52.097Z",
+    "diagnosis": "",
+    "comments": "",
+    "updatedAt": "2026-05-21T01:17:30.486Z",
     "customFields": {
       "cf_1779149595551": "",
       "cf_1779151562513": "",
@@ -46,25 +46,25 @@
     "interimVisits": [
       {
         "date": "2026-05-02",
-        "comments": "a"
+        "comments": ""
       },
       {
         "date": "2026-05-03",
-        "comments": "b"
+        "comments": ""
       },
       {
         "date": "2026-05-04",
-        "comments": "c"
+        "comments": ""
       },
       {
         "date": "2026-05-05",
-        "comments": "d"
+        "comments": ""
       }
     ],
     "components": [
       "PDB - EACU FUSE",
-      "PDB - COMPLETE UNIT",
-      "PDB - ISOLATION MONITOR"
+      "PDB - DISCHARGE RESISTOR",
+      "PDB - COMPLETE UNIT"
     ]
   },
   {
@@ -79,8 +79,8 @@
     "contactNum": "",
     "vehicle": "1234",
     "mileage": "",
-    "productType": "",
-    "productSubType": "",
+    "productType": "VEDS",
+    "productSubType": "VEDS 1.5",
     "dateService": "",
     "dateReported": "",
     "vor": "",
@@ -105,8 +105,9 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "",
-    "customFields": {}
+    "updatedAt": "2026-05-21T01:13:58.089Z",
+    "customFields": {},
+    "components": []
   },
   {
     "ref": "WB-SR03333",
