@@ -408,7 +408,7 @@ input::placeholder,textarea::placeholder{color:var(--txf)}
 </div>
 
 <!-- Record viewer/editor modal -->
-<div class="mbk" id="record-modal">
+<div class="mbk" id="record-modal" style="display:none">
   <div class="modal" style="width:900px">
     <div class="mhead">
       <h2 id="rec-modal-title">&#128196; View / Edit Record</h2>
@@ -999,7 +999,11 @@ async function saveRecord(){
   if(recs.find(r=>r.ref===ref)){showToast(ref+' already exists','error');return}
   const customData={};document.querySelectorAll('[data-cfid]').forEach(el=>{customData[el.dataset.cfid]=el.value.trim()});
   recs.push({ref,srNumber:num,status:'Awaiting report',createdAt:new Date().toISOString(),operator:gv('c-operator'),location:gv('c-location'),address:gv('c-address'),contactName:gv('c-contact-name'),contactNum:gv('c-contact-num'),vehicle:gv('c-vehicle').toUpperCase(),mileage:gv('c-mileage'),productType:gv('c-product-type'),productSubType:gv('c-sub-field'),dateService:gv('c-date-service'),dateReported:gv('c-date-reported'),vor:gv('c-vor'),dmu:gv('c-dmu'),diana:gv('c-diana'),failure:gv('c-failure'),occurrence:gv('c-occurrence'),warnings:gv('c-warnings'),defect:gv('c-defect'),engineer:'',region:'',dateAttended:'',dateRepair:'',warranty:'',voithFault:'',rectified:'',comp1:'',comp2:'',comp3:'',swInitial:'',swFinal:'',inverter:'',diagnosis:'',comments:'',updatedAt:'',customFields:customData});
-  await writeRecords(recs);showToast(ref+' saved','success');clearForm();
+  allRecordsCache.push(rec);
+  await writeRecords(allRecordsCache);
+  showToast(ref+' saved','success');
+  clearForm();
+  await loadAllRecordsForView();
 }
 function clearForm(){document.getElementById('mform').reset();document.getElementById('ref-prev-val').innerHTML='—';document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'))}
 
@@ -1609,14 +1613,13 @@ async function loadAllRecordsForView(){
   const sel=document.getElementById('view-rec-sel');
   if(!sel)return;
   sel.innerHTML='<option value="">— Select a record to view or edit —</option>';
-  // Descending order by srNumber
   [...recs].sort((a,b)=>(b.srNumber||0)-(a.srNumber||0)).forEach(r=>{
     const o=document.createElement('option');
     o.value=r.ref;
     o.textContent=r.ref+'  —  '+(r.vehicle||'?')+'  ('+r.operator+')  ['+(r.status||'?')+']';
     sel.appendChild(o);
   });
-  // Refresh chart if reports tab is visible
+  document.getElementById('view-records-card').style.display='';
   if(document.getElementById('tab-reports')?.classList.contains('active')) renderChart();
   if(document.getElementById('tab-closed')?.classList.contains('active')) populateClosedDropdown();
 }
