@@ -16,7 +16,7 @@
     "dateService": "",
     "dateReported": "",
     "vor": "",
-    "dmu": "",
+    "dmu": "Y",
     "diana": "",
     "failure": "CHARGE LOCKS",
     "occurrence": "",
@@ -37,7 +37,8 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "",
-    "customFields": {}
+    "updatedAt": "2026-05-21T01:28:37.322Z",
+    "customFields": {},
+    "components": []
   }
 ]
