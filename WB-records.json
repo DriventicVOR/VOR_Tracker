@@ -52,8 +52,8 @@
     "contactNum": "",
     "vehicle": "1234",
     "mileage": "",
-    "productType": "",
-    "productSubType": "",
+    "productType": "VEDS",
+    "productSubType": "VEDS 1.5",
     "dateService": "",
     "dateReported": "",
     "vor": "",
@@ -78,8 +78,9 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "",
-    "customFields": {}
+    "updatedAt": "2026-05-21T01:13:58.089Z",
+    "customFields": {},
+    "components": []
   },
   {
     "ref": "WB-SR03333",
