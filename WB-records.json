@@ -15,7 +15,7 @@
     "productSubType": "",
     "dateService": "",
     "dateReported": "",
-    "vor": "",
+    "vor": "Y",
     "dmu": "Y",
     "diana": "",
     "failure": "FUEL CELL CHARGE",
@@ -37,7 +37,7 @@
     "inverter": "",
     "diagnosis": "",
     "comments": "",
-    "updatedAt": "2026-05-21T01:28:04.308Z",
+    "updatedAt": "2026-05-21T01:31:01.189Z",
     "customFields": {
       "cf_1779149595551": "",
       "cf_1779151562513": "",
