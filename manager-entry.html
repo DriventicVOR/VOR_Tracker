@@ -2226,13 +2226,13 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 <!-- GitHub token modal -->
 <div id="token-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center">
-  <div style="background:var(--surf,#fff);border-radius:10px;padding:28px;width:400px;box-shadow:0 8px 30px rgba(0,0,0,.3);font-family:sans-serif">
+  <form onsubmit="return false" autocomplete="off" style="background:var(--surf,#fff);border-radius:10px;padding:28px;width:400px;box-shadow:0 8px 30px rgba(0,0,0,.3);font-family:sans-serif">
     <div style="font-size:17px;font-weight:700;margin-bottom:8px">&#128274; GitHub Token</div>
     <div style="font-size:13px;color:#666;margin-bottom:16px;line-height:1.5">Enter your GitHub Personal Access Token. It will be saved in your browser so you only need to do this once.</div>
-    <input type="password" id="token-inp" placeholder="ghp_..." style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:10px">
-    <button id="token-submit-btn" style="width:100%;padding:11px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer">Connect</button>
+    <input type="password" id="token-inp" autocomplete="new-password" placeholder="ghp_..." autocomplete="one-time-code" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:10px">
+    <button id="token-submit-btn" autocomplete="off" style="width:100%;padding:11px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer">Connect</button>
     <div id="token-error" style="color:#e74c3c;font-size:12px;margin-top:8px;min-height:16px"></div>
-  </div>
+  </form>
 </div>
 </body>
 </html>
