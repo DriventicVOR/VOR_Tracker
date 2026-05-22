@@ -341,7 +341,7 @@ const SB_KEY='sb_publishable_bpd9qIOrqVxtgcfejgFriQ_QVLYWjuP';
 const SB_BUCKET='vor-data';
 
 let customers=[], allRecords=[], selectedCustomers=new Set();
-let sortCol='dateReported', sortDir=-1;
+let sortCol='ref', sortDir=1;
 let charts={};
 
 function getToken(){return localStorage.getItem('sb_token')||'';}
@@ -521,7 +521,11 @@ function renderTable(){
   if(search)recs=recs.filter(r=>[r.ref,r.vehicle,r.operator,r.engineer,r._customerName].some(v=>(v||'').toLowerCase().includes(search)));
   if(fs)recs=recs.filter(r=>(r.status||'')===fs);
   if(fp)recs=recs.filter(r=>r.productType===fp);
-  recs.sort((a,b)=>{const av=a[sortCol]||'',bv=b[sortCol]||'';return av<bv?-sortDir:av>bv?sortDir:0;});
+  recs.sort((a,b)=>{
+    const av=a[sortCol]||'',bv=b[sortCol]||'';
+    if(sortCol==='ref')return sortDir*av.localeCompare(bv,undefined,{numeric:true,sensitivity:'base'});
+    return av<bv?-sortDir:av>bv?sortDir:0;
+  });
   document.getElementById('rec-count').textContent=recs.length;
   const tbody=document.getElementById('records-tbody');
   const empty=document.getElementById('table-empty');
