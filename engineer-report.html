@@ -716,6 +716,16 @@ function dismissReconnect(){document.getElementById('reconnect-bar').classList.r
 async function applyFolder(){connectStorage();}
 
 
+function calcVorDays(dateReported,dateRepair){
+  if(!dateReported)return null;
+  const start=new Date(dateReported);start.setHours(0,0,0,0);
+  if(isNaN(start))return null;
+  const end=dateRepair?new Date(dateRepair):new Date();
+  end.setHours(0,0,0,0);
+  if(isNaN(end))return null;
+  return Math.max(0,Math.floor((end-start)/86400000));
+}
+
 function daysSince(dateStr){
   if(!dateStr)return null;
   const d=new Date(dateStr);if(isNaN(d))return null;
@@ -1210,6 +1220,7 @@ async function saveReport(){
       if(rect==='ONGOING') return 'Ongoing';
       return 'Awaiting report';
     })(),
+    vorDays:calcVorDays(gv('e-date-repair')?allRecords[idx].dateReported:'',gv('e-date-repair')),
     updatedAt:new Date().toISOString(),customFields:customData};
   // Show preview popup — save happens only on confirm
   openEngPopup(_pendingRecord);
