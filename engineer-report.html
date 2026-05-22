@@ -1207,7 +1207,7 @@ async function sendReportEmail(rec){
     'Comments: '+(rec.comments||'—'),
     '',
     'PARTS & SOFTWARE',
-    'Components: '+(Array.isArray(rec.components)&&rec.components.length?rec.components.join(', '):[rec.comp1,rec.comp2,rec.comp3].filter(Boolean).join(', ')||'—'),
+    'Components: '+(Array.isArray(rec.components)&&rec.components.length?rec.components.map(co=>typeof co==='string'?co:(co.name||'')).filter(Boolean).join(', '):[rec.comp1,rec.comp2,rec.comp3].filter(Boolean).join(', ')||'—'),
     'Initial SW: '+(rec.swInitial||'—'),
     'Final SW: '+(rec.swFinal||'—'),
   ].filter(l=>l!==undefined).join('\n'));
