@@ -1220,86 +1220,98 @@ async function sendReportEmail(rec){
   const recipients=config.emailRecipients||[];
   if(!recipients.length){showToast('No email recipients configured','error');return;}
 
+  const ef=config.emailFields||{};
+  const inc=f=>ef[f]!==false; // default true if not explicitly disabled
+
   const subject=encodeURIComponent('VOR Report — '+rec.ref+' — '+(rec.vehicle||'')+(rec.dateRepair?' — Repaired '+rec.dateRepair:''));
 
-  // Build custom field lines
-  const cfData=rec.customFields||{};
-  const cfLines=[];
-  (config.customFields||[]).filter(f=>f.form==='engineer'||f.form==='both').forEach(f=>{
-    const val=cfData[f.id];
-    if(val)cfLines.push(f.label+': '+val);
-  });
+  const lines=[];
+  const add=(label,val)=>{if(val)lines.push(label+': '+val);};
+  const addRaw=v=>{if(v)lines.push(v);};
+  const sep=s=>{lines.push('');lines.push('── '+s+' ──');};
 
-  // Build component lines
-  const compLines=Array.isArray(rec.components)&&rec.components.length
-    ? rec.components.map(co=>{
-        if(typeof co==='string')return '  '+co;
-        let s='  '+(co.name||'')+(co.partNumber?' — '+co.partNumber:'');
-        if(co.symptom)s+='\n    Symptom: '+co.symptom;
-        if(co.rootCause)s+='\n    Root Cause: '+co.rootCause;
-        return s;
-      }).filter(Boolean)
-    : [rec.comp1,rec.comp2,rec.comp3].filter(Boolean).map(s=>'  '+s);
+  // Header
+  lines.push('VOR REPORT SUMMARY');
+  lines.push('==================');
+  if(inc('ref'))   add('Reference',rec.ref);
+  if(inc('status'))add('Status',rec.status);
 
-  const lines=[
-    'VOR REPORT SUMMARY',
-    '==================',
-    'Reference:       '+rec.ref,
-    'Status:          '+(rec.status||'—'),
-    '',
-    '── OPERATOR & VEHICLE ──',
-    'Operator:        '+(rec.operator||'—'),
-    'Location:        '+(rec.location||'—'),
-    rec.address?'Address:         '+rec.address:'',
-    'Contact Name:    '+(rec.contactName||'—'),
-    'Contact Number:  '+(rec.contactNum||'—'),
-    'Vehicle ID:      '+(rec.vehicle||'—'),
-    'Product Type:    '+(rec.productType||'—')+(rec.productSubType?' / '+rec.productSubType:''),
-    'Mileage:         '+(rec.mileage||'—'),
-    'Date In Service: '+(rec.dateService||'—'),
-    'VOR:             '+(rec.vor||'—'),
-    'DMU Supplied:    '+(rec.dmu||'—'),
-    'DIANA Recording: '+(rec.diana||'—'),
-    '',
-    '── REPORTED FAULT ──',
-    'Date Reported:   '+(rec.dateReported||'—'),
-    'Failure Type:    '+(rec.failure||'—'),
-    'Occurrence:      '+(rec.occurrence||'—'),
-    'Warning Lights:  '+(rec.warnings||'—'),
-    'Defect:          '+(rec.defect||'—'),
-    '',
-    '── ENGINEER REPORT ──',
-    'Engineer:        '+(rec.engineer||'—'),
-    'Region:          '+(rec.region||'—'),
-    'Date First Attended: '+(rec.dateAttended||'—'),
-    ...(rec.interimVisits&&rec.interimVisits.length
-      ? rec.interimVisits.map((v,i)=>'  Visit '+(i+1)+': '+(v.date||'')+(v.comments?' — '+v.comments:''))
-      : []),
-    'Vehicle Repair Date: '+(rec.dateRepair||'—'),
-    'Warranty:        '+(rec.warranty||'—'),
-    'Liability:       '+(rec.voithFault||'—'),
-    'Defect Rectified:'+(rec.rectified||'—'),
-    'Inverter S/N:    '+(rec.inverter||'—'),
-    '',
-    '── DIAGNOSIS & OUTCOME ──',
-    'Diagnosis:',
-    rec.diagnosis?'  '+(rec.diagnosis||'—'):'  —',
-    'Comments:',
-    rec.comments?'  '+(rec.comments||'—'):'  —',
-    '',
-    '── PARTS & SOFTWARE ──',
-    compLines.length?'Components:\n'+compLines.join('\n'):'Components: —',
-    'Initial SW:      '+(rec.swInitial||'—'),
-    'Final SW:        '+(rec.swFinal||'—'),
-    ...(cfLines.length?['','── ADDITIONAL FIELDS ──',...cfLines]:[]),
-  ];
+  // Operator & Vehicle
+  sep('OPERATOR & VEHICLE');
+  if(inc('operator'))   add('Operator',rec.operator);
+  if(inc('location'))   add('Location',rec.location);
+  if(inc('address'))    add('Address',rec.address);
+  if(inc('contactName'))add('Contact Name',rec.contactName);
+  if(inc('contactNum')) add('Contact Number',rec.contactNum);
+  if(inc('vehicle'))    add('Vehicle ID',rec.vehicle);
+  if(inc('productType'))add('Product Type',(rec.productType||'')+(rec.productSubType?' / '+rec.productSubType:''));
+  if(inc('mileage'))    add('Mileage',rec.mileage);
+  if(inc('dateService'))add('Date In Service',rec.dateService);
+  if(inc('vor'))        add('VOR',rec.vor);
+  if(inc('dmu'))        add('DMU Supplied',rec.dmu);
+  if(inc('diana'))      add('DIANA Recording',rec.diana);
 
-  const body=encodeURIComponent(lines.filter(l=>l!==undefined&&l!==null).join('\n'));
+  // Reported Fault
+  sep('REPORTED FAULT');
+  if(inc('dateReported'))add('Date Reported',rec.dateReported);
+  if(inc('failure'))     add('Failure Type',rec.failure);
+  if(inc('occurrence'))  add('Occurrence',rec.occurrence);
+  if(inc('warnings'))    add('Warning Lights',rec.warnings);
+  if(inc('defect'))      add('Defect',rec.defect);
+
+  // Engineer Report
+  sep('ENGINEER REPORT');
+  if(inc('engineer'))      add('Engineer',rec.engineer);
+  if(inc('region'))        add('Region',rec.region);
+  if(inc('dateAttended'))  add('Date First Attended',rec.dateAttended);
+  if(inc('interimVisits')&&rec.interimVisits&&rec.interimVisits.length){
+    lines.push('Interim Visits:');
+    rec.interimVisits.forEach((v,i)=>lines.push('  Visit '+(i+1)+': '+(v.date||'')+(v.comments?' — '+v.comments:'')));
+  }
+  if(inc('dateRepair'))  add('Vehicle Repair Date',rec.dateRepair);
+  if(inc('warranty'))    add('Warranty',rec.warranty);
+  if(inc('voithFault'))  add('Liability',rec.voithFault);
+  if(inc('rectified'))   add('Defect Rectified',rec.rectified);
+  if(inc('inverter'))    add('Inverter S/N',rec.inverter);
+
+  // Diagnosis & Outcome
+  sep('DIAGNOSIS & OUTCOME');
+  if(inc('diagnosis')&&rec.diagnosis){lines.push('Diagnosis:');lines.push('  '+rec.diagnosis);}
+  if(inc('comments')&&rec.comments){lines.push('Comments:');lines.push('  '+rec.comments);}
+
+  // Parts & Software
+  sep('PARTS & SOFTWARE');
+  if(inc('components')){
+    const compLines=Array.isArray(rec.components)&&rec.components.length
+      ? rec.components.map(co=>{
+          if(typeof co==='string')return '  '+co;
+          let s='  '+(co.name||'')+(co.partNumber?' — '+co.partNumber:'');
+          if(co.symptom)s+='\n    Symptom: '+co.symptom;
+          if(co.rootCause)s+='\n    Root Cause: '+co.rootCause;
+          return s;
+        }).filter(Boolean)
+      : [rec.comp1,rec.comp2,rec.comp3].filter(Boolean).map(s=>'  '+s);
+    if(compLines.length){lines.push('Components:');compLines.forEach(l=>lines.push(l));}
+  }
+  if(inc('swInitial'))add('Initial SW',rec.swInitial);
+  if(inc('swFinal'))  add('Final SW',rec.swFinal);
+
+  // Custom fields
+  if(inc('customFields')){
+    const cfData=rec.customFields||{};
+    const cfLines=[];
+    (config.customFields||[]).filter(f=>f.form==='engineer'||f.form==='both').forEach(f=>{
+      const val=cfData[f.id];
+      if(val)cfLines.push(f.label+': '+val);
+    });
+    if(cfLines.length){sep('ADDITIONAL FIELDS');cfLines.forEach(l=>lines.push(l));}
+  }
+
+  const body=encodeURIComponent(lines.join('\n'));
   const mailto='mailto:'+recipients.join(',')+'?subject='+subject+'&body='+body;
   window.open(mailto,'_blank');
   showToast('Email client opened','success');
-}
-async function confirmSaveReport(sendEmail){
+}async function confirmSaveReport(sendEmail){
   if(!_pendingRecord){return;}
   const idx=allRecords.findIndex(r=>r.ref===_pendingRecord.ref);
   if(idx===-1){showToast('Record not found','error');return;}
