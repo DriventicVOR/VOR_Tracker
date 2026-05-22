@@ -1485,16 +1485,6 @@ function openEngPopup(rec){
         ${pi('Final SW Version', rec.swFinal)}
       </div>
     </div>
-    ${cfSec('operator','customer',pt)}
-    ${cfSec('vehicle','customer',pt)}
-    ${cfSec('fault','customer',pt)}
-    ${cfSec('diagnosis','customer',pt)}
-    ${allCustomSecs.map(sec=>customNamedSection(sec,'customer',pt,cfData)).join('')}
-    ${cfSec('operator','engineer',pt)}
-    ${cfSec('vehicle','engineer',pt)}
-    ${cfSec('fault','engineer',pt)}
-    ${cfSec('diagnosis','engineer',pt)}
-    ${allCustomSecs.map(sec=>customNamedSection(sec,'engineer',pt,cfData)).join('')}
   `;
 
   document.getElementById('eng-popup-body').innerHTML = body;
@@ -1502,7 +1492,29 @@ function openEngPopup(rec){
   const emailBtn=document.getElementById('save-email-btn');
   if(emailBtn)emailBtn.style.display=rec.dateRepair?'':'none';
   document.getElementById('eng-popup').style.display='flex';
-}</script>
+}
+
+function closeEngPopup(){
+  document.getElementById('eng-popup').style.display='none';
+}
+
+// ── Boot ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('token-submit-btn').addEventListener('click',function(){
+    const t=document.getElementById('token-inp').value.trim();
+    const err=document.getElementById('token-error');
+    if(!t){err.textContent='Please enter an access key';return;}
+    saveToken(t);err.textContent='';
+    document.getElementById('token-modal').style.display='none';
+    connectStorage();
+  });
+  if(getToken()){connectStorage();}
+  else{document.getElementById('token-modal').style.display='flex';}
+  // Popup backdrop
+  const ep=document.getElementById('eng-popup');
+  if(ep)ep.addEventListener('click',function(e){if(e.target===ep)closeEngPopup();});
+});
+</script>
 <!-- Access key modal -->
 <div id="token-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center">
   <form onsubmit="return false" autocomplete="off" style="background:#1a1a2e;border-radius:10px;padding:28px;width:400px;box-shadow:0 8px 30px rgba(0,0,0,.4)">
