@@ -207,6 +207,28 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 .slicer-item.active{background:rgba(0,241,193,.12);color:var(--teal);font-weight:600}
 .slicer-item.multi-selected{background:rgba(0,241,193,.08);color:var(--teal)}
 
+
+/* ── VOR table view ── */
+.view-toggle{display:flex;gap:0;border:1px solid var(--bdr);border-radius:4px;overflow:hidden;margin-bottom:0}
+.view-btn{padding:6px 16px;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;cursor:pointer;border:none;background:var(--navy3);
+  color:var(--grey);transition:all .15s;font-family:inherit}
+.view-btn.active{background:var(--teal);color:var(--navy)}
+.vor-table-wrap{overflow-x:auto;flex:1;min-width:0}
+.vor-tbl{border-collapse:collapse;font-size:11px;width:100%}
+.vor-tbl th{padding:7px 10px;background:var(--navy3);color:var(--grey);font-weight:700;
+  font-size:9px;text-transform:uppercase;letter-spacing:.07em;border:1px solid var(--bdr);
+  white-space:nowrap}
+.vor-tbl td{padding:6px 10px;border:1px solid var(--bdr);color:var(--offwhite);
+  text-align:right;white-space:nowrap}
+.vor-tbl td.row-hdr{text-align:left;font-weight:600;color:var(--offwhite);
+  background:var(--navy3);position:sticky;left:0;z-index:1}
+.vor-tbl tr:hover td{background:rgba(255,255,255,.03)}
+.row-hdr-sel{padding:5px 10px;border:1px solid var(--bdr2);border-radius:3px;
+  background:var(--navy3);color:var(--offwhite);font-size:12px;
+  font-family:inherit;outline:none}
+.row-hdr-sel:focus{border-color:var(--teal)}
+
 </style>
 </head>
 <body>
@@ -215,7 +237,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo">
       <img src="data:image/png;base64,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" alt="Driventic">
-      <span>v2.3</span>
+      <span>v2.4</span>
     </div>
     <div class="htitle">VOR Dashboard</div>
   </div>
@@ -368,10 +390,39 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
           <div class="slicer-items" id="slicer-sub-items"></div>
         </div>
       </div>
-      <!-- Chart -->
-      <div class="chart-card" style="flex:1;min-width:300px">
-        <div class="section-label">Days VOR by Date Reported</div>
-        <div class="chart-wrap" style="height:400px"><canvas id="chart-vordays"></canvas></div>
+      <!-- Chart / Table -->
+      <div class="chart-card" style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="section-label" style="margin:0">Days VOR</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div id="row-hdr-wrap" style="display:none;align-items:center;gap:8px">
+              <span style="font-size:11px;color:var(--grey)">Rows:</span>
+              <select class="row-hdr-sel" id="vor-row-hdr" onchange="renderVorDaysTab()">
+                <option value="operator">Operator</option>
+                <option value="customer">Customer</option>
+                <option value="engineer">Engineer</option>
+                <option value="region">Region</option>
+                <option value="product">Product</option>
+                <option value="failure">Failure Type</option>
+                <option value="location">Depot</option>
+                <option value="address">Address</option>
+                <option value="vehicle">Vehicle ID</option>
+                <option value="rectified">Defect Rectified</option>
+                <option value="voithFault">Liability</option>
+              </select>
+            </div>
+            <div class="view-toggle">
+              <button class="view-btn active" id="vor-graph-btn" onclick="setVorView('graph')">&#9654; Graph</button>
+              <button class="view-btn" id="vor-table-btn" onclick="setVorView('table')">&#9776; Table</button>
+            </div>
+          </div>
+        </div>
+        <div id="vor-graph-area">
+          <div class="chart-wrap" style="height:380px"><canvas id="chart-vordays"></canvas></div>
+        </div>
+        <div id="vor-table-area" style="display:none">
+          <div class="vor-table-wrap"><div id="vor-tbl-inner"></div></div>
+        </div>
       </div>
     </div>
   </div><!-- /tab-vordays -->
@@ -642,6 +693,103 @@ let _vorCusts = new Set();
 let _vorPTs   = new Set();
 let _vorSubs  = new Set();
 
+
+let _vorView = 'graph';
+
+function setVorView(view){
+  _vorView = view;
+  document.getElementById('vor-graph-btn').classList.toggle('active', view==='graph');
+  document.getElementById('vor-table-btn').classList.toggle('active', view==='table');
+  document.getElementById('vor-graph-area').style.display = view==='graph'?'':'none';
+  document.getElementById('vor-table-area').style.display = view==='table'?'':'none';
+  document.getElementById('row-hdr-wrap').style.display   = view==='table'?'flex':'none';
+  renderVorDaysTab();
+}
+
+function getRowKey(rec){
+  const sel = document.getElementById('vor-row-hdr');
+  const field = sel ? sel.value : 'operator';
+  if(field==='product'){
+    const pt = rec.productType||'';
+    const ps = rec.productSubType||'';
+    return pt && ps ? pt+' — '+ps : pt||ps||'Unknown';
+  }
+  if(field==='customer') return rec._customerName||rec._customer||'Unknown';
+  return rec[field]||'Unknown';
+}
+
+function buildVorTable(filtered, months, monthLabel){
+  // Group records by row key
+  const rowMap = {};
+  filtered.forEach(r=>{
+    const key = getRowKey(r);
+    if(!rowMap[key]) rowMap[key]=[];
+    rowMap[key].push(r);
+  });
+  const rowKeys = Object.keys(rowMap).sort();
+
+  function avgDays(recs){
+    if(!recs.length) return null;
+    const total = recs.reduce((s,r)=>{
+      const vd=(r._vorDays!==null&&r._vorDays!==undefined)?r._vorDays:calcVorDays(r.dateReported,r.dateRepair);
+      return s+(vd||0);
+    },0);
+    return Math.round(total/recs.length);
+  }
+
+  function monthRecs(recs, m){
+    return recs.filter(r=>{
+      const d=new Date(r.dateReported);
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===m;
+    });
+  }
+
+  // Colour cell by value (green low, amber mid, red high)
+  function cellStyle(val, max){
+    if(val===null) return '';
+    const pct = max>0?val/max:0;
+    if(pct<0.33) return 'color:var(--green)';
+    if(pct<0.66) return 'color:var(--amber)';
+    return 'color:var(--red)';
+  }
+
+  const allVals = rowKeys.flatMap(k=>months.map(m=>{
+    const v=avgDays(monthRecs(rowMap[k],m));return v!==null?v:0;
+  }));
+  const maxVal = Math.max(...allVals,1);
+
+  let html = '<table class="vor-tbl"><thead><tr>';
+  html += '<th style="position:sticky;left:0;z-index:2;background:var(--navy3)">Row</th>';
+  months.forEach(m=>{ html+=`<th>${monthLabel(m)}</th>`; });
+  html += '<th>Overall Avg</th></tr></thead><tbody>';
+
+  rowKeys.forEach(key=>{
+    const recs = rowMap[key];
+    const overall = avgDays(recs);
+    html += `<tr><td class="row-hdr">${key}</td>`;
+    months.forEach(m=>{
+      const val = avgDays(monthRecs(recs,m));
+      const style = cellStyle(val, maxVal);
+      html += `<td style="${style}">${val!==null?val+'d':'—'}</td>`;
+    });
+    const ovStyle = cellStyle(overall, maxVal);
+    html += `<td style="font-weight:600;${ovStyle}">${overall!==null?overall+'d':'—'}</td>`;
+    html += '</tr>';
+  });
+
+  // Overall row
+  html += '<tr style="border-top:2px solid var(--bdr2)"><td class="row-hdr" style="color:var(--teal)">Overall</td>';
+  months.forEach(m=>{
+    const val = avgDays(monthRecs(filtered,m));
+    html += `<td style="font-weight:600;color:var(--teal)">${val!==null?val+'d':'—'}</td>`;
+  });
+  const grandAvg = avgDays(filtered);
+  html += `<td style="font-weight:700;color:var(--teal)">${grandAvg!==null?grandAvg+'d':'—'}</td>`;
+  html += '</tr></tbody></table>';
+
+  return html;
+}
+
 function renderVorDaysTab(){
   const recs = getFiltered();
   const custs = [...new Set(recs.map(r=>r._customerName||r._customer).filter(Boolean))].sort();
@@ -721,6 +869,12 @@ function renderVorDaysTab(){
   }
 
   const ctx=document.getElementById('chart-vordays').getContext('2d');
+  // Table view
+  if(_vorView==='table'){
+    document.getElementById('vor-tbl-inner').innerHTML=buildVorTable(filtered,months,monthLabel);
+    return;
+  }
+
   if(window._vorDaysChart) window._vorDaysChart.destroy();
   window._vorDaysChart=new Chart(ctx,{
     type:'line',
