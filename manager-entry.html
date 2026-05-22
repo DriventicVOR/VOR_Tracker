@@ -53,7 +53,9 @@ header{background:var(--green);color:#1D4D73;padding:0 28px;display:flex;align-i
 .chart-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#00F1C1;width:110px;flex-shrink:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chart-bar-area{flex:1;position:relative;min-width:0}
 .chart-bar{height:26px;background:#00F1C1;border-radius:3px;cursor:pointer;transition:opacity .15s;min-width:4px;box-sizing:border-box;position:relative;z-index:1}
-.chart-marker{position:absolute;top:50%;transform:translate(-50%,-50%);color:#fff;font-size:10px;line-height:1;pointer-events:none;text-shadow:0 0 3px rgba(0,0,0,.8);z-index:2;cursor:default;pointer-events:all}
+.chart-marker{position:absolute;top:50%;transform:translate(-50%,-50%);color:#1D4D73;line-height:1;text-shadow:0 0 4px rgba(0,0,0,.5);z-index:2;cursor:default;pointer-events:all}
+.chart-marker-first{font-size:18px;font-weight:700;}
+.chart-marker-interim{font-size:16px;}
 .chart-bar:hover{opacity:.8}
 .chart-bar.overdue{border:2px solid #e74c3c}
 /* Threshold line rendered once via the .chart-bar-area using a CSS var */
@@ -2301,15 +2303,17 @@ function renderChart(){
     const markerDates = [];
     if(r.dateAttended){
       const d = daysSince(r.dateAttended);
-      if(d !== null && d >= 0) markerDates.push({d, label:'First Attended: '+r.dateAttended});
+      if(d !== null && d >= 0) markerDates.push({d, type:'first', label:'First Attended: '+r.dateAttended});
     }
     (r.interimVisits||[]).forEach((v,i) => {
       const d = daysSince(v.date);
-      if(d !== null && d >= 0) markerDates.push({d, label:'Visit '+(i+1)+': '+v.date});
+      if(d !== null && d >= 0) markerDates.push({d, type:'interim', label:'Visit '+(i+1)+': '+v.date});
     });
     const markersHtml = markerDates.map(m => {
       const mp = Math.min((m.d / maxDays * 100), 100).toFixed(4);
-      return `<div class="chart-marker" style="left:${mp}%" title="${m.label}">&#9670;</div>`;
+      const sym = m.type==='first' ? '&#10033;' : '&#9670;';
+      const cls = m.type==='first' ? 'chart-marker chart-marker-first' : 'chart-marker chart-marker-interim';
+      return `<div class="${cls}" style="left:${mp}%" title="${m.label}">${sym}</div>`;
     }).join('');
 
     return `<div class="chart-row">`
