@@ -300,6 +300,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
             <th onclick="sortBy('vehicle')">Vehicle &#8597;</th>
             <th onclick="sortBy('productType')">Product &#8597;</th>
             <th onclick="sortBy('dateReported')">Reported &#8597;</th>
+            <th onclick="sortBy('dateAttended')">First Attended &#8597;</th>
             <th onclick="sortBy('dateRepair')">Repaired &#8597;</th>
             <th onclick="sortBy('status')">Status &#8597;</th>
             <th>Engineer</th>
@@ -540,6 +541,7 @@ function renderTable(){
       <td class="mono">${r.vehicle||'—'}</td>
       <td>${r.productType||'—'}${r.productSubType?' / '+r.productSubType:''}</td>
       <td>${fmtDate(r.dateReported)}</td>
+      <td>${r.dateAttended?fmtDate(r.dateAttended):'<span style="color:var(--grey2)">—</span>'}</td>
       <td>${r.dateRepair?fmtDate(r.dateRepair):'<span style="color:var(--grey2)">Open</span>'}</td>
       <td><span class="badge ${sc[r.status]||'b-pend'}">${r.status||'Awaiting report'}</span></td>
       <td>${r.engineer||'<span style="color:var(--grey2)">—</span>'}</td>
