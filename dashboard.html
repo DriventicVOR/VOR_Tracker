@@ -868,54 +868,59 @@ function buildVorTable(filtered, months, monthLabel){
     if(!vals.length)return null;
     return Math.round(vals.reduce((s,v)=>s+v,0)/vals.length*10)/10;
   }
-  function avgClosure(recs){ return avgField(recs,r=>{
+  function avgClosure(recs){return avgField(recs,r=>{
     const v=(r._vorDays!==null&&r._vorDays!==undefined)?r._vorDays:calcVorDays(r.dateReported,r.dateRepair);
     return v;
   });}
-  function avgAttend(recs){ return avgField(recs,r=>daysBetween(r.dateReported,r.dateAttended)); }
-  function avgRectify(recs){ return avgField(recs,r=>daysBetween(r.dateReported,r.dateRepair)); }
+  function avgAttend(recs){return avgField(recs,r=>daysBetween(r.dateReported,r.dateAttended));}
+  function avgRectify(recs){return avgField(recs,r=>daysBetween(r.dateReported,r.dateRepair));}
 
+  // months are strings 'YYYY-MM'
   function mRecs(recs,m){
     return recs.filter(r=>{
       const d=new Date(r.dateReported);
-      return d.getFullYear()===m.getFullYear()&&d.getMonth()===m.getMonth();
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')===m;
     });
   }
   function cellCol(v){
     if(v===null)return '';
     return v<=2?'color:var(--green)':v<=5?'color:var(--amber)':'color:var(--red)';
   }
-  function fmt(v){ return v!==null?Number(v).toFixed(1)+'d':'—'; }
+  function fmt(v){return v!==null?Number(v).toFixed(1)+'d':'—';}
   function cell3(ac,aa,ar,isSel,bold){
     const bk=isSel?'background:var(--navy4);':'';
     const bw=bold?'font-weight:600;':'';
-    return `<td class="${isSel?'col-selected':''}" style="${bk}padding:4px 6px">
-      <div style="${bw}${cellCol(ac)}">${fmt(ac)}</div>
-      <div style="font-size:10px;${cellCol(aa)}">${fmt(aa)}</div>
-      <div style="font-size:10px;${cellCol(ar)}">${fmt(ar)}</div>
-    </td>`;
+    return `<td class="${isSel?'col-selected':''}" style="${bk}padding:4px 8px;text-align:center">`+
+      `<div style="${bw}${cellCol(ac)}">${fmt(ac)}</div>`+
+      `<div style="font-size:10px;${cellCol(aa)}">${fmt(aa)}</div>`+
+      `<div style="font-size:10px;${cellCol(ar)}">${fmt(ar)}</div>`+
+      `</td>`;
   }
 
-  function rSel(k){ return vorTableState&&vorTableState.type==='row'&&vorTableState.key===k; }
-  function cSel(m){ return vorTableState&&vorTableState.type==='col'&&monthLabel(vorTableState.key)===monthLabel(m); }
+  function rSel(k){return vorTableState&&vorTableState.type==='row'&&vorTableState.key===k;}
+  function cSel(m){return vorTableState&&vorTableState.type==='col'&&vorTableState.key===m;}
   const avgSel=vorTableState&&vorTableState.type==='col'&&vorTableState.key==='__avg__';
 
-  // ── Header ─────────────────────────────────────────────────────
-  let h=`<thead><tr>
-    <th class="row-hdr" style="position:sticky;left:0;z-index:2;background:var(--navy3)">Row</th>`;
+  let h=`<table class="vor-tbl"><thead><tr>`+
+    `<th class="row-hdr" style="position:sticky;left:0;z-index:2;background:var(--navy3)"><select class="row-hdr-sel" id="vor-row-hdr" onchange="renderVorDaysTab()">`;
+  ['operator','location','engineer','failure','productType','productSubType','warranty','voithFault','region'].forEach(v=>{
+    const labels={operator:'Operator',location:'Depot',engineer:'Engineer',failure:'Failure Type',
+      productType:'Product Type',productSubType:'Product Sub-type',warranty:'Warranty',
+      voithFault:'Liability',region:'Region'};
+    h+=`<option value="${v}"${_vorRowDim===v?' selected':''}>${labels[v]||v}</option>`;
+  });
+  h+=`</select></th>`;
   months.forEach(m=>{
     const sel=cSel(m);
-    h+=`<th class="${sel?'col-selected':''}" style="text-align:center;min-width:90px;cursor:pointer" onclick="vorTableSelect('col','${m.toISOString()}')">
-      <div>${monthLabel(m)}</div>
-      <div style="font-size:9px;color:var(--txm);font-weight:400;margin-top:2px">Cls / Att / Rct</div>
-    </th>`;
+    h+=`<th class="${sel?'col-selected':''}" style="text-align:center;min-width:90px;cursor:pointer;padding:6px 4px" onclick="vorTableSelect('col','${m}')">` +
+      `<div>${monthLabel(m)}</div>`+
+      `<div style="font-size:9px;color:var(--txm);font-weight:400;margin-top:2px">Cls&nbsp;/&nbsp;Att&nbsp;/&nbsp;Rct</div>`+
+      `</th>`;
   });
-  h+=`<th class="${avgSel?'col-selected':''}" style="text-align:center;cursor:pointer;min-width:90px" onclick="vorTableSelect('col','__avg__')">
-    <div>Avg</div>
-    <div style="font-size:9px;color:var(--txm);font-weight:400;margin-top:2px">Cls / Att / Rct</div>
-  </th></tr></thead><tbody>`;
+  h+=`<th class="${avgSel?'col-selected':''}" style="text-align:center;cursor:pointer;min-width:90px;padding:6px 4px" onclick="vorTableSelect('col','__avg__')">` +
+    `<div>Avg</div><div style="font-size:9px;color:var(--txm);font-weight:400;margin-top:2px">Cls&nbsp;/&nbsp;Att&nbsp;/&nbsp;Rct</div></th>` +
+    `</tr></thead><tbody>`;
 
-  // ── Data rows ───────────────────────────────────────────────────
   rowKeys.forEach(key=>{
     const recs=rowMap[key];
     const sel=rSel(key);
@@ -930,16 +935,14 @@ function buildVorTable(filtered, months, monthLabel){
     h+=`</tr>`;
   });
 
-  // ── Overall row ─────────────────────────────────────────────────
   h+=`<tr style="border-top:2px solid var(--bdr2)">`;
-  h+=`<td class="row-hdr" style="cursor:pointer;color:var(--teal)" onclick="vorTableSelect('row','__overall__)">&Sigma; Overall</td>`;
+  h+=`<td class="row-hdr" style="cursor:pointer;color:var(--teal)" onclick="vorTableSelect('row','__overall__')">&Sigma; Overall</td>`;
   months.forEach(m=>{
     const mr=mRecs(filtered,m);
     h+=cell3(avgClosure(mr),avgAttend(mr),avgRectify(mr),cSel(m),false);
   });
   h+=cell3(avgClosure(filtered),avgAttend(filtered),avgRectify(filtered),avgSel,true);
-  h+=`</tr></tbody>`;
-
+  h+=`</tr></tbody></table>`;
   return h;
 }
 
