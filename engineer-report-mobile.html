@@ -33,11 +33,11 @@ header{
   position:fixed;top:0;left:0;right:0;z-index:200;
   box-shadow:0 2px 8px rgba(0,0,0,.3);
 }
-.h-left{display:flex;align-items:center;gap:10px}
-.h-logo img{height:24px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1)}
-.h-title{font-size:13px;font-weight:600;opacity:.9;line-height:1.2}
+.h-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.h-logo img{height:22px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1)}
+.h-title{font-size:12px;font-weight:600;opacity:.9;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .h-ver{font-size:10px;font-family:'IBM Plex Mono',monospace;opacity:.5}
-.h-right{display:flex;align-items:center;gap:8px}
+.h-right{display:flex;align-items:center;gap:6px;overflow:hidden;flex-shrink:0}
 .hstat{font-size:11px;font-family:'IBM Plex Mono',monospace;
   padding:3px 8px;background:rgba(255,255,255,.12);
   border-radius:4px;max-width:160px;overflow:hidden;
@@ -127,10 +127,14 @@ header{
 .isection{margin-bottom:12px}
 .isection-title{font-size:11px;font-weight:700;text-transform:uppercase;
   letter-spacing:.06em;color:var(--txm);margin-bottom:8px}
-.igrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.igrid{display:flex;flex-direction:column;gap:8px}
 .irow{display:contents}
-.ilabel{font-size:11px;color:var(--txf)}
-.ival{font-size:13px;font-weight:500;color:var(--tx);word-break:break-word}
+.iitem{display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr)}
+.iitem.full{}
+.iitem label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--txf)}
+.iitem span{font-size:14px;font-weight:500;color:var(--tx);word-break:break-word;margin-top:1px}
+.ilabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--txf)}
+.ival{font-size:14px;font-weight:500;color:var(--tx);word-break:break-word}
 .icreated{font-size:11px;color:var(--txf);margin-top:4px}
 
 /* ── Form cards ─────────────────────────────────── */
@@ -501,7 +505,7 @@ header{
     <!-- Action bar -->
     <div class="abar" id="abar">
       <button type="button" class="btn primary" onclick="saveReport()">&#10003; Save Report</button>
-      <button type="button" class="btn primary" style="background:var(--green)" onclick="saveAndEmail()">&#9993; Save &amp; Email</button>
+      <button type="button" class="btn primary" id="save-email-btn" style="background:var(--green);display:none" onclick="saveAndEmail()">&#9993; Save &amp; Email</button>
       <button type="button" class="btn ghost" onclick="cancelReport()">Cancel</button>
     </div>
 
@@ -2147,12 +2151,38 @@ switchEngTab = function(tab) {
   if (tv) tv.classList.add('active');
 }
 
-// openEngPopup: override with mobile bottom sheet
-openEngPopup = function(title, sub, bodyHTML) {
+// openEngPopup: mobile override — accepts record object, builds preview bottom sheet
+openEngPopup = function(rec) {
   const bk = document.getElementById('eng-popup-bk');
-  document.getElementById('popup-title').textContent = title || '';
-  document.getElementById('popup-sub').textContent = sub || '';
-  document.getElementById('popup-body').innerHTML = bodyHTML || '';
+  const titleEl = document.getElementById('popup-title');
+  const subEl = document.getElementById('popup-sub');
+  const bodyEl = document.getElementById('popup-body');
+  if (titleEl) titleEl.textContent = (rec.ref || '') + (rec.vehicle ? ' — ' + rec.vehicle : '');
+  if (subEl) subEl.textContent = rec.operator || '';
+  // Build preview using same pi helper pattern as desktop
+  const pi = (label, val) => val ? `<div class='iitem'><label>${label}</label><span>${val}</span></div>` : '';
+  const bodyHTML = `
+    <div style='margin-bottom:12px'>
+      <div class='isection-title' style='margin-bottom:8px'>Engineer Report</div>
+      <div class='igrid'>
+        ${pi('Engineer', rec.engineer)}
+        ${pi('Region', rec.region)}
+        ${pi('Date First Attended', rec.dateAttended)}
+        ${pi('Repair Date', rec.dateRepair)}
+        ${pi('Status', rec.status)}
+        ${pi('Warranty', rec.warranty)}
+        ${pi('Liability', rec.voithFault)}
+        ${pi('Defect Rectified', rec.rectified)}
+        ${pi('Inverter S/N', rec.inverter)}
+      </div>
+    </div>
+    <div class='isection-title' style='margin-bottom:8px'>Confirm Save</div>
+    <p style='font-size:13px;color:var(--txm);margin-bottom:16px'>Review the details above then tap Confirm to save.</p>
+    <div style='display:flex;flex-direction:column;gap:10px'>
+      <button class='btn primary' onclick='confirmSaveReport(false)'>&#10003; Confirm Save</button>
+      <button class='btn ghost' onclick='closeEngPopup()'>Cancel</button>
+    </div>`;
+  if (bodyEl) bodyEl.innerHTML = bodyHTML;
   if (bk) bk.style.display = 'flex';
 }
 
@@ -2190,6 +2220,16 @@ document.addEventListener('DOMContentLoaded', function() {
     connectStorage();
   } else {
     document.getElementById('token-modal').style.display = 'flex';
+  }
+  // Show Save & Email only when repair date has a value
+  const repairInput = document.getElementById('e-date-repair');
+  if (repairInput) {
+    function updateSaveEmailVisibility() {
+      const btn = document.getElementById('save-email-btn');
+      if (btn) btn.style.display = repairInput.value ? '' : 'none';
+    }
+    repairInput.addEventListener('input', updateSaveEmailVisibility);
+    repairInput.addEventListener('change', updateSaveEmailVisibility);
   }
 });
 </script>
