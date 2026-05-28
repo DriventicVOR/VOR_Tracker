@@ -141,7 +141,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   text-transform:uppercase;letter-spacing:.06em;
 }
 .b-open{background:rgba(88,166,255,.12);color:#58a6ff}
-.b-pend{background:rgba(255,179,71,.12);color:var(--amber)}
+.b-pend{background:rgba(255,179,71,.12);color:var(--amber)}.b-parts{background:rgba(255,127,80,.15);color:#ff7f50}
 .b-done{background:rgba(0,192,107,.12);color:var(--green)}
 .b-ong{background:rgba(167,139,250,.12);color:var(--purple)}
 .tbl-empty{padding:48px;text-align:center;color:var(--grey2);font-size:13px;font-style:italic}
@@ -188,6 +188,59 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 .export-cust-label{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:4px;border:1px solid var(--bdr2);cursor:pointer;font-size:13px;transition:all .15s}.export-cust-label:has(input:checked){border-color:var(--teal);background:rgba(0,241,193,.08);color:var(--teal)}
 
 /* ── Tabs ── */
+
+/* ── Timeline modal ── */
+#tl-modal-bk{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;backdrop-filter:blur(4px)}
+#tl-modal-bk.open{display:flex}
+#tl-modal{background:var(--navy2);border:1px solid var(--bdr);border-radius:4px;width:100%;max-width:800px;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.tl-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--bdr);background:var(--navy3)}
+.tl-head h2{font-size:14px;font-weight:600;color:var(--white)}
+#tl-body{padding:22px;display:flex;flex-direction:column;gap:16px}
+.htl-outer{width:100%;padding:8px 0 0;overflow:hidden;box-sizing:border-box}
+.htl-bar-row{position:relative;height:16px;background:var(--navy3);border:1px solid var(--bdr2);border-radius:3px;margin-bottom:28px;width:100%}
+.htl-marker{position:absolute;top:50%;width:13px;height:13px;background:var(--teal);border:none;border-radius:0;transform:translate(-50%,-50%) rotate(45deg);cursor:pointer;z-index:2;transition:box-shadow .15s;box-shadow:0 0 4px rgba(0,241,193,.4)}
+.htl-marker:hover{box-shadow:0 0 12px rgba(0,241,193,.8)}
+.htl-ticks-row{position:relative;height:32px;width:100%}
+.htl-rulers{width:100%;margin-bottom:6px}
+.htl-ruler-row{position:relative;height:22px;width:100%;margin-bottom:2px}
+.htl-ruler{position:absolute;top:0;height:100%;display:flex;flex-direction:row;align-items:center;min-width:20px;gap:0}
+.htl-ruler-line{flex:1;height:2px;background:rgba(0,241,193,.35);position:relative}
+.htl-ruler-line:first-child::before{content:'';position:absolute;left:0;top:-3px;width:2px;height:8px;background:rgba(0,241,193,.6)}
+.htl-ruler-line:last-child::after{content:'';position:absolute;right:0;top:-3px;width:2px;height:8px;background:rgba(0,241,193,.6)}
+.htl-ruler-label{font-size:9px;color:var(--teal2);font-family:'IBM Plex Mono',monospace;white-space:nowrap;letter-spacing:.04em;padding:0 5px;flex-shrink:0}
+.htl-tick{position:absolute;top:2px;display:flex;flex-direction:column;align-items:center}
+.htl-tick-line{display:none}
+.htl-tick-label{font-size:9px;color:var(--grey);font-family:'IBM Plex Mono',monospace;white-space:nowrap;letter-spacing:.02em}
+#htl-shared-tip{position:fixed;background:var(--navy3);border:1px solid var(--bdr2);color:var(--offwhite);padding:8px 12px;border-radius:3px;font-size:12px;pointer-events:none;z-index:9999;display:none;max-width:280px;font-family:'IBM Plex Mono',monospace}
+.vtl{position:relative;padding:4px 0 4px 40px}
+.vtl-line{position:absolute;left:15px;top:0;bottom:0;width:2px;background:rgba(0,241,193,.15)}
+.vtl-item{position:relative;margin-bottom:12px;cursor:pointer}
+.vtl-item:hover .vtl-card{border-color:var(--teal2);background:rgba(0,241,193,.03)}
+.vtl-dot{position:absolute;left:-35px;top:10px;width:11px;height:11px;border-radius:0;border:none;transform:rotate(45deg);z-index:1;background:var(--teal)}
+.vtl-dot-rep{background:var(--purple)!important}
+.vtl-dot-iv{background:var(--grey2)!important}
+.vtl-dot-po{background:#ff7f50!important}
+.vtl-dot-closed{background:var(--green)!important}
+.htl-rep{background:var(--purple)!important;box-shadow:0 0 4px rgba(167,139,250,.4)!important}
+.htl-rep:hover{box-shadow:0 0 10px rgba(167,139,250,.8)!important}
+.htl-done{background:var(--green)!important;box-shadow:0 0 4px rgba(0,192,107,.4)!important}
+.htl-done:hover{box-shadow:0 0 10px rgba(0,192,107,.8)!important}
+.htl-v1{background:var(--teal)!important;box-shadow:0 0 6px rgba(0,241,193,.5)!important}
+.htl-v1:hover{box-shadow:0 0 12px rgba(0,241,193,.9)!important}
+.vtl-card{background:var(--navy3);border:1px solid var(--bdr);border-radius:3px;padding:10px 14px;transition:border-color .15s}
+.vtl-date{font-size:10px;color:var(--grey);margin-bottom:3px;font-family:'IBM Plex Mono',monospace}
+.vtl-ref{font-size:13px;font-weight:600;color:var(--white);display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.vtl-detail{font-size:11px;color:var(--grey);margin-top:4px}
+.vtl-badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.htl-iv{background:var(--grey2)!important;box-shadow:0 0 4px rgba(148,163,184,.4)!important}
+.htl-iv:hover{box-shadow:0 0 10px rgba(148,163,184,.8)!important}
+.vtl-iv{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr)}
+.vtl-iv-dot{width:7px;height:7px;border-radius:50%;background:var(--grey2);flex-shrink:0}
+.vtl-iv-label{font-size:11px;color:var(--grey);line-height:1.4}
+.htl-po{background:#ff7f50!important;box-shadow:0 0 4px rgba(255,127,80,.4)!important}
+.htl-po:hover{box-shadow:0 0 10px rgba(255,127,80,.8)!important}
+.vtl-po{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr)}
+.vtl-po-dot{width:7px;height:7px;border-radius:2px;background:#ff7f50;flex-shrink:0}
 .tab-nav{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:0}
 .tab-btn{padding:10px 22px;font-size:12px;font-weight:600;text-transform:uppercase;
   letter-spacing:.06em;cursor:pointer;border:none;background:none;color:var(--grey);
@@ -250,7 +303,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo">
       <img src="data:image/png;base64,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" alt="Driventic">
-      <span>v4.61</span>
+      <span>v4.83</span>
     </div>
     <div class="htitle">VOR Dashboard</div>
   </div>
@@ -356,6 +409,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
           <option value="">All statuses</option>
           <option value="Open">Open</option>
           <option value="Awaiting report">Awaiting report</option>
+          <option value="Awaiting Parts">Awaiting Parts</option>
           <option value="Ongoing">Ongoing</option>
           <option value="Closed">Closed</option>
           <option value="Rectified">Rectified</option>
@@ -928,7 +982,10 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div class="modal">
     <div class="modal-header">
       <h2 id="detail-title">Record Detail</h2>
-      <button class="modal-close" onclick="closeDetail()">&#x2715;</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="detail-tl-btn" class="btn btn-ghost btn-sm" style="display:none">&#128337; View Timeline</button>
+        <button class="modal-close" onclick="closeDetail()">&#x2715;</button>
+      </div>
     </div>
     <div class="modal-body" id="detail-body"></div>
   </div>
@@ -968,6 +1025,22 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 
 
 // ── Chart / table export ──────────────────────────────────────────
+function calcRecordStatus(att, rep, rect, partsOrdered) {
+  if (rep) return 'Closed';
+  if (!att) return 'Open';
+  // Check for awaiting parts: today falls between dateOrdered and dateExpected
+  const today = new Date(); today.setHours(0,0,0,0);
+  const hasActivePart = (partsOrdered||[]).some(p => {
+    if (!p.dateOrdered || !p.dateExpected) return false;
+    const d0 = new Date(p.dateOrdered); d0.setHours(0,0,0,0);
+    const d1 = new Date(p.dateExpected); d1.setHours(0,0,0,0);
+    return today >= d0 && today <= d1;
+  });
+  if (hasActivePart) return 'Awaiting Parts';
+  if (rect === 'ONGOING') return 'Ongoing';
+  return 'Awaiting report';
+}
+
 function showToast(msg,type){
   const t=document.getElementById('dash-toast');
   if(!t)return;
@@ -1069,7 +1142,7 @@ function renderMileageTab(){
   const liabsAllmil=[...new Set(allForSlicers.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_milLiabs.size)_milLiabs=new Set(liabsAllmil);
   renderSlicer('slicer-mil-liab-items',liabsAllmil,_milLiabs,'milLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_milStatuses.size)_milStatuses=new Set(statuses);
   renderSlicer('slicer-mil-status-items',statuses,_milStatuses,'milStatus');
 
@@ -1338,7 +1411,7 @@ function renderAgeTab(){
   const liabsAllage=[...new Set(allForSlicers.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_ageLiabs.size)_ageLiabs=new Set(liabsAllage);
   renderSlicer('slicer-age-liab-items',liabsAllage,_ageLiabs,'ageLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_ageStatuses.size)_ageStatuses=new Set(statuses);
   renderSlicer('slicer-age-status-items',statuses,_ageStatuses,'ageStatus');
 
@@ -1614,7 +1687,7 @@ function renderUsageTab(){
   const liabsAllusage=[...new Set(allR.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_usageLiabs.size)_usageLiabs=new Set(liabsAllusage);
   renderSlicer('slicer-usage-liab-items',liabsAllusage,_usageLiabs,'usageLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_usageStatuses.size)_usageStatuses=new Set(statuses);
   renderSlicer('slicer-usage-status-items',statuses,_usageStatuses,'usageStatus');
 
@@ -1793,7 +1866,7 @@ function renderCompTab(){
   const liabsAllcomp=[...new Set(allR.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_compLiabs.size)_compLiabs=new Set(liabsAllcomp);
   renderSlicer('slicer-comp-liab-items',liabsAllcomp,_compLiabs,'compLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_compStatuses.size)_compStatuses=new Set(statuses);
   renderSlicer('slicer-comp-status-items',statuses,_compStatuses,'compStatus');
 
@@ -1923,7 +1996,7 @@ function renderDefectsTab(){
   const liabsAlldef=[...new Set(allR.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_defLiabs.size)_defLiabs=new Set(liabsAlldef);
   renderSlicer('slicer-def-liab-items',liabsAlldef,_defLiabs,'defLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_defStatuses.size)_defStatuses=new Set(statuses);
   renderSlicer('slicer-def-status-items',statuses,_defStatuses,'defStatus');
   const filtered=allR.filter(r=>{
@@ -2016,7 +2089,7 @@ function renderLiabilityTab(){
   renderSlicer('slicer-liab-pt-items',ptsAll,_liabPTs,'liabPT');
   renderSlicer('slicer-liab-sub-items',subsAll,_liabSubs,'liabSub');
   renderSlicer('slicer-liab-liab-items',liabsAll,_liabLiabs,'liabLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_liabStatuses.size)_liabStatuses=new Set(statuses);
   renderSlicer('slicer-liab-status-items',statuses,_liabStatuses,'liabStatus');
   const filtered=allR.filter(r=>{
@@ -2562,7 +2635,7 @@ function renderVorDaysTab(){
   const liabsAllvor=[...new Set(allRecords.map(r=>liabLabel(r.voithFault)))].sort();
   if(!_vorLiabs.size)_vorLiabs=new Set(liabsAllvor);
   renderSlicer('slicer-vor-liab-items',liabsAllvor,_vorLiabs,'vorLiab');
-  const statuses=['Open','Ongoing','Awaiting report','Closed','Rectified'];
+  const statuses=['Open','Ongoing','Awaiting report','Awaiting Parts','Closed','Rectified'];
   if(!_vorStatuses.size)_vorStatuses=new Set(statuses);
   renderSlicer('slicer-vor-status-items',statuses,_vorStatuses,'vorStatus');
   // Wire slicer border clicks for graph grouping
@@ -2937,8 +3010,8 @@ function mkChart(id,type,labels,data,colors){
 
 function updateCharts(recs){
   // Build status chart dynamically from actual data
-  const STATUS_ORDER=['Open','Awaiting report','Ongoing','Closed','Rectified'];
-  const STATUS_COLORS={'Open':'#58a6ff','Awaiting report':'#ffb347','Ongoing':'#a78bfa','Closed':'#00c06b','Rectified':'#2ea043'};
+  const STATUS_ORDER=['Open','Awaiting report','Awaiting Parts','Ongoing','Closed','Rectified'];
+  const STATUS_COLORS={'Open':'#58a6ff','Awaiting report':'#ffb347','Awaiting Parts':'#ff7f50','Ongoing':'#a78bfa','Closed':'#00c06b','Rectified':'#2ea043'};
   const statusMap=count(recs,'status');
   // Include all statuses found in data + standard ones with >0 count
   const allStatuses=[...new Set([...STATUS_ORDER,...Object.keys(statusMap)])].filter(s=>statusMap[s]>0);
@@ -2990,7 +3063,7 @@ function renderTable(){
   const empty=document.getElementById('table-empty');
   if(!recs.length){tbody.innerHTML='';empty.style.display='';return;}
   empty.style.display='none';
-  const sc={'Open':'b-open','Awaiting report':'b-pend','Ongoing':'b-ong','Closed':'b-done','Rectified':'b-done'};
+  const sc={'Open':'b-open','Awaiting report':'b-pend','Awaiting Parts':'b-parts','Ongoing':'b-ong','Closed':'b-done','Rectified':'b-done'};
   tbody.innerHTML=recs.map(r=>`
     <tr onclick='openDetail(${JSON.stringify(JSON.stringify(r))})'>
       <td class="mono">${r.ref||'—'}</td>
@@ -3028,8 +3101,10 @@ function fmtDate(d){
 
 function openDetail(recStr){
   const rec=JSON.parse(recStr);
-  const sc={'Open':'b-open','Awaiting report':'b-pend','Ongoing':'b-ong','Closed':'b-done','Rectified':'b-done'};
+  const sc={'Open':'b-open','Awaiting report':'b-pend','Awaiting Parts':'b-parts','Ongoing':'b-ong','Closed':'b-done','Rectified':'b-done'};
   document.getElementById('detail-title').textContent=rec.ref+(rec.vehicle?' — '+rec.vehicle:'')+(rec.operator?'  ('+rec.operator+')':'');
+  const _tlB=document.getElementById('detail-tl-btn');
+  if(_tlB){_tlB.style.display='';_tlB.onclick=(function(_r){return function(){closeDetail();openTlModal(_r);};})(rec);}
   const di=(lbl,val,full)=>`<div class="di${full?' full':''}" ><label>${lbl}</label><span>${val||'—'}</span></div>`;
   document.getElementById('detail-body').innerHTML=`
     <div style="display:flex;align-items:center;gap:10px">
@@ -3072,9 +3147,216 @@ function openDetail(recStr){
               return s;
             }).filter(Boolean).join('<br><br>')
           : [rec.comp1,rec.comp2,rec.comp3].filter(Boolean).join('<br>')||'—', true)}
+      ${rec.partsOrdered&&rec.partsOrdered.length?di('Parts Ordered',
+        rec.partsOrdered.map((p,i)=>'Order '+(i+1)+': '+[p.dateOrdered&&'Ordered: '+p.dateOrdered,p.dateExpected&&'Expected: '+p.dateExpected,p.partNumber&&'Part #: '+p.partNumber].filter(Boolean).join(' · ')).join('<br>'),true):''}
       ${di('Initial SW',rec.swInitial)}${di('Final SW',rec.swFinal)}
-    </div></div>`;
+    </div></div>
+    ${rec.statusHistory&&rec.statusHistory.length>1?`
+    <div class='detail-sec'><h4>Status History</h4><div class='detail-grid'>
+      ${rec.statusHistory.map((h,i)=>
+        di(''+(i+1),h.status+(h.date?' &nbsp;<span style="font-size:11px;color:var(--grey)">'+new Date(h.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})+'</span>':''),false)
+      ).join('')}
+    </div></div>`:''}
+  `;
   document.getElementById('detail-modal').classList.add('open');
+}
+
+
+function closeTlModal(){
+  document.getElementById('tl-modal-bk').classList.remove('open');
+  document.getElementById('tl-body').innerHTML='';
+}
+
+function openTlModal(rec){
+  const matches=allRecords.filter(r=>
+    (rec.vehicle&&r.vehicle===rec.vehicle)||
+    (rec.fleetNumber&&r.fleetNumber===rec.fleetNumber)||
+    (rec.registration&&r.registration===rec.registration)
+  ).sort((a,b)=>new Date(a.dateReported||0)-new Date(b.dateReported||0));
+  const sc={'Open':'b-open','Awaiting report':'b-pend','Awaiting Parts':'b-parts','Ongoing':'b-ong','Closed':'b-done','Rectified':'b-done'};
+  const dotCls={'Open':'','Awaiting report':'pend','Awaiting Parts':'parts','Ongoing':'ongoing','Closed':'closed','Rectified':'closed'};
+  const _statusBadgeHtml='<span class="vtl-badge '+(sc[rec.status]||'b-pend')+'" style="vertical-align:middle">'+(rec.status||'Open')+'</span>';
+  document.getElementById('tl-title').innerHTML=
+    'Vehicle Timeline — '+rec.ref
+    +(rec.vehicle?' — '+rec.vehicle:'')
+    +' &nbsp;'+_statusBadgeHtml;
+  // HTL range: start = rec.dateReported, end = today (or dateRepair if closed)
+  const _isClosed=['Closed','Rectified'].includes(rec.status);
+  const _sd=new Date(rec.dateReported||0);_sd.setHours(0,0,0,0);
+  const _ed=_isClosed&&rec.dateRepair?new Date(rec.dateRepair):new Date();
+  _ed.setHours(23,59,59,999);
+  let htlHtml='';
+  if(!isNaN(_sd)){
+    // Collect all event dates to find true range
+    const _allEvtDates=[];
+    matches.forEach(function(r){
+      if(r.dateReported)_allEvtDates.push(new Date(r.dateReported));
+      if(r.dateAttended)_allEvtDates.push(new Date(r.dateAttended));
+      if(r.dateRepair)_allEvtDates.push(new Date(r.dateRepair));
+      (r.interimVisits||[]).forEach(function(v){if(v.date)_allEvtDates.push(new Date(v.date));});
+      (r.partsOrdered||[]).forEach(function(p){if(p.dateOrdered)_allEvtDates.push(new Date(p.dateOrdered));});
+    });
+    const _validDates=_allEvtDates.filter(d=>!isNaN(d));
+    const _earliest=_validDates.length?new Date(Math.min(..._validDates)):_sd;
+    const _latest=_validDates.length?new Date(Math.max(..._validDates)):_ed;
+    const sd=new Date(_earliest);sd.setDate(sd.getDate()-3);
+    const ed=new Date(_latest);ed.setDate(ed.getDate()+3);
+    const tot=Math.max(ed-sd,1);
+    const pct=d=>Math.max(0,Math.min(100,(new Date(d)-sd)/tot*100));
+    const fmtD=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+    window._tlMD=[];
+    // Build all marker data: reported date + interim visits per record
+    const mrkHtml=matches.map((r,i)=>{
+      const d=new Date(r.dateReported||0);if(isNaN(d))return '';
+      // Reported date marker (status-coloured)
+      window._tlMD.push({tip:'Reported: '+(r.dateReported||'?'),ref:r.ref,type:'report'});
+      let html='<div class="htl-marker htl-rep" data-ti="'+(window._tlMD.length-1)+'" style="left:'+pct(d).toFixed(2)+'%"></div>';
+      // Visit 1 marker (teal)
+      if(r.dateAttended){
+        const da=new Date(r.dateAttended);if(!isNaN(da)){
+          window._tlMD.push({tip:'Visit 1: '+r.dateAttended,ref:r.ref,type:'attended'});
+          html+='<div class="htl-marker htl-v1" data-ti="'+(window._tlMD.length-1)+'" style="left:'+pct(da).toFixed(2)+'%"></div>';
+        }
+      }
+      // Repair date marker
+      if(r.dateRepair){
+        const dr=new Date(r.dateRepair);if(!isNaN(dr)){
+          window._tlMD.push({tip:'Repaired: '+r.dateRepair,ref:r.ref,type:'repair'});
+          html+='<div class="htl-marker htl-done" data-ti="'+(window._tlMD.length-1)+'" style="left:'+pct(dr).toFixed(2)+'%"></div>';
+        }
+      }
+      // Interim visit markers — sorted by date
+      const _ivSorted=(r.interimVisits||[]).filter(function(v){return v.date;})
+        .slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+      _ivSorted.forEach(function(v,vi){
+        const dv=new Date(v.date);if(isNaN(dv))return;
+        window._tlMD.push({tip:'Visit '+(vi+2)+': '+v.date+(v.comments?' — '+v.comments:''),ref:r.ref,type:'interim'});
+        html+='<div class="htl-marker htl-iv" data-ti="'+(window._tlMD.length-1)+'" style="left:'+pct(dv).toFixed(2)+'%"></div>';
+      });
+      // Parts ordered markers
+      (r.partsOrdered||[]).forEach(function(p,pi){
+        if(!p.dateOrdered)return;
+        const dp=new Date(p.dateOrdered);if(isNaN(dp))return;
+        const tip='Part '+(pi+1)+(p.partNumber?' ('+p.partNumber+')':'')+': Ordered '+p.dateOrdered+(p.dateExpected?' — Expected '+p.dateExpected:'');
+        window._tlMD.push({tip:tip,ref:r.ref,type:'part'});
+        html+='<div class="htl-marker htl-po" data-ti="'+(window._tlMD.length-1)+'" style="left:'+pct(dp).toFixed(2)+'%"></div>';
+      });
+      return html;
+    }).filter(Boolean).join('');
+    // Per-marker date labels below each diamond
+    const lblHtml=window._tlMD.map(function(md){
+      const dateMatch=(md.tip||'').match(/(\d{4}-\d{2}-\d{2})/);
+      if(!dateMatch)return '';
+      const d=new Date(dateMatch[1]);if(isNaN(d))return '';
+      const p=pct(d).toFixed(2);
+      const tr=parseFloat(p)<5?'translateX(0)':parseFloat(p)>95?'translateX(-100%)':'translateX(-50%)';
+      return '<div class="htl-tick" style="left:'+p+'%;transform:'+tr+'">'
+        +'<div class="htl-tick-label">'+fmtD(d)+'</div></div>';
+    }).filter(Boolean).join('');
+    // ── Day-span ruler rows ──────────────────────────────────
+    // Last event date (for span 2)
+    const _lastEvt=_validDates.length?new Date(Math.max(..._validDates)):_ed;
+    const _msDay=86400000;
+    const _daysTotal=Math.round((_lastEvt-_sd)/_msDay);
+    const _daysToAtt=rec.dateAttended?Math.round((new Date(rec.dateAttended)-_sd)/_msDay):null;
+    const _daysFromAtt=rec.dateAttended?Math.round((_lastEvt-new Date(rec.dateAttended))/_msDay):null;
+    // pct positions
+    const _pRep=pct(_sd).toFixed(2);        // 0
+    const _pAtt=rec.dateAttended?pct(new Date(rec.dateAttended)).toFixed(2):null;
+    const _pEnd=pct(_lastEvt).toFixed(2);
+    // Row 1: full span reported → last
+    const _rl=function(days){'<div class="htl-ruler-line"></div><div class="htl-ruler-label">'+days+' day'+(days===1?'':'s')+'</div><div class="htl-ruler-line"></div>';}
+    const _ruler1=_daysTotal>0
+      ?'<div class="htl-ruler" style="left:'+_pRep+'%;width:'+(parseFloat(_pEnd)-parseFloat(_pRep)).toFixed(2)+'%">'
+        +'<div class="htl-ruler-line"></div>'
+        +'<div class="htl-ruler-label">'+_daysTotal+' day'+(_daysTotal===1?'':'s')+'</div>'
+        +'<div class="htl-ruler-line"></div>'
+        +'</div>':''
+    // Row 2a: reported → attended
+    const _ruler2a=_pAtt&&_daysToAtt>0
+      ?'<div class="htl-ruler" style="left:'+_pRep+'%;width:'+(parseFloat(_pAtt)-parseFloat(_pRep)).toFixed(2)+'%">'
+        +'<div class="htl-ruler-line"></div>'
+        +'<div class="htl-ruler-label">'+_daysToAtt+' day'+(_daysToAtt===1?'':'s')+'</div>'
+        +'<div class="htl-ruler-line"></div>'
+        +'</div>':''
+    // Row 2b: attended → last
+    const _ruler2b=_pAtt&&_daysFromAtt>0
+      ?'<div class="htl-ruler" style="left:'+_pAtt+'%;width:'+(parseFloat(_pEnd)-parseFloat(_pAtt)).toFixed(2)+'%">'
+        +'<div class="htl-ruler-line"></div>'
+        +'<div class="htl-ruler-label">'+_daysFromAtt+' day'+(_daysFromAtt===1?'':'s')+'</div>'
+        +'<div class="htl-ruler-line"></div>'
+        +'</div>':''
+    const _rulersHtml=(_ruler1||_ruler2a||_ruler2b)
+      ?'<div class="htl-rulers">'
+        +(_ruler1?'<div class="htl-ruler-row">'+_ruler1+'</div>':'')
+        +((_ruler2a||_ruler2b)?'<div class="htl-ruler-row">'+(_ruler2a||'')+(_ruler2b||'')+'</div>':'')
+        +'</div>':''
+    htlHtml='<div class="htl-outer">'+_rulersHtml+'<div class="htl-bar-row" id="tl-htl-bar">'+mrkHtml+'</div>'
+      +'<div class="htl-ticks-row">'+lblHtml+'</div></div>';
+  }
+  // Build flat event list matching the HTL markers
+  const vtlEvents=[];
+  matches.forEach(function(r){
+    const statusBadge='<span class="vtl-badge '+(sc[r.status]||'b-pend')+'">'+(r.status||'Open')+'</span>';
+    const depot=(r.operator&&r.location?r.operator+' — '+r.location:r.operator||r.location||'');
+    // Date reported — always shown
+    if(r.dateReported) vtlEvents.push({date:r.dateReported,type:'report',ref:r.ref,
+      label:r.ref+' — Reported',extra:'',dot:'rep',
+      sub:depot,clickRef:r.ref});
+    // Date first attended — Visit 1 (teal dot, no status badge)
+    if(r.dateAttended) vtlEvents.push({date:r.dateAttended,type:'attended',ref:r.ref,
+      label:r.ref+' — Visit 1',extra:'',dot:'',
+      sub:depot+(r.engineer?' · '+r.engineer:''),clickRef:r.ref});
+    // Interim visits — sorted by date
+    const _vtlIvSorted=(r.interimVisits||[]).filter(function(v){return v.date;})
+      .slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+    _vtlIvSorted.forEach(function(v,vi){
+      vtlEvents.push({date:v.date,type:'interim',ref:r.ref,
+        label:r.ref+' — Visit '+(vi+2),extra:'',dot:'iv',
+        sub:v.comments||'',desc:'',clickRef:r.ref});
+    });
+    // Parts ordered
+    (r.partsOrdered||[]).forEach(function(p,pi){
+      if(!p.dateOrdered)return;
+      const pLabel='Part '+(pi+1)+(p.partNumber?' — '+p.partNumber:'');
+      vtlEvents.push({date:p.dateOrdered,type:'part',ref:r.ref,
+        label:r.ref+' — '+pLabel,extra:'',dot:'po',
+        sub:(p.dateExpected?'Expected '+p.dateExpected:''),desc:'',clickRef:r.ref});
+    });
+    // Repair date
+    if(r.dateRepair) vtlEvents.push({date:r.dateRepair,type:'repair',ref:r.ref,
+      label:r.ref+' — Repaired',extra:'',dot:'closed',
+      sub:'',desc:'',clickRef:r.ref});
+  });
+  vtlEvents.sort(function(a,b){return new Date(a.date)-new Date(b.date);});
+  const vtlHtml='<div class="vtl"><div class="vtl-line"></div>'
+    +vtlEvents.map(function(ev){
+      const dotClass='vtl-dot'+(ev.dot?' vtl-dot-'+ev.dot:'');
+      return '<div class="vtl-item" onclick="(function(){closeTlModal();var _r=allRecords.find(function(x){return x.ref===\''+ev.clickRef+'\';});if(_r)openDetail(JSON.stringify(_r));})();">'
+        +'<div class="'+dotClass+'"></div>'
+        +'<div class="vtl-card">'
+        +'<div class="vtl-date">'+ev.date+'</div>'
+        +'<div class="vtl-ref">'+ev.label+'</div>'
+        +'</div></div>';
+    }).join('')+'</div>';
+  document.getElementById('tl-body').innerHTML=
+    '<div style="padding:0 0 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey)">'
+    +matches.length+' record'+(matches.length===1?'':'s')+' found for this vehicle</div>'
+    +htlHtml+'<div style="margin-top:8px">'+vtlHtml+'</div>';
+  document.getElementById('tl-modal-bk').classList.add('open');
+  document.querySelectorAll('#tl-htl-bar .htl-marker').forEach(function(el){
+    const i=parseInt(el.getAttribute('data-ti'));
+    const d=(window._tlMD||[])[i];if(!d)return;
+    el.addEventListener('mouseenter',function(e){
+      const tip=document.getElementById('htl-shared-tip');if(!tip)return;
+      tip.textContent=d.tip;tip.style.display='block';
+      const tw=tip.offsetWidth||200;
+      tip.style.left=Math.max(4,Math.min(e.clientX,window.innerWidth-tw-8))+'px';
+      tip.style.top=Math.max(4,e.clientY-52)+'px';
+    });
+    el.addEventListener('mouseleave',function(){const tip=document.getElementById('htl-shared-tip');if(tip)tip.style.display='none';});
+    el.addEventListener('click',function(){const r=allRecords.find(x=>x.ref===d.ref);if(r){closeTlModal();openDetail(JSON.stringify(r));}});
+  });
 }
 
 function closeDetail(){document.getElementById('detail-modal').classList.remove('open');}
@@ -3135,5 +3417,11 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 
 <div class="dash-toast" id="dash-toast"></div>
+<div id="tl-modal-bk"><div id="tl-modal">
+  <div class="tl-head"><h2 id="tl-title">Vehicle Timeline</h2>
+  <button class="modal-close" onclick="closeTlModal()">&#x2715;</button></div>
+  <div id="tl-body"></div>
+</div></div>
+<div id="htl-shared-tip"></div>
 </body>
 </html>
