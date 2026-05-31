@@ -371,7 +371,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.41</div>
+      <div class="h-ver">v3.45</div>
     </div>
   </div>
   <div class="h-right">
@@ -2606,9 +2606,8 @@ function toolRenderList(engineer){
       +'<div style="flex:1;min-width:0">'
       +'<div style="font-family:IBM Plex Mono,monospace;font-size:12px;color:var(--tx);font-weight:600">'+safePn+'</div>'
       +'<div style="font-size:13px;color:var(--tx);margin-top:2px">'+safeName+'</div>'
-      +(isAvail?'<div style="font-size:11px;color:var(--txm);margin-top:2px">'+qtyLabel+'</div>':'')
+      +'<div style="font-size:11px;color:var(--txm);margin-top:2px">'+qtyLabel+'</div>'
       +'</div>'
-      +(isAvail?'<div style="font-size:11px;color:var(--txm);white-space:nowrap">'+qtyLabel+'</div>':'')
       +btns
       +'</div>';
   }).join('');
@@ -2634,11 +2633,11 @@ function toolShowEngineersForItem(pn){
     if(found)engineers.push({eng:eng,qty:found.qty||1});
   });
   if(!engineers.length)return;
-  var subList=document.createElement('tr');
+  var subList=document.createElement('div');
   subList.className='tool-eng-sublist';
+  subList.style.cssText='background:#f0f4f8;border-bottom:1px solid var(--bdr);padding:6px 8px 8px 16px';
   subList.innerHTML=
-    '<td colspan="4" style="padding:4px 8px 8px 20px;border-bottom:1px solid var(--bdr);">'
-    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txm);padding:4px 0">Engineers with this tool</div>'
+    '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--txm);padding:4px 0 4px">Engineers with this tool</div>'
     +engineers.map(function(e){
       var safeEng=e.eng.replace(/"/g,'&quot;');
       return '<div class="tool-eng-subitem" onclick="toolSearchGoToEngineer(this.dataset.eng)" data-eng="'+safeEng+'"'
@@ -2646,8 +2645,7 @@ function toolShowEngineersForItem(pn){
         +'<span style="color:var(--tx);font-size:13px">↪ '+e.eng+'</span>'
         +'<span style="color:var(--txm);font-size:11px">'+e.qty+' item'+(e.qty!==1?'s':'')+'</span>'
         +'</div>';
-    }).join('')
-    +'</td>';
+    }).join('');
   clickedRow.parentNode.insertBefore(subList, clickedRow.nextSibling);
 }
 
@@ -2728,7 +2726,7 @@ function toolSearchExpandEngineers(row){
     var safeEng=eng.replace(/"/g,'&quot;');
     return '<div onclick="event.stopPropagation();toolSearchGoToEngineer(\''+safeEng+'\')"'
       +' style="padding:7px 12px 7px 20px;border-top:1px solid var(--bdr);cursor:pointer;font-size:13px;display:flex;justify-content:space-between;align-items:center"'
-      +' onmouseover="this.style.background=\'var(--navy,#0a0f1e)\'"'
+      +' onmouseover="this.style.background=\'#e2eaf2\'"'
       +' onmouseout="this.style.background=\'\'">'
       +'<span style="color:var(--tx)">↪ '+eng+'</span>'
       +'<span style="color:var(--txm);font-size:11px">'+qty+' item'+(qty!==1?'s':'')+'</span>'
@@ -2753,14 +2751,14 @@ function toolSearchSelect(engineer){
   toolRenderList(eng);
 }
 function toolTransferByRow(btn){
-  var tr=btn.closest('tr');if(!tr)return;
+  var tr=btn.closest('[data-eng-pn]');if(!tr)return;
   var _eng=tr.dataset.engName,_pn=tr.dataset.engPn;
   var _idx=(_toolData[_eng]||[]).findIndex(function(t){return t.partNumber===_pn;});
   if(_idx<0){showToast('Tool not found','error');return;}
   toolTransferOpen(_eng,_idx);
 }
 function toolRemoveByRow(btn){
-  var tr=btn.closest('tr');if(!tr)return;
+  var tr=btn.closest('[data-eng-pn]');if(!tr)return;
   var _eng=tr.dataset.engName,_pn=tr.dataset.engPn;
   var _idx=(_toolData[_eng]||[]).findIndex(function(t){return t.partNumber===_pn;});
   if(_idx<0){showToast('Tool not found','error');return;}
