@@ -371,7 +371,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.48</div>
+      <div class="h-ver">v3.50</div>
     </div>
   </div>
   <div class="h-right">
@@ -475,6 +475,10 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div class="fg">
           <label>Date First Attended</label>
           <input type="date" id="e-date-att" oninput="updateVisitCount()" required>
+        </div>
+        <div class="fg">
+          <label>Vehicle Unavailable on Attendance</label>
+          <input type="checkbox" id="e-unavail-att" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal)">
         </div>
         <div class="fg">
           <label>Actually VOR</label>
@@ -1058,13 +1062,17 @@ function statusDate(rec, status) {
   if (status === 'Awaiting report' || status === 'Ongoing') return rec.dateAttended || new Date().toISOString().slice(0,10);
   return rec.dateReported || new Date().toISOString().slice(0,10);
 }
-function calcRecordStatus(att, rep, rect, partsOrdered, interimVisits) {
+function calcRecordStatus(att, rep, rect, partsOrdered, interimVisits, vehicleUnavailableOnAttend) {
   if (rep) return 'Closed';
   if (!att) return 'Open';
-  // Check if most recent interim visit has vehicle unavailable
+  // Check vehicle unavailable: attendance date or most recent interim visit
   const visits = (interimVisits||[]).filter(v=>v.date);
-  if (visits.length) {
-    const latest = visits.reduce((a,b)=>a.date>b.date?a:b);
+  // Build synthetic list: attendance + interim visits
+  const allVisits = [];
+  if (att) allVisits.push({date:att, vehicleUnavailable: vehicleUnavailableOnAttend==='Y'?'Y':'N'});
+  visits.forEach(v=>allVisits.push(v));
+  if (allVisits.length) {
+    const latest = allVisits.reduce((a,b)=>a.date>b.date?a:b);
     if (latest.vehicleUnavailable==='Y') return 'Vehicle Unavailable';
   }
   // Check for awaiting parts: today falls between dateOrdered and dateExpected
@@ -1491,7 +1499,7 @@ function loadRecord(){
   populateInfoPanel(rec);
 
   window._currentProductType=rec.productType||'VEDS';
-  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.checked=rec.vehicleUnavailableOnAttend==='Y';sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
 
   renderCustomEngineerFields(rec.customFields||{});
   enableForm();
@@ -1738,7 +1746,7 @@ async function saveReport(){
   // Build the updated record but don't save yet
   _pendingRecord={...allRecords[idx],
     engineer:gv('e-engineer'),region:gv('e-region'),
-    dateAttended:gv('e-date-att'),actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
+    dateAttended:gv('e-date-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.checked?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
     interimVisits:getInterimVisits(),partsOrdered:getPartsOrdered(),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
@@ -1747,7 +1755,7 @@ async function saveReport(){
     status:(()=>{
       const att=gv('e-date-att');
       const rep=gv('e-date-repair');
-      return calcRecordStatus(att, rep, rect, getPartsOrdered(), getInterimVisits());
+      return calcRecordStatus(att, rep, rect, getPartsOrdered(), getInterimVisits(), document.getElementById('e-unavail-att')?.checked?'Y':'N');
     })(),
     vorDays:calcVorDays(gv('e-date-repair')?allRecords[idx].dateReported:'',gv('e-date-repair')),
     updatedAt:new Date().toISOString(),customFields:customData};
