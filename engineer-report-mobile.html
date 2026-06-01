@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.70</div>
+      <div class="h-ver">v3.71</div>
     </div>
   </div>
   <div class="h-right">
@@ -1690,7 +1690,10 @@ async function saveEmobRequest(){
     +'\nFURTHER DETAILS/COMMENTS\n--------------------------------\n'+emobData.furtherComments+'\n';
 
   var subject='eMob Support Request - '+reqKey+' - '+val(rec.vehicle)+' ('+val(rec.operator)+')';
-  window.location.href='mailto:Emobility@driventic.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  var emobRecipients=(config.emobMailingList||[]).filter(Boolean);
+  if(!emobRecipients.length){showToast('No eMob mailing list configured — email not sent','error');}
+  else{window.location.href='mailto:'+emobRecipients.join(',')
+    +'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);}
 
   // ── Clear form ────────────────────────────────────────────────
   clearEmobForm();
