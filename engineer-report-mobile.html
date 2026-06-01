@@ -361,6 +361,8 @@ header{
 
 input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:24px;height:24px;min-width:24px;border-radius:4px;border:2px solid var(--bdr2,#4a5568);background:var(--surf,#1a2234);cursor:pointer;flex-shrink:0;position:relative;transition:background .15s,border-color .15s;}input[type='checkbox'].iv-unavail:checked{background:var(--blu,#1d4d73);border-color:var(--blu,#1d4d73);}input[type='checkbox'].iv-unavail:checked::after{content:'';position:absolute;left:6px;top:3px;width:6px;height:11px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(40deg);}
 .tool-inv-row{cursor:pointer;transition:background .1s}.tool-inv-row:hover{background:rgba(0,0,0,0.04)}.tool-inv-selected{background:rgba(0,0,0,0.07)!important}.tool-eng-sublist td{background:#f0f4f8}.tool-eng-subitem{transition:background .1s}.tool-eng-subitem:hover{background:#e2eaf2!important}
+.emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}
+.emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}.emob-req-card{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)}.emob-req-card .req-date{font-size:13px;color:var(--txm)}.emob-req-card .req-key{font-size:13px;font-weight:600;font-family:monospace;color:var(--offwhite)}
 </style>
 </head>
 <body>
@@ -371,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.52</div>
+      <div class="h-ver">v3.70</div>
     </div>
   </div>
   <div class="h-right">
@@ -476,18 +478,16 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
           <label>Date First Attended <span style="color:var(--red);margin-left:2px">*</span></label>
           <input type="date" id="e-date-att" oninput="updateVisitCount()" required>
         </div>
-        <div class="fg">
-          <label>Vehicle Unavailable on Attendance</label>
-          <input type="checkbox" id="e-unavail-att" style="width:20px;height:20px;cursor:pointer;accent-color:var(--teal)">
-        </div>
+        <button type="button" id="e-unavail-att" onclick="this.classList.toggle('on');updateVisitCount()" class="emob-check-btn" style="width:100%;margin:8px 0">Vehicle Unavailable on Attendance</button>
         <div class="fg">
           <label>Actually VOR</label>
           <select id="e-actually-vor"><option value="">Select…</option><option value="Y">Y</option><option value="N">N</option></select>
         </div>
-        <div id="interim-visits-list"></div>
-      <div id="parts-ordered-list"></div>
-        <button type="button" class="btn ghost sm" style="margin:8px 0" onclick="addInterimVisit()">+ Add interim visit</button>
-        <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addPartsOrdered()">+ Parts ordered</button>
+        <div id="combined-visits-list"></div>
+        <div style="margin-top:8px">
+          <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewInterimVisit()">+ Add interim visit</button>
+          <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewPartsOrdered()">+ Parts ordered</button>
+        </div>
         <div class="sdiv"></div>
         <div class="fg">
           <label>Vehicle Repair Date</label>
@@ -604,6 +604,49 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div style="font-size:13px;color:var(--tx);line-height:1.6;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word" id="tsb-v-description"></div></div>
       </div>
     </div>
+  </div>
+
+  <div class="tab-view" id="eng-tab-emob">
+    <div class="section-label" style="margin-bottom:12px">&#9889; eMob Support</div>
+    <div class="fg" style="margin-bottom:12px"><label>Linked Service Request</label>
+      <select id="emob-sr-select" onchange="emobSRChanged()"><option value="">— Select —</option></select>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <button type="button" class="emob-check-btn" id="emob-chk-trace" onclick="toggleEmobCheck(this)">Trace Provided</button>
+      <button type="button" class="emob-check-btn" id="emob-chk-ecu" onclick="toggleEmobCheck(this)">ECU Upload Provided</button>
+      <button type="button" class="emob-check-btn" id="emob-chk-hv-iso" onclick="toggleEmobCheck(this)">HV Isolation Test Completed</button>
+      <button type="button" class="emob-check-btn" id="emob-chk-fuel-cell" onclick="toggleEmobCheck(this)">Fuel Cell Vehicle</button>
+      <button type="button" class="emob-check-btn" id="emob-chk-hv-charge" onclick="toggleEmobCheck(this)">HV Charge Issue</button>
+    </div>
+    <div id="emob-hv-charge-card" style="display:none;background:var(--surf);border:1px solid rgba(0,241,193,.3);border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);margin-bottom:12px">HV Charge Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fg"><label>CCU Type</label><select id="emob-ccu-type"><option value="">—</option><option>EVCC Both</option><option>VCVCCU Both</option><option>EVCC Left/VCVCCU Right</option><option>EVCC Right/VCVCCU Left</option><option>EVCC Single</option><option>VCVCCU Single</option></select></div>
+        <div class="fg"><label>Charge LED Activation</label><select id="emob-charge-led"><option value="">—</option><option>LED Off</option><option>Solid Green</option><option>Flashing Green</option><option>Solid Amber</option><option>Flashing Amber</option><option>Solid Red</option><option>Flashing Red</option><option>Solid Blue</option><option>Flashing Blue</option></select></div>
+        <div class="fg"><label>Plug Lock Activation</label><select id="emob-plug-lock"><option value="">—</option><option>Lock Successful</option><option>No Lock</option><option>No Unlock</option></select></div>
+        <div class="fg"><label>Side Light Activation</label><select id="emob-side-light"><option value="">—</option><option>Side Lights On</option><option>Side Lights Off</option></select></div>
+      </div>
+      <div class="fg" style="margin-top:10px"><label>PP to PE Pin Resistance (Ω)</label><input type="text" id="emob-pp-pe-resistance" placeholder="e.g. 0.5" style="width:100%"></div>
+    </div>
+    <div id="emob-can-card" style="display:none;background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:12px">CAN Measurements</div>
+      <div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:6px 10px;align-items:center">
+        <div></div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">H</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">L</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">Resistance</div>
+        <div style="font-size:12px;font-weight:600;color:var(--txm)">P-CAN</div><input type="text" id="emob-pcan-h" placeholder="V" style="text-align:center"><input type="text" id="emob-pcan-l" placeholder="V" style="text-align:center"><input type="text" id="emob-pcan-r" placeholder="Ω" style="text-align:center">
+        <div style="font-size:12px;font-weight:600;color:var(--txm)">E-CAN</div><input type="text" id="emob-ecan-h" placeholder="V" style="text-align:center"><input type="text" id="emob-ecan-l" placeholder="V" style="text-align:center"><input type="text" id="emob-ecan-r" placeholder="Ω" style="text-align:center">
+        <div class="emob-ican-row" style="font-size:12px;font-weight:600;color:var(--txm)">I-CAN</div><input type="text" id="emob-ican-h" class="emob-ican-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ican-l" class="emob-ican-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ican-r" class="emob-ican-row" placeholder="Ω" style="text-align:center">
+        <div class="emob-ccan-row" style="font-size:12px;font-weight:600;color:var(--txm)">C-CAN</div><input type="text" id="emob-ccan-h" class="emob-ccan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ccan-l" class="emob-ccan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ccan-r" class="emob-ccan-row" placeholder="Ω" style="text-align:center">
+        <div class="emob-acan-row" style="font-size:12px;font-weight:600;color:var(--txm)">A-CAN</div><input type="text" id="emob-acan-h" class="emob-acan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-acan-l" class="emob-acan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-acan-r" class="emob-acan-row" placeholder="Ω" style="text-align:center">
+      </div>
+    </div>
+    <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:12px">Other Information</div>
+      <div class="fg" style="margin-bottom:10px"><label>Completed Diagnostics</label><textarea id="emob-completed-diag" rows="4" style="width:100%;resize:vertical"></textarea></div>
+      <div class="fg"><label>Further Details/Comments</label><textarea id="emob-further-comments" rows="4" style="width:100%;resize:vertical"></textarea></div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:10px">
+      <button id="emob-save-btn" class="btn primary" onclick="saveEmobRequest()" disabled style="flex:1;opacity:0.5;cursor:not-allowed">&#9993; Save &amp; Email to eMob</button>
+    </div>
   </div><!-- /tsb tab -->
 </div><!-- /page -->
 
@@ -620,6 +663,9 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   </button>
   <button class="bnav-btn" id="bnav-tsb" onclick="switchEngTab('tsb')">
     <span class="ico">&#128203;</span>TSB
+  </button>
+  <button class="bnav-btn" id="bnav-emob" onclick="switchEngTab('emob')">
+    <span class="ico">&#9889;</span>eMob
   </button>
 </nav>
 
@@ -1435,6 +1481,380 @@ async function refreshRecords(){try{const d=await readJSON(customerRecordsFile()
 
 async function writeRecords(){await writeJSON(customerRecordsFile(),allRecords);}
 
+
+function toggleEmobCheck(btn){
+  btn.classList.toggle("on");
+  if(btn.id==='emob-chk-hv-charge'){
+    var card=document.getElementById('emob-hv-charge-card');
+    if(card)card.style.display=btn.classList.contains('on')?'':'none';
+  }
+}
+
+function updateEmobCanVisibility(productType, productSubType){
+  var canCard=document.getElementById('emob-can-card');if(!canCard)return;
+  var isVeds=(productType||'').toUpperCase()==='VEDS';
+  canCard.style.display=isVeds?'':'none';
+  if(!isVeds)return;
+  var sub=(productSubType||'').trim();
+  var is10=sub==='VEDS 1.0', is15=sub==='VEDS 1.5';
+  document.querySelectorAll('.emob-ican-row').forEach(function(el){el.style.display=is10?'':'none';});
+  document.querySelectorAll('.emob-ccan-row').forEach(function(el){el.style.display=is15?'':'none';});
+  document.querySelectorAll('.emob-acan-row').forEach(function(el){el.style.display=is15?'':'none';});
+}
+
+function populateEmobSRSelect(){
+  var sel=document.getElementById('emob-sr-select');if(!sel)return;
+  var cur=sel.value;
+  var open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate').sort(function(a,b){return (b.srNumber||0)-(a.srNumber||0);});
+  sel.innerHTML='<option value="">— Select —</option>';
+  open.forEach(function(r){var o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===cur)o.selected=true;sel.appendChild(o);});
+}
+
+function emobSRChanged(){
+  var sel=document.getElementById('emob-sr-select');
+  var btn=document.getElementById('emob-save-btn');
+  if(!btn)return;
+  var hasSR=!!(sel&&sel.value);
+  btn.disabled=!hasSR;btn.style.opacity=hasSR?'1':'0.5';btn.style.cursor=hasSR?'pointer':'not-allowed';
+  // Clear form fields when SR changes (but keep dropdown)
+  var tab=document.getElementById('eng-tab-emob');
+  if(tab){
+    tab.querySelectorAll('.emob-check-btn').forEach(function(b){b.classList.remove('on');});
+    var hvC=document.getElementById('emob-hv-charge-card');if(hvC)hvC.style.display='none';
+    tab.querySelectorAll('input[type="text"],textarea').forEach(function(el){el.value='';el.style.outline='';});
+    tab.querySelectorAll('select:not(#emob-sr-select)').forEach(function(el){el.value='';el.style.outline='';});
+  }
+  if(hasSR){var rec=allRecords.find(function(r){return r.ref===sel.value;});if(rec)updateEmobCanVisibility(rec.productType,rec.productSubType);}
+  else{updateEmobCanVisibility('','');}
+}
+
+
+async function saveEmobRequest(){
+  var sel=document.getElementById('emob-sr-select');
+  if(!sel||!sel.value){showToast('Please select a service request','error');return;}
+  var ref=sel.value;
+  var rec=allRecords.find(function(r){return r.ref===ref;});
+  if(!rec){showToast('Record not found','error');return;}
+
+  // ── Validate all visible fields ──────────────────────────────
+  var missing=[];
+  function chk(id,label){
+    var el=document.getElementById(id);
+    if(!el)return;
+    var visible=el.offsetParent!==null;
+    if(!visible)return;
+    var empty=(el.tagName==='SELECT')?(el.value===''):(el.value.trim()==='');
+    if(empty){el.style.outline='2px solid var(--red,#e53e3e)';missing.push(label);}
+    else{el.style.outline='';}
+  }
+  function chkTA(id,label){
+    var el=document.getElementById(id);
+    if(!el)return;
+    if(el.value.trim()===''){el.style.outline='2px solid var(--red,#e53e3e)';missing.push(label);}
+    else{el.style.outline='';}
+  }
+
+  // HV Charge card (only if visible)
+  var hvCard=document.getElementById('emob-hv-charge-card');
+  if(hvCard&&hvCard.style.display!=='none'){
+    chk('emob-ccu-type','CCU Type');
+    chk('emob-charge-led','Charge LED Activation');
+    chk('emob-plug-lock','Plug Lock Activation');
+    chk('emob-side-light','Side Light Activation');
+    chk('emob-pp-pe-resistance','PP to PE Pin Resistance');
+  }
+
+  // CAN card (only if visible)
+  var canCard=document.getElementById('emob-can-card');
+  if(canCard&&canCard.style.display!=='none'){
+    chk('emob-pcan-h','P-CAN H'); chk('emob-pcan-l','P-CAN L'); chk('emob-pcan-r','P-CAN Resistance');
+    chk('emob-ecan-h','E-CAN H'); chk('emob-ecan-l','E-CAN L'); chk('emob-ecan-r','E-CAN Resistance');
+    // Conditional rows
+    var iRow=document.querySelector('.emob-ican-row');
+    if(iRow&&iRow.style.display!=='none'){
+      chk('emob-ican-h','I-CAN H'); chk('emob-ican-l','I-CAN L'); chk('emob-ican-r','I-CAN Resistance');
+    }
+    var cRow=document.querySelector('.emob-ccan-row');
+    if(cRow&&cRow.style.display!=='none'){
+      chk('emob-ccan-h','C-CAN H'); chk('emob-ccan-l','C-CAN L'); chk('emob-ccan-r','C-CAN Resistance');
+    }
+    var aRow=document.querySelector('.emob-acan-row');
+    if(aRow&&aRow.style.display!=='none'){
+      chk('emob-acan-h','A-CAN H'); chk('emob-acan-l','A-CAN L'); chk('emob-acan-r','A-CAN Resistance');
+    }
+  }
+
+  // Other Information (always visible in emob tab)
+  chkTA('emob-completed-diag','Completed Diagnostics');
+  chkTA('emob-further-comments','Further Details/Comments');
+
+  if(missing.length>0){
+    showToast('Please fill in: '+missing.slice(0,3).join(', ')+(missing.length>3?' and '+(missing.length-3)+' more':''),'error');
+    return;
+  }
+
+  // ── Save ─────────────────────────────────────────────────────
+  var prefix=rec._customer||(activeCustomer&&activeCustomer.prefix)||'WB';
+  var filename=prefix+'-eMobRequests.json';
+  var existing={};
+  try{existing=await readJSON(filename)||{};}catch(e){existing={};}
+  var maxN=0;
+  Object.keys(existing).forEach(function(key){if(key.startsWith(ref+'-')){var n=parseInt(key.slice(ref.length+1),10);if(!isNaN(n)&&n>maxN)maxN=n;}});
+  var reqKey=ref+'-'+String(maxN+1).padStart(2,'0');
+  var emobData={
+    ref:ref,requestNumber:maxN+1,savedAt:new Date().toISOString(),
+    engineer:rec.engineer||'',vehicle:rec.vehicle||'',operator:rec.operator||'',
+    productType:rec.productType||'',productSubType:rec.productSubType||'',
+    traceProvided:!!(document.getElementById('emob-chk-trace')?.classList.contains('on')),
+    ecuUpload:!!(document.getElementById('emob-chk-ecu')?.classList.contains('on')),
+    hvIsoTest:!!(document.getElementById('emob-chk-hv-iso')?.classList.contains('on')),
+    fuelCell:!!(document.getElementById('emob-chk-fuel-cell')?.classList.contains('on')),
+    hvChargeIssue:!!(document.getElementById('emob-chk-hv-charge')?.classList.contains('on')),
+    hvCcuType:document.getElementById('emob-ccu-type')?.value||'',
+    hvChargeLed:document.getElementById('emob-charge-led')?.value||'',
+    hvPlugLock:document.getElementById('emob-plug-lock')?.value||'',
+    hvSideLight:document.getElementById('emob-side-light')?.value||'',
+    hvPpPeResistance:document.getElementById('emob-pp-pe-resistance')?.value||'',
+    canPCanH:document.getElementById('emob-pcan-h')?.value||'',
+    canPCanL:document.getElementById('emob-pcan-l')?.value||'',
+    canPCanR:document.getElementById('emob-pcan-r')?.value||'',
+    canECanH:document.getElementById('emob-ecan-h')?.value||'',
+    canECanL:document.getElementById('emob-ecan-l')?.value||'',
+    canECanR:document.getElementById('emob-ecan-r')?.value||'',
+    canICanH:document.getElementById('emob-ican-h')?.value||'',
+    canICanL:document.getElementById('emob-ican-l')?.value||'',
+    canICanR:document.getElementById('emob-ican-r')?.value||'',
+    canCCanH:document.getElementById('emob-ccan-h')?.value||'',
+    canCCanL:document.getElementById('emob-ccan-l')?.value||'',
+    canCCanR:document.getElementById('emob-ccan-r')?.value||'',
+    canACanH:document.getElementById('emob-acan-h')?.value||'',
+    canACanL:document.getElementById('emob-acan-l')?.value||'',
+    canACanR:document.getElementById('emob-acan-r')?.value||'',
+    completedDiagnostics:document.getElementById('emob-completed-diag')?.value||'',
+    furtherComments:document.getElementById('emob-further-comments')?.value||'',
+  };
+  existing[reqKey]=emobData;
+  try{
+    await writeJSON(filename,existing);
+    showToast('eMob request saved as '+reqKey,'success');
+    // ── Update SR record with eMob request reference ──────────
+    var srIdx=allRecords.findIndex(function(r){return r.ref===ref;});
+    if(srIdx>=0){
+      if(!allRecords[srIdx].emobRequests)allRecords[srIdx].emobRequests=[];
+      allRecords[srIdx].emobRequests.push({reqKey:reqKey,date:new Date().toISOString()});
+      try{await writeRecords();}catch(e){console.warn('Failed to update SR record:',e);}
+    }
+  }catch(e){showToast('Save failed: '+e.message,'error');return;}
+
+  // ── Build and open email ──────────────────────────────────────
+  var yn=function(v){return v?'Yes':'No';};
+  var val=function(v){return v||'\u2014';};
+  var body='eMob Support Request\n================================\n'
+    +'Request ID:   '+reqKey+'\nSaved:        '+new Date().toLocaleString('en-GB')+'\n\n'
+    +'SERVICE RECORD\n--------------------------------\n'
+    +'SR Reference:    '+val(rec.ref)+'\nVehicle:         '+val(rec.vehicle)+'\n'
+    +'Fleet Number:    '+val(rec.fleetNumber)+'\nRegistration:    '+val(rec.registration)+'\n'
+    +'Operator:        '+val(rec.operator)+'\nProduct Type:    '+val(rec.productType)+'\n'
+    +'VEDS Generation: '+val(rec.productSubType)+'\nDate Reported:   '+val(rec.dateReported)+'\n'
+    +'Date Attended:   '+val(rec.dateAttended)+'\nEngineer:        '+val(rec.engineer)+'\n'
+    +'Region:          '+val(rec.region)+'\nVOR:             '+val(rec.vor)+'\n'
+    +'Failure:         '+val(rec.failure)+'\nDefect:          '+val(rec.defect)+'\n'
+    +'Occurrence:      '+val(rec.occurrence)+'\nWarnings:        '+val(rec.warnings)+'\n'
+    +'Diagnosis and Comments:\n'+(rec.diagnosis||'\u2014')+'\n\n'
+    +'eMOB FORM\n--------------------------------\n'
+    +'Trace Provided:              '+yn(emobData.traceProvided)+'\n'
+    +'ECU Upload Provided:         '+yn(emobData.ecuUpload)+'\n'
+    +'HV Isolation Test Completed: '+yn(emobData.hvIsoTest)+'\n'
+    +'Fuel Cell Vehicle:           '+yn(emobData.fuelCell)+'\n'
+    +'HV Charge Issue:             '+yn(emobData.hvChargeIssue)+'\n';
+  if(emobData.hvChargeIssue){
+    body+='  CCU Type:              '+val(emobData.hvCcuType)+'\n'
+      +'  Charge LED Activation: '+val(emobData.hvChargeLed)+'\n'
+      +'  Plug Lock Activation:  '+val(emobData.hvPlugLock)+'\n'
+      +'  Side Light Activation: '+val(emobData.hvSideLight)+'\n'
+      +'  PP to PE Resistance:   '+val(emobData.hvPpPeResistance)+'\n';
+  }
+  if(canCard&&canCard.style.display!=='none'){
+    body+='\nCAN MEASUREMENTS\n--------------------------------\n'
+      +'         H          L          Resistance\n'
+      +'P-CAN    '+val(emobData.canPCanH).padEnd(11)+val(emobData.canPCanL).padEnd(11)+val(emobData.canPCanR)+'\n'
+      +'E-CAN    '+val(emobData.canECanH).padEnd(11)+val(emobData.canECanL).padEnd(11)+val(emobData.canECanR)+'\n';
+    if(emobData.canICanH||emobData.canICanL||emobData.canICanR)
+      body+='I-CAN    '+val(emobData.canICanH).padEnd(11)+val(emobData.canICanL).padEnd(11)+val(emobData.canICanR)+'\n';
+    if(emobData.canCCanH||emobData.canCCanL||emobData.canCCanR)
+      body+='C-CAN    '+val(emobData.canCCanH).padEnd(11)+val(emobData.canCCanL).padEnd(11)+val(emobData.canCCanR)+'\n';
+    if(emobData.canACanH||emobData.canACanL||emobData.canACanR)
+      body+='A-CAN    '+val(emobData.canACanH).padEnd(11)+val(emobData.canACanL).padEnd(11)+val(emobData.canACanR)+'\n';
+  }
+  body+='\nCOMPLETED DIAGNOSTICS\n--------------------------------\n'+emobData.completedDiagnostics+'\n'
+    +'\nFURTHER DETAILS/COMMENTS\n--------------------------------\n'+emobData.furtherComments+'\n';
+
+  var subject='eMob Support Request - '+reqKey+' - '+val(rec.vehicle)+' ('+val(rec.operator)+')';
+  window.location.href='mailto:Emobility@driventic.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+
+  // ── Clear form ────────────────────────────────────────────────
+  clearEmobForm();
+}
+
+function clearEmobForm(){
+  // Reset SR dropdown
+  var sel=document.getElementById('emob-sr-select');
+  if(sel)sel.value='';
+  // Reset toggle buttons
+  document.querySelectorAll('.emob-check-btn').forEach(function(b){b.classList.remove('on');});
+  // Hide conditional cards
+  var hvCard=document.getElementById('emob-hv-charge-card');
+  if(hvCard)hvCard.style.display='none';
+  var canCard=document.getElementById('emob-can-card');
+  if(canCard)canCard.style.display='none';
+  // Clear all inputs and selects in emob tab
+  var tab=document.getElementById('eng-tab-emob');
+  if(tab){
+    tab.querySelectorAll('input[type="text"],textarea').forEach(function(el){el.value='';el.style.outline='';});
+    tab.querySelectorAll('select').forEach(function(el){el.value='';el.style.outline='';});
+  }
+  // Disable save button
+  var btn=document.getElementById('emob-save-btn');
+  if(btn){btn.disabled=true;btn.style.opacity='0.5';btn.style.cursor='not-allowed';}
+}
+
+
+// ── Combined chronological visits/requests list ──────────────────
+var _combinedItems = [];
+var _interimCount  = 0;
+var _partsCount    = 0;
+
+function renderCombinedList(){
+  var list=document.getElementById('combined-visits-list');
+  if(!list)return;
+  var sorted=_combinedItems.slice().sort(function(a,b){
+    var da=a.date||'9999'; var db=b.date||'9999';
+    return da.localeCompare(db);
+  });
+  list.innerHTML='';
+  sorted.forEach(function(item){
+    if(item.type==='interim')     _renderInterimCard(list,item);
+    else if(item.type==='parts')  _renderPartsCard(list,item);
+    else if(item.type==='emob')   _renderEmobCard(list,item);
+  });
+}
+
+function _renderEmobCard(list,item){
+  var d=item.date?new Date(item.date).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  var div=document.createElement('div');
+  div.className='emob-req-card';
+  div.innerHTML='<span class="req-date">'+d+'</span><span class="req-key">'+item.reqKey+'</span>';
+  list.appendChild(div);
+}
+
+function _renderInterimCard(list,item){
+  var i=item.idx;
+  var div=document.createElement('div');
+  div.id='interim-'+i;
+  div.style.cssText='display:grid;grid-template-columns:1fr 2fr;gap:10px 14px;margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr);align-items:start';
+  div.innerHTML=
+    '<div class="fg" style="margin:0"><label class="interim-visit-label">Interim Visit</label>'
+    +'<input type="date" id="interim-date-'+i+'" value="'+(item.date||'')+'" onchange="updateInterimDate('+i+');updateVisitCount()" style="width:100%">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px 2px">'
+    +'<span style="font-size:14px;font-weight:500">Vehicle unavailable</span>'
+    +'<input type="checkbox" id="interim-unavail-'+i+'" style="width:26px;height:26px;min-width:26px;min-height:26px;cursor:pointer;border-radius:4px;accent-color:#1d4d73;flex-shrink:0">'
+    +'</div></div>'
+    +'<div class="fg" style="margin:0;display:flex;flex-direction:column;gap:4px">'
+    +'<label style="display:flex;justify-content:space-between">Comments <span style="color:var(--red);margin-left:2px">*</span>'
+    +'<button type="button" onclick="removeInterimVisit('+i+')" style="font-size:11px;padding:1px 7px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button></label>'
+    +'<textarea id="interim-comments-'+i+'" placeholder="Notes for this visit…" style="min-height:48px;resize:vertical">'+(item.comments||'')+'</textarea>'
+    +'</div>';
+  list.appendChild(div);
+  var _cb=document.getElementById('interim-unavail-'+i);if(_cb)_cb.checked=(item.unavailable==='Y'||item.unavailable===true);
+  renumberInterimVisits();
+}
+
+
+function _renderPartsCard(list,item){
+  var i=item.idx;
+  var div=document.createElement('div');
+  div.id='parts-ordered-'+i;
+  div.style.cssText='margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)';
+  div.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px 14px;align-items:end">'
+    +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Expected</label><input type="date" id="po-date-expected-'+i+'" value="'+(item.dateExpected||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%"></div>'
+    +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:2px 8px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;white-space:nowrap;align-self:end;margin-bottom:1px">Remove</button>'
+    +'</div>';
+  list.appendChild(div);
+}
+
+function updateInterimDate(i){
+  var el=document.getElementById('interim-date-'+i);
+  if(!el)return;
+  var item=_combinedItems.find(function(x){return x.type==='interim'&&x.idx===i;});
+  if(item){item.date=el.value;item.dateOrdered=el.value;renderCombinedList();}
+}
+
+function updatePartsDate(i){
+  var el=document.getElementById('po-date-ordered-'+i);
+  if(!el)return;
+  var item=_combinedItems.find(function(x){return x.type==='parts'&&x.idx===i;});
+  if(item){item.date=el.value;renderCombinedList();}
+}
+
+function addNewInterimVisit(){
+  var i=_interimCount++;
+  _combinedItems.push({type:'interim',idx:i,date:'',comments:'',unavailable:''});
+  renderCombinedList();
+  updateVisitCount();
+}
+
+function addNewPartsOrdered(){
+  var i=_partsCount++;
+  _combinedItems.push({type:'parts',idx:i,date:'',dateOrdered:'',dateExpected:'',partNumber:''});
+  renderCombinedList();
+}
+
+function loadInterimVisits(visits){
+  _interimCount=0;
+  _combinedItems=_combinedItems.filter(function(x){return x.type!=='interim';});
+  (visits||[]).forEach(function(v){
+    var i=_interimCount++;
+    _combinedItems.push({type:'interim',idx:i,date:v.date||'',comments:v.comments||'',unavailable:v.vehicleUnavailable||''});
+  });
+}
+
+function loadPartsOrdered(items){
+  _partsCount=0;
+  _combinedItems=_combinedItems.filter(function(x){return x.type!=='parts';});
+  (items||[]).forEach(function(p){
+    var i=_partsCount++;
+    _combinedItems.push({type:'parts',idx:i,date:p.dateOrdered||'',dateOrdered:p.dateOrdered||'',dateExpected:p.dateExpected||'',partNumber:p.partNumber||''});
+  });
+}
+
+function loadEmobRequests(reqs){
+  _combinedItems=_combinedItems.filter(function(x){return x.type!=='emob';});
+  (reqs||[]).forEach(function(r){
+    _combinedItems.push({type:'emob',date:r.date||'',reqKey:r.reqKey||''});
+  });
+}
+
+function removeInterimVisit(i){
+  _combinedItems=_combinedItems.filter(function(x){return !(x.type==='interim'&&x.idx===i);});
+  renderCombinedList();
+  renumberInterimVisits();
+  updateVisitCount();
+}
+
+function removePartsOrdered(i){
+  _combinedItems=_combinedItems.filter(function(x){return !(x.type==='parts'&&x.idx===i);});
+  renderCombinedList();
+}
+
+function addInterimVisit(date,comments,unavailable){
+  var i=_interimCount++;
+  _combinedItems.push({type:'interim',idx:i,date:date||'',comments:comments||'',unavailable:unavailable||''});
+}
+
+
 function populateSRSelect(){
   const sel=document.getElementById('sr-select');
   const prev=currentRef;
@@ -1442,6 +1862,8 @@ function populateSRSelect(){
   sel.innerHTML='<option value="">— Select a service request —</option>';
   open.forEach(r=>{const o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===prev)o.selected=true;sel.appendChild(o)});
   document.getElementById('lcount').textContent=open.length+' open'+(allRecords.length?' of '+allRecords.length+' total':'');
+  populateEmobSRSelect();
+  emobSRChanged();
 }
 
 // ── Load record ────────────────────────────────────────────────────
@@ -1507,89 +1929,12 @@ function loadRecord(){
   populateInfoPanel(rec);
 
   window._currentProductType=rec.productType||'VEDS';
-  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.checked=rec.vehicleUnavailableOnAttend==='Y';sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  window._currentProductSubType=rec.productSubType||'';
+  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
 
   renderCustomEngineerFields(rec.customFields||{});
   enableForm();
   window.scrollTo({top:document.getElementById('ipanel').offsetTop-80,behavior:'smooth'});
-}
-
-// ── Interim visits ────────────────────────────────────────────────
-let _interimCount = 0;
-
-
-let _partsCount = 0;
-function addPartsOrdered(dateOrdered, dateExpected, partNumber){
-  const list = document.getElementById('parts-ordered-list');
-  if(!list) return;
-  const idx = _partsCount++;
-  const div = document.createElement('div');
-  div.id = 'parts-ordered-' + idx;
-  div.style.cssText = 'margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)';
-  div.innerHTML =
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-    + '<label style="font-size:12px;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.04em">Parts Ordered</label>'
-    + '<button type="button" onclick="removePartsOrdered('+idx+')" '
-    + 'style="font-size:11px;padding:4px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:6px;cursor:pointer;font-family:inherit;min-height:32px">Remove</button>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
-    + '<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+idx+'" value="'+(dateOrdered||'')+'" style="width:100%"></div>'
-    + '<div class="fg" style="margin:0"><label>Date Expected</label><input type="date" id="po-date-expected-'+idx+'" value="'+(dateExpected||'')+'" style="width:100%"></div>'
-    + '</div>'
-    + '<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+idx+'" value="'+(partNumber||'')+'" placeholder="Part number…" style="width:100%"></div>';
-  list.appendChild(div);
-}
-function removePartsOrdered(idx){
-  const el=document.getElementById('parts-ordered-'+idx);
-  if(el)el.remove();
-}
-function getPartsOrdered(){
-  const items=[];
-  document.querySelectorAll('#parts-ordered-list > div[id^="parts-ordered-"]').forEach(div=>{
-    const idx=div.id.replace('parts-ordered-','');
-    items.push({
-      dateOrdered:document.getElementById('po-date-ordered-'+idx)?.value||'',
-      dateExpected:document.getElementById('po-date-expected-'+idx)?.value||'',
-      partNumber:document.getElementById('po-part-number-'+idx)?.value?.trim()||''
-    });
-  });
-  return items;
-}
-function loadPartsOrdered(items){
-  _partsCount=0;
-  const list=document.getElementById('parts-ordered-list');
-  if(list)list.innerHTML='';
-  (items||[]).forEach(p=>addPartsOrdered(p.dateOrdered,p.dateExpected,p.partNumber));
-}
-function addInterimVisit(date, comments, unavailable){
-  const list = document.getElementById('interim-visits-list');
-  if(!list) return;
-  const idx = _interimCount++;
-  const div = document.createElement('div');
-  div.id = 'interim-' + idx;
-  div.style.cssText = 'display:grid;grid-template-columns:1fr 2fr;gap:10px 14px;margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr);align-items:start';
-  div.innerHTML =
-    '<div class="fg" style="margin:0"><label class="interim-visit-label">Visit</label>'
-    + '<input type="date" id="interim-date-'+idx+'" value="'+(date||'')+'" oninput="updateVisitCount()" style="width:100%">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 2px 2px">'
-    + '<span style="font-size:14px;font-weight:500">Vehicle unavailable</span>'
-    + '<input type="checkbox" id="interim-unavail-'+idx+'"'
-    + ' style="width:26px;height:26px;min-width:26px;min-height:26px;cursor:pointer;'
-    + 'border-radius:4px;accent-color:#1d4d73;flex-shrink:0">'
-    + '</div>'
-    + '</div>'
-    + '<div class="fg" style="margin:0;display:flex;flex-direction:column;gap:4px">'
-    + '<label style="display:flex;justify-content:space-between">Comments <span style="color:var(--red);margin-left:2px">*</span>'
-    + '<button type="button" onclick="removeInterimVisit('+idx+')" '
-    + 'style="font-size:11px;padding:1px 7px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button></label>'
-    + '<textarea id="interim-comments-'+idx+'" placeholder="Notes for this visit…" style="min-height:48px;resize:vertical">'+(comments||'')+'</textarea>'
-    + '</div>';
-  list.appendChild(div);
-  // Set checked state via JS property (HTML attribute only sets default)
-  const _cb=document.getElementById('interim-unavail-'+idx);
-  if(_cb)_cb.checked=(unavailable==='Y'||unavailable===true);
-  renumberInterimVisits();
-  updateVisitCount();
 }
 
 function renumberInterimVisits(){
@@ -1598,25 +1943,6 @@ function renumberInterimVisits(){
     const lbl=div.querySelector('.interim-visit-label');
     if(lbl) lbl.textContent='Visit '+(i+2);
   });
-}
-
-function removeInterimVisit(idx){
-  const el = document.getElementById('interim-'+idx);
-  if(el) el.remove();
-  renumberInterimVisits();updateVisitCount();
-}
-
-function getInterimVisits(){
-  const visits = [];
-  document.querySelectorAll('#interim-visits-list > div[id^="interim-"]').forEach(div => {
-    const idx = div.id.replace('interim-','');
-    visits.push({
-      date: document.getElementById('interim-date-'+idx)?.value||'',
-      comments: document.getElementById('interim-comments-'+idx)?.value?.trim()||'',
-      vehicleUnavailable: document.getElementById('interim-unavail-'+idx)?.checked?'Y':'N'
-    });
-  });
-  return visits;
 }
 
 function syncRectifiedOptions(){
@@ -1639,7 +1965,7 @@ function updateVisitCount(){
   const attDate = document.getElementById('e-date-att')?.value||'';
   const repDate = document.getElementById('e-date-repair')?.value||'';
   const interimDates = [];
-  document.querySelectorAll('#interim-visits-list input[type="date"]').forEach(el=>{if(el.value)interimDates.push(el.value);});
+  _combinedItems.filter(function(x){return x.type==='interim';}).forEach(function(x){var el=document.getElementById('interim-date-'+x.idx);if(el&&el.value)interimDates.push(el.value);});
   // Count unique date-filled visits
   // If repair date equals first attended and no interims, that's 1 visit not 2
   let count = 0;
@@ -1649,12 +1975,6 @@ function updateVisitCount(){
   else if(repDate && repDate === attDate && interimDates.length === 0) count = 1;
   const lbl = document.getElementById('visit-count-label');
   if(lbl) lbl.textContent = count > 0 ? 'Number of visits — ' + count : '';
-}
-
-function loadInterimVisits(visits){
-  _interimCount = 0;
-  document.getElementById('interim-visits-list').innerHTML = '';
-  (visits||[]).forEach(v => addInterimVisit(v.date, v.comments, v.vehicleUnavailable));
 }
 
 function sv(id,val){const el=document.getElementById(id);if(el)el.value=val||''}
@@ -1754,16 +2074,18 @@ async function saveReport(){
   // Build the updated record but don't save yet
   _pendingRecord={...allRecords[idx],
     engineer:gv('e-engineer'),region:gv('e-region'),
-    dateAttended:gv('e-date-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.checked?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
+    dateAttended:gv('e-date-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
-    interimVisits:getInterimVisits(),partsOrdered:getPartsOrdered(),rectified:rect,
+    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     comments:gv('e-comments'),components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
     status:(()=>{
       const att=gv('e-date-att');
       const rep=gv('e-date-repair');
-      return calcRecordStatus(att, rep, rect, getPartsOrdered(), getInterimVisits(), document.getElementById('e-unavail-att')?.checked?'Y':'N');
+      var _iv=_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var el=document.getElementById('interim-date-'+x.idx);return{date:el?el.value:x.date||'',vehicleUnavailable:document.getElementById('interim-unavail-'+x.idx)?.checked?'Y':'N'};});
+      var _po=_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){return{dateOrdered:document.getElementById('po-date-ordered-'+x.idx)?.value||x.dateOrdered||'',dateExpected:document.getElementById('po-date-expected-'+x.idx)?.value||x.dateExpected||''};});
+      return calcRecordStatus(att, rep, rect, _po, _iv, document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N');
     })(),
     vorDays:calcVorDays(gv('e-date-repair')?allRecords[idx].dateReported:'',gv('e-date-repair')),
     updatedAt:new Date().toISOString(),customFields:customData};
@@ -2186,10 +2508,12 @@ async function reloadData(){
 
 // ── Vehicle Search tab ────────────────────────────────────────────
 function switchEngTab(tab){
-  ['report','search','tools'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'':'none';});
-  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools'};
+  ['report','search','tools','tsb','emob'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'':'none';});
+  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools',tsb:'bnav-tsb',emob:'bnav-emob'};
   Object.keys(bm).forEach(function(t){var b=document.getElementById(bm[t]);if(b)b.classList.toggle('active',tab===t);});
   if(tab==='tools')toolsInit();
+  if(tab==='tsb')tsbInit();
+  if(tab==='emob')updateEmobCanVisibility(window._currentProductType,window._currentProductSubType);
 }
 
 function searchVehicleHistory(){
