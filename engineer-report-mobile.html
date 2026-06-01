@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.74</div>
+      <div class="h-ver">v3.77</div>
     </div>
   </div>
   <div class="h-right">
@@ -1947,12 +1947,15 @@ function _renderPartsCard(list,item){
   div.id='parts-ordered-'+i;
   div.style.cssText='margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)';
   div.innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px 14px;align-items:end">'
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +'<span style="font-size:12px;font-weight:600;color:var(--txm)">Parts Ordered</span>'
+    +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:3px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Date Expected</label><input type="date" id="po-date-expected-'+i+'" value="'+(item.dateExpected||'')+'" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%"></div>'
-    +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:2px 8px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;white-space:nowrap;align-self:end;margin-bottom:1px">Remove</button>'
-    +'</div>';
+    +'</div>'
+    +'<div class="fg" style="margin:top:8px"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%"></div>';
   list.appendChild(div);
 }
 
@@ -2731,10 +2734,15 @@ function searchVehicleHistory(){
     _mrkParts.push({p,label:fmtD(d)});
   });
   const markersHtml=_mrkParts.map((m,i)=>'<div class="htl-marker" data-i="'+i+'" style="left:'+m.p+'%"></div>').join('');
-  const ticksHtml=_mrkParts.map(m=>{
-    const tr=parseFloat(m.p)<5?'translateX(0)':parseFloat(m.p)>95?'translateX(-100%)':'translateX(-50%)';
-    return '<div class="htl-tick" style="left:'+m.p+'%;transform:'+tr+'"><div class="htl-tick-label">'+m.label+'</div></div>';
-  }).join('');
+  // Only show 2 ticks: first (left-aligned) and last (right-aligned)
+  var _ticksArr=[];
+  if(_mrkParts.length>=1){
+    var _first=_mrkParts[0], _last=_mrkParts[_mrkParts.length-1];
+    _ticksArr.push('<div style="position:absolute;left:0;top:0"><div class="htl-tick-label">'+_first.label+'</div></div>');
+    if(_mrkParts.length>1)
+      _ticksArr.push('<div style="position:absolute;right:0;top:0;text-align:right"><div class="htl-tick-label">'+_last.label+'</div></div>');
+  }
+  var ticksHtml=_ticksArr.join('');
 
   document.getElementById('veh-htl').innerHTML=
     '<div class="lcard" style="padding:16px">'
