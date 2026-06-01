@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.71</div>
+      <div class="h-ver">v3.74</div>
     </div>
   </div>
   <div class="h-right">
@@ -611,6 +611,15 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     <div class="fg" style="margin-bottom:12px"><label>Linked Service Request</label>
       <select id="emob-sr-select" onchange="emobSRChanged()"><option value="">— Select —</option></select>
     </div>
+    <!-- eMob Search (shown when no SR selected) -->
+    <div id="emob-search-section">
+      <div class="fg" style="margin-bottom:10px">
+        <label>Search eMob Requests</label>
+        <input type="text" id="emob-search-inp" placeholder="Search by SR ref, vehicle, operator…" oninput="emobSearch()" style="width:100%">
+      </div>
+      <div id="emob-search-results" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+    <div id="emob-form-body" style="display:none">
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       <button type="button" class="emob-check-btn" id="emob-chk-trace" onclick="toggleEmobCheck(this)">Trace Provided</button>
       <button type="button" class="emob-check-btn" id="emob-chk-ecu" onclick="toggleEmobCheck(this)">ECU Upload Provided</button>
@@ -630,19 +639,20 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     </div>
     <div id="emob-can-card" style="display:none;background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:12px">CAN Measurements</div>
-      <div style="display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:6px 10px;align-items:center">
-        <div></div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">H</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">L</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">Resistance</div>
-        <div style="font-size:12px;font-weight:600;color:var(--txm)">P-CAN</div><input type="text" id="emob-pcan-h" placeholder="V" style="text-align:center"><input type="text" id="emob-pcan-l" placeholder="V" style="text-align:center"><input type="text" id="emob-pcan-r" placeholder="Ω" style="text-align:center">
-        <div style="font-size:12px;font-weight:600;color:var(--txm)">E-CAN</div><input type="text" id="emob-ecan-h" placeholder="V" style="text-align:center"><input type="text" id="emob-ecan-l" placeholder="V" style="text-align:center"><input type="text" id="emob-ecan-r" placeholder="Ω" style="text-align:center">
-        <div class="emob-ican-row" style="font-size:12px;font-weight:600;color:var(--txm)">I-CAN</div><input type="text" id="emob-ican-h" class="emob-ican-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ican-l" class="emob-ican-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ican-r" class="emob-ican-row" placeholder="Ω" style="text-align:center">
-        <div class="emob-ccan-row" style="font-size:12px;font-weight:600;color:var(--txm)">C-CAN</div><input type="text" id="emob-ccan-h" class="emob-ccan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ccan-l" class="emob-ccan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-ccan-r" class="emob-ccan-row" placeholder="Ω" style="text-align:center">
-        <div class="emob-acan-row" style="font-size:12px;font-weight:600;color:var(--txm)">A-CAN</div><input type="text" id="emob-acan-h" class="emob-acan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-acan-l" class="emob-acan-row" placeholder="V" style="text-align:center"><input type="text" id="emob-acan-r" class="emob-acan-row" placeholder="Ω" style="text-align:center">
+      <div style="display:grid;grid-template-columns:56px 1fr 1fr 1fr;gap:6px 6px;align-items:center;min-width:0;overflow:hidden">
+        <div></div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">H</div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">L</div><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:var(--grey);text-align:center">Res.</div>
+        <div style="font-size:11px;font-weight:600;color:var(--txm)">P-CAN</div><input type="text" id="emob-pcan-h" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-pcan-l" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-pcan-r" placeholder="Ω" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0">
+        <div style="font-size:11px;font-weight:600;color:var(--txm)">E-CAN</div><input type="text" id="emob-ecan-h" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ecan-l" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ecan-r" placeholder="Ω" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0">
+        <div class="emob-ican-row" style="font-size:11px;font-weight:600;color:var(--txm)">I-CAN</div><input type="text" id="emob-ican-h" class="emob-ican-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ican-l" class="emob-ican-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ican-r" class="emob-ican-row" placeholder="Ω" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0">
+        <div class="emob-ccan-row" style="font-size:11px;font-weight:600;color:var(--txm)">C-CAN</div><input type="text" id="emob-ccan-h" class="emob-ccan-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ccan-l" class="emob-ccan-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-ccan-r" class="emob-ccan-row" placeholder="Ω" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0">
+        <div class="emob-acan-row" style="font-size:11px;font-weight:600;color:var(--txm)">A-CAN</div><input type="text" id="emob-acan-h" class="emob-acan-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-acan-l" class="emob-acan-row" placeholder="V" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0"><input type="text" id="emob-acan-r" class="emob-acan-row" placeholder="Ω" style="text-align:center;font-size:14px;padding:8px 4px;min-width:0">
       </div>
     </div>
     <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:12px">Other Information</div>
       <div class="fg" style="margin-bottom:10px"><label>Completed Diagnostics</label><textarea id="emob-completed-diag" rows="4" style="width:100%;resize:vertical"></textarea></div>
       <div class="fg"><label>Further Details/Comments</label><textarea id="emob-further-comments" rows="4" style="width:100%;resize:vertical"></textarea></div>
+    </div>
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:10px">
       <button id="emob-save-btn" class="btn primary" onclick="saveEmobRequest()" disabled style="flex:1;opacity:0.5;cursor:not-allowed">&#9993; Save &amp; Email to eMob</button>
@@ -1502,6 +1512,153 @@ function updateEmobCanVisibility(productType, productSubType){
   document.querySelectorAll('.emob-acan-row').forEach(function(el){el.style.display=is15?'':'none';});
 }
 
+async function emobSearch(){
+  var q=(document.getElementById('emob-search-inp')?.value||'').trim().toLowerCase();
+  var out=document.getElementById('emob-search-results');
+  if(!out)return;
+  if(!q){out.innerHTML='';return;}
+  var results=[];
+  // Only search current customer
+  var prefix=activeCustomer?.prefix||'WB';
+  var fn=prefix+'-eMobRequests.json';
+  var data={};
+  try{data=await readJSON(fn)||{};}catch(e){}
+  Object.keys(data).forEach(function(key){
+    var r=data[key];
+    var text=(key+' '+(r.ref||'')+' '+(r.vehicle||'')+' '+(r.operator||'')+' '+(r.engineer||'')).toLowerCase();
+    if(text.indexOf(q)>=0)results.push({key:key,data:r});
+  });
+  if(!results.length){out.innerHTML='<div style="font-size:13px;color:var(--txm);padding:8px 0">No results found</div>';return;}
+  // Sort newest first
+  results.sort(function(a,b){return (b.data.savedAt||'').localeCompare(a.data.savedAt||'');});
+  out.innerHTML=results.slice(0,30).map(function(r){
+    var d=r.data.savedAt?new Date(r.data.savedAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    return '<div style="background:var(--surf);border:1px solid var(--bdr);border-radius:6px;padding:10px 12px;cursor:pointer" onclick="emobSearchSelect(\''+r.key+'\')">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
+      +'<span style="font-size:13px;font-weight:600;font-family:monospace">'+r.key+'</span>'
+      +'<span style="font-size:11px;color:var(--txm);white-space:nowrap">'+d+'</span>'
+      +'</div>'
+      +'<div style="font-size:12px;color:var(--txm);margin-top:3px">'+(r.data.vehicle||'—')+(r.data.operator?' &bull; '+r.data.operator:'')+'</div>'
+      +'</div>';
+  }).join('');
+  // Store results for popup access
+  window._emobSearchData=data;
+}
+
+function emobSearchSelect(key){
+  // Show read-only popup with request details
+  var data=window._emobSearchData||{};
+  var r=data[key];
+  if(!r){return;}
+  showEmobRequestPopup(key,r);
+}
+
+function showEmobRequestPopup(key,r){
+  var yn=function(v){return v?'<span style="color:var(--teal);font-weight:600">Yes</span>':'<span style="color:var(--txm)">No</span>';};
+  var val=function(v){return v||'<span style="color:var(--txm)">&mdash;</span>';};
+  var d=r.savedAt?new Date(r.savedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+
+  var rows=[
+    ['Request ID',key],['Saved',d],['SR Reference',r.ref||''],
+    ['Engineer',r.engineer||''],['Vehicle',r.vehicle||''],
+    ['Operator',r.operator||''],['Product Type',r.productType||''],
+    ['VEDS Generation',r.productSubType||''],
+  ];
+  var infoHTML=rows.map(function(row){
+    return '<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--bdr)">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--txm);min-width:120px;flex-shrink:0">'+row[0]+'</div>'
+      +'<div style="font-size:12px;color:var(--tx)">'+val(row[1])+'</div>'
+      +'</div>';
+  }).join('');
+
+  var checksHTML=[
+    ['Trace Provided',r.traceProvided],
+    ['ECU Upload Provided',r.ecuUpload],
+    ['HV Isolation Test',r.hvIsoTest],
+    ['Fuel Cell Vehicle',r.fuelCell],
+    ['HV Charge Issue',r.hvChargeIssue],
+  ].map(function(row){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'
+      +'<span style="font-size:12px;color:var(--txm)">'+row[0]+'</span>'+yn(row[1])+'</div>';
+  }).join('');
+
+  var hvHTML='';
+  if(r.hvChargeIssue){
+    var hvRows=[
+      ['CCU Type',r.hvCcuType],['Charge LED',r.hvChargeLed],
+      ['Plug Lock',r.hvPlugLock],['Side Lights',r.hvSideLight],
+      ['PP to PE Resistance',r.hvPpPeResistance],
+    ];
+    hvHTML='<div style="margin-top:12px;padding:10px;background:var(--navy2,var(--surf));border-radius:6px;border:1px solid rgba(0,241,193,.25)">'
+      +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--teal);margin-bottom:8px">HV Charge Information</div>'
+      +hvRows.map(function(row){
+        return '<div style="display:flex;gap:8px;padding:3px 0">'
+          +'<div style="font-size:11px;color:var(--txm);min-width:130px">'+row[0]+'</div>'
+          +'<div style="font-size:12px;color:var(--tx)">'+val(row[1])+'</div></div>';
+      }).join('')+'</div>';
+  }
+
+  var canKeys=[
+    ['P-CAN','canPCanH','canPCanL','canPCanR'],
+    ['E-CAN','canECanH','canECanL','canECanR'],
+    ['I-CAN','canICanH','canICanL','canICanR'],
+    ['C-CAN','canCCanH','canCCanL','canCCanR'],
+    ['A-CAN','canACanH','canACanL','canACanR'],
+  ];
+  var canRows=canKeys.filter(function(row){return r[row[1]]||r[row[2]]||r[row[3]];});
+  var canHTML='';
+  if(canRows.length){
+    canHTML='<div style="margin-top:12px">'
+      +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:8px">CAN Measurements</div>'
+      +'<div style="display:grid;grid-template-columns:56px 1fr 1fr 1fr;gap:4px 8px;font-size:12px">'
+      +'<div></div><div style="text-align:center;font-size:10px;color:var(--grey);font-weight:700">H</div>'
+      +'<div style="text-align:center;font-size:10px;color:var(--grey);font-weight:700">L</div>'
+      +'<div style="text-align:center;font-size:10px;color:var(--grey);font-weight:700">Res.</div>'
+      +canRows.map(function(row){
+        return '<div style="font-weight:600;color:var(--txm)">'+row[0]+'</div>'
+          +'<div style="text-align:center">'+val(r[row[1]])+'</div>'
+          +'<div style="text-align:center">'+val(r[row[2]])+'</div>'
+          +'<div style="text-align:center">'+val(r[row[3]])+'</div>';
+      }).join('')
+      +'</div></div>';
+  }
+
+  var diagHTML='';
+  if(r.completedDiagnostics||r.furtherComments){
+    diagHTML='<div style="margin-top:12px">';
+    if(r.completedDiagnostics)
+      diagHTML+='<div style="margin-bottom:8px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:4px">Completed Diagnostics</div>'
+        +'<div style="font-size:12px;color:var(--tx);white-space:pre-wrap;background:var(--surf);padding:8px;border-radius:4px">'+r.completedDiagnostics+'</div></div>';
+    if(r.furtherComments)
+      diagHTML+='<div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:4px">Further Details/Comments</div>'
+        +'<div style="font-size:12px;color:var(--tx);white-space:pre-wrap;background:var(--surf);padding:8px;border-radius:4px">'+r.furtherComments+'</div></div>';
+    diagHTML+='</div>';
+  }
+
+  var body='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:700;display:flex;align-items:center;justify-content:center" id="emob-view-modal" onclick="if(event.target===this)closeEmobViewModal()">'
+    +'<div style="background:var(--bg);border-radius:10px;width:640px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;border:1px solid var(--bdr)">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr)">'
+    +'<h2 style="margin:0;font-size:15px;color:var(--offwhite)">&#9889; eMob Request — '+key+'</h2>'
+    +'<button onclick="closeEmobViewModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--grey)">&#x2715;</button>'
+    +'</div>'
+    +'<div style="overflow-y:auto;flex:1;padding:16px;display:flex;flex-direction:column;gap:0">'
+    +infoHTML
+    +'<div style="margin-top:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:8px">Checks</div>'+checksHTML+'</div>'
+    +hvHTML+canHTML+diagHTML
+    +'</div>'
+    +'</div>'
+    +'</div>';
+
+  var el=document.createElement('div');
+  el.innerHTML=body;
+  document.body.appendChild(el.firstChild);
+}
+
+function closeEmobViewModal(){
+  var m=document.getElementById('emob-view-modal');
+  if(m)m.remove();
+}
+
 function populateEmobSRSelect(){
   var sel=document.getElementById('emob-sr-select');if(!sel)return;
   var cur=sel.value;
@@ -1516,16 +1673,23 @@ function emobSRChanged(){
   if(!btn)return;
   var hasSR=!!(sel&&sel.value);
   btn.disabled=!hasSR;btn.style.opacity=hasSR?'1':'0.5';btn.style.cursor=hasSR?'pointer':'not-allowed';
-  // Clear form fields when SR changes (but keep dropdown)
+  var search=document.getElementById('emob-search-section');
+  var form=document.getElementById('emob-form-body');
+  if(search)search.style.display=hasSR?'none':'';
+  if(form)form.style.display=hasSR?'':'none';
   var tab=document.getElementById('eng-tab-emob');
   if(tab){
     tab.querySelectorAll('.emob-check-btn').forEach(function(b){b.classList.remove('on');});
     var hvC=document.getElementById('emob-hv-charge-card');if(hvC)hvC.style.display='none';
-    tab.querySelectorAll('input[type="text"],textarea').forEach(function(el){el.value='';el.style.outline='';});
+    tab.querySelectorAll('input[type="text"],textarea').forEach(function(el){if(el.id!=='emob-search-inp'){el.value='';el.style.outline='';}});
     tab.querySelectorAll('select:not(#emob-sr-select)').forEach(function(el){el.value='';el.style.outline='';});
   }
   if(hasSR){var rec=allRecords.find(function(r){return r.ref===sel.value;});if(rec)updateEmobCanVisibility(rec.productType,rec.productSubType);}
   else{updateEmobCanVisibility('','');}
+  if(!hasSR){
+    var si=document.getElementById('emob-search-inp');if(si)si.value='';
+    var sres=document.getElementById('emob-search-results');if(sres)sres.innerHTML='';
+  }
 }
 
 
@@ -1703,6 +1867,10 @@ function clearEmobForm(){
   // Reset SR dropdown
   var sel=document.getElementById('emob-sr-select');
   if(sel)sel.value='';
+  var si=document.getElementById('emob-search-inp');if(si)si.value='';
+  var sr=document.getElementById('emob-search-results');if(sr)sr.innerHTML='';
+  var search=document.getElementById('emob-search-section');if(search)search.style.display='';
+  var form=document.getElementById('emob-form-body');if(form)form.style.display='none';
   // Reset toggle buttons
   document.querySelectorAll('.emob-check-btn').forEach(function(b){b.classList.remove('on');});
   // Hide conditional cards
