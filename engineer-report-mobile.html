@@ -371,7 +371,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.45</div>
+      <div class="h-ver">v3.46</div>
     </div>
   </div>
   <div class="h-right">
@@ -1422,7 +1422,7 @@ async function writeRecords(){await writeJSON(customerRecordsFile(),allRecords);
 function populateSRSelect(){
   const sel=document.getElementById('sr-select');
   const prev=currentRef;
-  const open=[...allRecords].filter(r=>!r.dateRepair).sort((a,b)=>(b.srNumber||0)-(a.srNumber||0));
+  const open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate').sort((a,b)=>(b.srNumber||0)-(a.srNumber||0));
   sel.innerHTML='<option value="">— Select a service request —</option>';
   open.forEach(r=>{const o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===prev)o.selected=true;sel.appendChild(o)});
   document.getElementById('lcount').textContent=open.length+' open'+(allRecords.length?' of '+allRecords.length+' total':'');
