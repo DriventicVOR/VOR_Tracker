@@ -371,7 +371,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.46</div>
+      <div class="h-ver">v3.48</div>
     </div>
   </div>
   <div class="h-right">
@@ -1181,10 +1181,10 @@ function getCompsForProductType(pt){
 
 function compRowHTML(val,idx,partNum,symptom,rootCause){
   const pt=window._currentProductType||'VEDS';
-  const names=getCompsForProductType(pt);
+  const names=[...getCompsForProductType(pt)].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
   const opts=names.map(o=>`<option value="${o}"${o===val?' selected':''}>${o}</option>`).join('');
-  const symptomOpts=(config.symptoms||[]).map(s=>`<option value="${s}"${s===symptom?' selected':''}>${s}</option>`).join('');
-  const rcOpts=(config.rootCauses||[]).map(s=>`<option value="${s}"${s===rootCause?' selected':''}>${s}</option>`).join('');
+  const symptomOpts=[...(config.symptoms||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'})).map(s=>`<option value="${s}"${s===symptom?' selected':''}>${s}</option>`).join('');
+  const rcOpts=[...(config.rootCauses||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'})).map(s=>`<option value="${s}"${s===rootCause?' selected':''}>${s}</option>`).join('');
   const rmBtn=idx>0?`<button type="button" onclick="removeCompRow(${idx})" title="Remove" style="flex-shrink:0;padding:5px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit;line-height:1">&#x2715;</button>`:'';
   return`<div class="comp-row" id="comp-row-${idx}" style="border:1px solid var(--bdr);border-radius:6px;padding:10px;margin-bottom:8px;background:var(--surf2)">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
@@ -1243,9 +1243,9 @@ function addCompRow(){
 
 function refreshCompOptions(){
   const pt=window._currentProductType||'VEDS';
-  const names=getCompsForProductType(pt);
-  const syms=config.symptoms||[];
-  const rcs=config.rootCauses||[];
+  const names=[...getCompsForProductType(pt)].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
+  const syms=[...(config.symptoms||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
+  const rcs=[...(config.rootCauses||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
   let i=0;
   while(document.getElementById('e-comp-'+i)){
     const sel=document.getElementById('e-comp-'+i);
@@ -2151,7 +2151,8 @@ function fillSel(id,arr,ph){
   const el=document.getElementById(id);if(!el)return;
   const cur=el.value;
   el.innerHTML=`<option value="">${ph}</option>`;
-  (arr||[]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});
+  const sorted=[...(arr||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
+  sorted.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});
   if(cur)el.value=cur;
 }
 function gv(id){return document.getElementById(id)?.value?.trim()||'';}
