@@ -371,7 +371,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.51</div>
+      <div class="h-ver">v3.52</div>
     </div>
   </div>
   <div class="h-right">
@@ -473,7 +473,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       </div>
       <div class="fcb">
         <div class="fg">
-          <label>Date First Attended</label>
+          <label>Date First Attended <span style="color:var(--red);margin-left:2px">*</span></label>
           <input type="date" id="e-date-att" oninput="updateVisitCount()" required>
         </div>
         <div class="fg">
@@ -517,11 +517,11 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
           <select id="e-voith" required><option value="">Select…</option></select>
         </div>
         <div class="fg" style="margin-top:8px">
-          <label>Diagnosis</label>
+          <label>Diagnosis and Comments <span style="color:var(--red)">*</span></label>
           <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%;resize:vertical"></textarea>
         </div>
         <div class="fg" style="margin-top:8px">
-          <label>Comments</label>
+          <label>Chargeable Details</label>
           <textarea id="e-comments" rows="3" placeholder="Additional comments…" style="width:100%;resize:vertical"></textarea>
         </div>
       </div>
@@ -1254,6 +1254,14 @@ function refreshCompOptions(){
   const names=[...getCompsForProductType(pt)].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
   const syms=[...(config.symptoms||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
   const rcs=[...(config.rootCauses||[])].sort((a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true,sensitivity:'base'}));
+  // Validate interim visit comments
+  let _ivValid=true;
+  document.querySelectorAll('[id^="interim-comments-"]').forEach(function(ta){
+    ta.classList.remove('err');
+    if(!ta.value.trim()){ta.classList.add('err');_ivValid=false;}
+  });
+  if(!_ivValid){showToast('Please add comments for all interim visits','error');return;}
+
   let i=0;
   while(document.getElementById('e-comp-'+i)){
     const sel=document.getElementById('e-comp-'+i);
@@ -1571,7 +1579,7 @@ function addInterimVisit(date, comments, unavailable){
     + '</div>'
     + '</div>'
     + '<div class="fg" style="margin:0;display:flex;flex-direction:column;gap:4px">'
-    + '<label style="display:flex;justify-content:space-between">Comments '
+    + '<label style="display:flex;justify-content:space-between">Comments <span style="color:var(--red);margin-left:2px">*</span>'
     + '<button type="button" onclick="removeInterimVisit('+idx+')" '
     + 'style="font-size:11px;padding:1px 7px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button></label>'
     + '<textarea id="interim-comments-'+idx+'" placeholder="Notes for this visit…" style="min-height:48px;resize:vertical">'+(comments||'')+'</textarea>'
@@ -1683,7 +1691,7 @@ function hideForm(){
   if(rSel)rSel.innerHTML='<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option><option value="ONGOING">ONGOING</option>';
   // Clear all form inputs
   ['e-engineer','e-region','e-date-att','e-date-repair','e-warranty',
-   'e-voith','e-inverter','e-diagnosis','e-comments','e-sw-init','e-sw-fin'].forEach(id=>{
+   'e-voith','e-inverter','e-diagnosis','e-sw-init','e-sw-fin'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.value='';
   });
