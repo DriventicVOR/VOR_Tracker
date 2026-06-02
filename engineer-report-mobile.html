@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.77</div>
+      <div class="h-ver">v3.78</div>
     </div>
   </div>
   <div class="h-right">
@@ -2197,7 +2197,7 @@ function validate(strict){
   const alwaysRequired=['e-engineer','e-region'];
   // Only required when repair date is filled (strict mode)
   const strictRequired=['e-rectified','e-inverter','e-warranty','e-voith',
-    'e-diagnosis','e-comments','e-sw-init','e-sw-fin'];
+    'e-diagnosis','e-sw-init','e-sw-fin'];
   const toCheck=strict?[...alwaysRequired,...strictRequired]:alwaysRequired;
   let ok=true;
   // Clear all errors first
