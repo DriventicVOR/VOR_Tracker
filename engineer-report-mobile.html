@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.78</div>
+      <div class="h-ver">v3.79</div>
     </div>
   </div>
   <div class="h-right">
@@ -2316,7 +2316,9 @@ async function confirmSaveReport(sendEmail){
   }
   hideForm();
   document.getElementById('sr-select').value='';
-  await refreshRecords();
+  // Update dropdown immediately from in-memory data, then re-sync from storage
+  populateSRSelect();
+  refreshRecords();
 }
 
 async function sendReportEmail(rec){
