@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.79</div>
+      <div class="h-ver">v3.83</div>
     </div>
   </div>
   <div class="h-right">
@@ -1662,7 +1662,7 @@ function closeEmobViewModal(){
 function populateEmobSRSelect(){
   var sel=document.getElementById('emob-sr-select');if(!sel)return;
   var cur=sel.value;
-  var open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate').sort(function(a,b){return (b.srNumber||0)-(a.srNumber||0);});
+  var open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate'&&r.status!=='Closed').sort(function(a,b){return (b.srNumber||0)-(a.srNumber||0);});
   sel.innerHTML='<option value="">— Select —</option>';
   open.forEach(function(r){var o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===cur)o.selected=true;sel.appendChild(o);});
 }
@@ -2032,7 +2032,7 @@ function addInterimVisit(date,comments,unavailable){
 function populateSRSelect(){
   const sel=document.getElementById('sr-select');
   const prev=currentRef;
-  const open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate').sort((a,b)=>(b.srNumber||0)-(a.srNumber||0));
+  const open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate'&&r.status!=='Closed').sort((a,b)=>(b.srNumber||0)-(a.srNumber||0));
   sel.innerHTML='<option value="">— Select a service request —</option>';
   open.forEach(r=>{const o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===prev)o.selected=true;sel.appendChild(o)});
   document.getElementById('lcount').textContent=open.length+' open'+(allRecords.length?' of '+allRecords.length+' total':'');
@@ -2276,29 +2276,29 @@ async function confirmSaveReport(sendEmail){
   if(_pendingRecord.status!==_oldSt||_pendingRecord.statusHistory.length===0){
     _pendingRecord.statusHistory=[..._pendingRecord.statusHistory,{status:_pendingRecord.status,date:statusDate(_pendingRecord,_pendingRecord.status)}];
   }
-  // Reload latest JSON from storage before saving to avoid overwriting other engineers' changes
-  try{
-    const _fresh=await readJSON(customerRecordsFile());
-    if(_fresh&&Array.isArray(_fresh)){
-      // Merge: update only this record, keep everything else from the fresh file
-      const _freshIdx=_fresh.findIndex(r=>r.ref===_pendingRecord.ref);
-      if(_freshIdx>=0)_fresh[_freshIdx]=_pendingRecord;
-      else _fresh.push(_pendingRecord);
-      allRecords=_fresh.map(r=>({...r,_customer:activeCustomer?.prefix||'WB'}));
-      await writeJSON(customerRecordsFile(),_fresh);
-    } else {
-      allRecords[idx]=_pendingRecord;
-      await writeRecords();
-    }
-  }catch(e){
-    // Fallback: write with current allRecords
-    allRecords[idx]=_pendingRecord;
-    await writeRecords();
-  }
+  // Update allRecords in memory
+  allRecords[idx]={...allRecords[idx],..._pendingRecord};
+  if(allRecords[idx].dateRepair) allRecords[idx].status='Closed';
   const savedRef=_pendingRecord.ref;
+  // Update dropdown immediately — before any async work
+  const _savedStatus=allRecords[idx].status;
+  const _savedDateRepair=allRecords[idx].dateRepair;
+  if(_savedDateRepair||_savedStatus==='Closed'){
+    // Directly remove from dropdown without waiting for populateSRSelect
+    const _sel=document.getElementById('sr-select');
+    if(_sel){const _opt=_sel.querySelector('option[value="'+savedRef+'"]');if(_opt)_opt.remove();}
+    const _esel=document.getElementById('emob-sr-select');
+    if(_esel){const _eopt=_esel.querySelector('option[value="'+savedRef+'"]');if(_eopt)_eopt.remove();}
+  }
   _pendingRecord=null;
   closeEngPopup();
   showToast(savedRef+' saved','success');
+  // Write to storage async
+  try{
+    await writeJSON(customerRecordsFile(), allRecords.map(({_customer,...r})=>r));
+  }catch(e){
+    showToast('Save failed: '+e.message,'error');
+  }
   if(sendEmail){
     window._pendingMailto=null;
     await sendReportEmail(allRecords.find(r=>r.ref===savedRef));
@@ -2316,9 +2316,7 @@ async function confirmSaveReport(sendEmail){
   }
   hideForm();
   document.getElementById('sr-select').value='';
-  // Update dropdown immediately from in-memory data, then re-sync from storage
   populateSRSelect();
-  refreshRecords();
 }
 
 async function sendReportEmail(rec){
