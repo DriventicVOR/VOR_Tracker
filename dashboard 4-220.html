@@ -2206,7 +2206,10 @@ return true;
       },
       plugins:{legend:{display:true,position:'top',labels:{color:'#8896a8',font:{size:11},boxWidth:12,padding:12,usePointStyle:true,pointStyle:'rect'}},
         tooltip:{backgroundColor:'#1a2234',borderColor:'rgba(255,255,255,.07)',borderWidth:1,titleColor:'#e8edf4',bodyColor:'#8896a8',filter:(item)=>item.raw>0,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw}`}}},
-      plugins:[{id:'stackLabels',afterDatasetsDraw(chart){
+      scales:{x:{stacked:true,ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{stacked:true,title:{display:true,text:'Count',color:'#8896a8',font:{size:11}},ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true}}
+  },
+  plugins:[{id:'stackLabels',afterDatasetsDraw(chart){
   const {ctx}=chart;
   chart.data.datasets.forEach((_,di)=>{
     const meta=chart.getDatasetMeta(di);
@@ -2234,38 +2237,31 @@ return true;
       ctx.restore();
     });
   });
-  // Draw % CLOSED label at the bottom of each stacked bar
+  // % CLOSED label at bottom of each stacked bar
   const _pcts=window._defClosedPct||[];
-  if(_pcts.length){
-    // Find bottom-most visible dataset to get bar base coords
-    let _baseMeta=null;
-    for(let _di=0;_di<chart.data.datasets.length;_di++){
-      const _m=chart.getDatasetMeta(_di);
-      if(_m.visible){_baseMeta=_m;break;}
-    }
-    if(_baseMeta){
-      _baseMeta.data.forEach(function(bar,bi){
-        const pct=_pcts[bi];
-        if(pct===null||pct===undefined)return;
-        const _p=bar.getProps(['x','base','width'],true);
-        const _txt=pct+'% CLOSED';
-        ctx.save();
-        ctx.font='bold 9px monospace';
-        ctx.textAlign='center';
-        ctx.textBaseline='bottom';
-        const _tw=ctx.measureText(_txt).width;
-        const _pad=3,_lh=12;
-        ctx.fillStyle='rgba(10,15,30,0.9)';
-        ctx.fillRect(_p.x-_tw/2-_pad,_p.base-_lh-2,_tw+_pad*2,_lh);
-        ctx.fillStyle='#00f1c1';
-        ctx.fillText(_txt,_p.x,_p.base-2);
-        ctx.restore();
-      });
-    }
+  let _baseMeta=null;
+  for(let _di=0;_di<chart.data.datasets.length;_di++){
+    const _m=chart.getDatasetMeta(_di);
+    if(_m.visible){_baseMeta=_m;break;}
   }
-}}],
-      scales:{x:{stacked:true,ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
-        y:{stacked:true,title:{display:true,text:'Count',color:'#8896a8',font:{size:11}},ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true}}}
+  if(_baseMeta)_baseMeta.data.forEach(function(bar,bi){
+    const pct=_pcts[bi];
+    if(pct===null||pct===undefined)return;
+    const _p=bar.getProps(['x','base','width'],true);
+    const _txt2=pct+'% CLOSED';
+    ctx.save();
+    ctx.font='bold 9px monospace';
+    ctx.textAlign='center';
+    ctx.textBaseline='bottom';
+    const _tw2=ctx.measureText(_txt2).width;
+    const _pad2=3;
+    ctx.fillStyle='rgba(10,15,30,0.9)';
+    ctx.fillRect(_p.x-_tw2/2-_pad2,_p.base-13,_tw2+_pad2*2,12);
+    ctx.fillStyle='#00f1c1';
+    ctx.fillText(_txt2,_p.x,_p.base-2);
+    ctx.restore();
+  });
+}}]
   });
   const subRow=document.getElementById('defect-sub-row');if(subRow)subRow.style.display='none';
 }
