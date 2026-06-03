@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.83</div>
+      <div class="h-ver">v3.90</div>
     </div>
   </div>
   <div class="h-right">
@@ -487,6 +487,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div style="margin-top:8px">
           <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewInterimVisit()">+ Add interim visit</button>
           <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewPartsOrdered()">+ Parts ordered</button>
+          <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewDatalogger()">+ Datalogger fitted</button>
         </div>
         <div class="sdiv"></div>
         <div class="fg">
@@ -1894,6 +1895,7 @@ function clearEmobForm(){
 var _combinedItems = [];
 var _interimCount  = 0;
 var _partsCount    = 0;
+var _dataloggerCount = 0;
 
 function renderCombinedList(){
   var list=document.getElementById('combined-visits-list');
@@ -1907,6 +1909,7 @@ function renderCombinedList(){
     if(item.type==='interim')     _renderInterimCard(list,item);
     else if(item.type==='parts')  _renderPartsCard(list,item);
     else if(item.type==='emob')   _renderEmobCard(list,item);
+    else if(item.type==='datalogger') _renderDataloggerCard(list,item);
   });
 }
 
@@ -2023,6 +2026,42 @@ function removePartsOrdered(i){
   renderCombinedList();
 }
 
+function addNewDatalogger(){
+  var open=_combinedItems.some(function(x){return x.type==='datalogger'&&!x.dateRemoved;});
+  if(open){showToast('A datalogger is already fitted — enter a removed date before adding another','error');return;}
+  var i=_dataloggerCount++;
+  _combinedItems.push({type:'datalogger',idx:i,date:new Date().toISOString().slice(0,10),dateFitted:'',dateRemoved:''});
+  renderCombinedList();
+}
+function loadDatalogger(items){
+  _dataloggerCount=0;
+  _combinedItems=_combinedItems.filter(function(x){return x.type!=='datalogger';});
+  (items||[]).forEach(function(d){
+    var i=_dataloggerCount++;
+    _combinedItems.push({type:'datalogger',idx:i,date:d.dateFitted||'',dateFitted:d.dateFitted||'',dateRemoved:d.dateRemoved||''});
+  });
+}
+function removeDatalogger(i){
+  _combinedItems=_combinedItems.filter(function(x){return !(x.type==='datalogger'&&x.idx===i);});
+  renderCombinedList();
+}
+function updateDataloggerFitted(i){
+  var item=_combinedItems.find(function(x){return x.type==='datalogger'&&x.idx===i;});
+  if(item){var v=document.getElementById('dl-date-fitted-'+i)?.value||''; item.dateFitted=v; item.date=v; renderCombinedList();}
+}
+function _renderDataloggerCard(list,item){
+  var i=item.idx;
+  var div=document.createElement('div');
+  div.id='datalogger-'+i;
+  div.style.cssText='margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr)';
+  div.innerHTML=
+    '<div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Datalogger</div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
+    +'<button type="button" onclick="removeDatalogger('+i+')" style="font-size:11px;padding:4px 12px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;width:100%">Remove</button>';
+  list.appendChild(div);
+}
+
 function addInterimVisit(date,comments,unavailable){
   var i=_interimCount++;
   _combinedItems.push({type:'interim',idx:i,date:date||'',comments:comments||'',unavailable:unavailable||''});
@@ -2104,7 +2143,8 @@ function loadRecord(){
 
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
-  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
 
   renderCustomEngineerFields(rec.customFields||{});
   enableForm();
@@ -2215,6 +2255,15 @@ function validate(strict){
       el.classList.remove('err');
       if(!el.value.trim()){el.classList.add('err');ok=false;}
     });
+    _combinedItems.filter(function(x){return x.type==='datalogger';}).forEach(function(x){
+      var el=document.getElementById('dl-date-removed-'+x.idx);
+      if(el)el.classList.remove('err');
+      if(!x.dateRemoved){
+        if(el){el.classList.add('err');el.scrollIntoView({block:'center',behavior:'smooth'});}
+        ok=false;
+        showToast('Datalogger removed date is required before closing the report','error');
+      }
+    });
   }
   return ok;
 }
@@ -2250,7 +2299,7 @@ async function saveReport(){
     engineer:gv('e-engineer'),region:gv('e-region'),
     dateAttended:gv('e-date-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
-    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
+    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     comments:gv('e-comments'),components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
@@ -2392,14 +2441,9 @@ async function sendReportEmail(rec){
   sep('ENGINEER REPORT');
   if(inc('engineer'))     add('Engineer',rec.engineer);
   if(inc('region'))       add('Region',rec.region);
-  if(inc('dateAttended')) add('Date First Attended',rec.dateAttended);
-  if(inc('interimVisits')){
-    if(rec.interimVisits&&rec.interimVisits.length){
-      lines.push('Interim Visits:');
-      rec.interimVisits.forEach((vv,i)=>lines.push('  Visit '+(i+1)+': '+(vv.date||'—')+(vv.comments?' — '+vv.comments:'')+(vv.vehicleUnavailable==='Y'?' — Vehicle unavailable':'')));
-    }else{lines.push('Interim Visits: —');}
+  if(inc('dateAttended')||inc('interimVisits')||inc('dateRepair')){
+    _buildAttendanceLines(rec,'items').forEach(function(x){lines.push(x.label);});
   }
-  if(inc('dateRepair'))  add('Vehicle Repair Date',rec.dateRepair);
   if(inc('warranty'))    add('Warranty',rec.warranty);
   if(inc('voithFault'))  add('Liability',rec.voithFault);
   if(inc('rectified'))   add('Defect Rectified',rec.rectified);
@@ -2514,6 +2558,34 @@ async function connectStorage(){
   finally{window._connecting=false;}
 }
 
+
+
+function _buildAttendanceLines(rec, fmt){
+  var result=[];
+  if(rec.dateReported) result.push('Date Reported: '+rec.dateReported);
+  if(rec.dateAttended) result.push('Date First Attended: '+rec.dateAttended);
+  var mid=[];
+  var interimNum=2;
+  (rec.interimVisits||[]).forEach(function(v){
+    mid.push({date:v.date||'9999',order:0,
+      label:'Interim Visit '+interimNum+': '+(v.date||'—')+(v.comments?' — '+v.comments:'')+(v.vehicleUnavailable==='Y'?' — Vehicle unavailable':'')});
+    interimNum++;
+  });
+  (rec.partsOrdered||[]).forEach(function(p){
+    mid.push({date:p.dateOrdered||'9999',order:1,
+      label:'Parts Ordered: '+(p.dateOrdered||'—')+(p.partNumber?' ('+p.partNumber+')':'')+(p.dateExpected?' — Exp: '+p.dateExpected:'')});
+  });
+  (rec.datalogger||[]).forEach(function(d){
+    mid.push({date:d.dateFitted||'9999',order:2,
+      label:'Datalogger Fitted: '+(d.dateFitted||'—')+(d.dateRemoved?' — Removed: '+d.dateRemoved:'')});
+  });
+  mid.sort(function(a,b){return (a.date||'9999').localeCompare(b.date||'9999')||a.order-b.order;});
+  mid.forEach(function(x){result.push(x.label);});
+  if(rec.dateRepair) result.push('Vehicle Repair Date: '+rec.dateRepair);
+  if(fmt==='items') return result.map(function(l){return{label:l};});
+  return result.join(fmt==='html'?'<br>':'\n');
+}
+
 function openEngPopup(rec){
   document.getElementById('eng-popup-ref').textContent = rec.ref + ' — ' + (rec.vehicle||'') + '  (' + (rec.operator||'') + ')';
 
@@ -2603,10 +2675,7 @@ function openEngPopup(rec){
       <div class="popup-section-title blue">Engineer Report</div>
       <div class="popup-grid">
         ${pi('Engineer', rec.engineer)}
-        ${pi('Region', rec.region)}
-        ${pi('Date First Attended', rec.dateAttended)}
-        ${rec.interimVisits&&rec.interimVisits.length?pi('Interim Visits',rec.interimVisits.map((v,i)=>'Visit '+(i+1)+': '+(v.date||'')+(v.comments?' — '+v.comments:'')+(v.vehicleUnavailable==='Y'?' — Vehicle unavailable':'')).join('<br>'),true):''}
-        ${pi('Repair Date', rec.dateRepair)}
+        ${pi('Attendance',_buildAttendanceLines(rec,'html'),true)}
         ${pi('Warranty', rec.warranty)}
         ${pi('Liability', rec.voithFault)}
         ${pi('Defect Rectified', rec.rectified)}
@@ -2909,10 +2978,7 @@ openEngPopup = function(rec, viewOnly) {
         return s;
       }).filter(Boolean).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:4px 0">')
     : '—';
-  // Build interim visits
-  const visitList = Array.isArray(rec.interimVisits) && rec.interimVisits.length
-    ? rec.interimVisits.map((v,i) => 'Visit ' + (i+2) + ': ' + (v.date||'') + (v.comments ? ' — ' + v.comments : '') + (v.vehicleUnavailable==='Y' ? ' — Vehicle unavailable' : '')).join('<br>')
-    : null;
+  // Attendance built via shared helper
   const bodyHTML = `
     <div class='isection-title' style='margin-bottom:8px;color:var(--grn)'>Operator &amp; Vehicle</div>
     <div class='igrid' style='margin-bottom:16px'>
@@ -2944,9 +3010,7 @@ openEngPopup = function(rec, viewOnly) {
     </div>
     <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Attendance</div>
     <div class='igrid' style='margin-bottom:16px'>
-      ${pi('Date First Attended', rec.dateAttended)}
-      ${visitList ? pi('Interim Visits', visitList) : ''}
-      ${pi('Vehicle Repair Date', rec.dateRepair)}
+      ${pi('Attendance',_buildAttendanceLines(rec,'html'),true)}
       ${pi('Status', rec.status)}
     </div>
     <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Diagnosis &amp; Outcome</div>
