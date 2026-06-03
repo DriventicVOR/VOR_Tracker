@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.107</div>
+      <div class="h-ver">v3.108</div>
     </div>
   </div>
   <div class="h-right">
@@ -462,7 +462,11 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
             <option>SOUTH</option><option>IRELAND</option><option>N/A</option>
           </select>
         </div>
-        <div id="custom-inject-attendance-engineer" style="display:contents"></div>
+        <div class="fg">
+            <label>Expected Attendance Date</label>
+            <input type="date" id="e-date-expected-att">
+          </div>
+          <div id="custom-inject-attendance-engineer" style="display:contents"></div>
       </div>
     </div>
 
@@ -2204,7 +2208,7 @@ function loadRecord(){
 
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
-  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
+  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
   loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   updateChargeableInfo();
 
@@ -2290,7 +2294,7 @@ function hideForm(){
   const rSel=document.getElementById('e-rectified');
   if(rSel)rSel.innerHTML='<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option><option value="ONGOING">ONGOING</option>';
   // Clear all form inputs
-  ['e-engineer','e-region','e-date-att','e-date-repair','e-warranty',
+  ['e-engineer','e-region','e-date-att','e-date-expected-att','e-date-repair','e-warranty',
    'e-voith','e-inverter','e-diagnosis','e-sw-init','e-sw-fin'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.value='';
@@ -2364,7 +2368,7 @@ async function saveReport(){
   // Build the updated record but don't save yet
   _pendingRecord={...allRecords[idx],
     engineer:gv('e-engineer'),region:gv('e-region'),
-    dateAttended:gv('e-date-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
+    dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
     interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
