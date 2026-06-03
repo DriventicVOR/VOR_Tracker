@@ -373,7 +373,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.95</div>
+      <div class="h-ver">v3.100</div>
     </div>
   </div>
   <div class="h-right">
@@ -3006,7 +3006,7 @@ openEngPopup = function(rec, viewOnly) {
   if (titleEl) titleEl.textContent = (rec.ref || '') + (rec.vehicle ? ' — ' + rec.vehicle : '');
   if (subEl) subEl.textContent = rec.operator || '';
   // Build preview using same pi helper pattern as desktop
-  const pi = (label, val) => val ? `<div class='iitem'><label>${label}</label><span>${val}</span></div>` : '';
+  const pi = (label, val, full) => `<div class='iitem${full?' full':''}'><label>${label}</label><span>${val||'—'}</span></div>`;
   // Build component list
   const compList = Array.isArray(rec.components) && rec.components.length
     ? rec.components.map(co => {
@@ -3018,15 +3018,65 @@ openEngPopup = function(rec, viewOnly) {
         return s;
       }).filter(Boolean).join('<hr style="border:none;border-top:1px solid var(--bdr);margin:4px 0">')
     : '—';
+  // Variables needed for custom fields
+  const cfData = rec.customFields||{};
+  const pt = rec.productType||'';
+  const builtinKeys = ['operator','vehicle','fault','attendance','diagnosis','parts'];
+  const allCustomSecs = [...new Set(
+    (config.customFields||[])
+      .filter(f => !builtinKeys.includes(f.section) && f.productTypes && f.productTypes.includes(pt))
+      .map(f => f.section)
+  )];
   // Attendance built via shared helper
+  // Read live field labels from the form DOM
+  function lbl(inputId, fallback){
+    const el=document.getElementById(inputId);
+    if(el){const fg=el.closest('.fg')||el.parentElement;const lab=fg&&fg.querySelector('label');if(lab)return lab.textContent.replace(/\*/g,'').trim();}
+    return fallback;
+  }
+  function msec(title,color){return `<div class='isection-title' style='margin-bottom:8px;color:var(${color})'>${title}</div>`;}
+  function mSecTitle(key,color){
+    const ALL={...CUSTOMER_SECTIONS,...ENGINEER_SECTIONS};
+    return msec((config.sectionLabels&&config.sectionLabels[key])||ALL[key]||key, color);
+  }
+  // cfSection for mobile: same logic but uses pi (iitem)
+  function cfSectionM(sectionKey,formMatch){
+    const fields=(config.customFields||[]).filter(f=>{
+      if(formMatch==='customer'&&f.form==='engineer')return false;
+      if(formMatch==='engineer'&&f.form==='customer')return false;
+      if(f.section!==sectionKey)return false;
+      if(!f.productTypes||f.productTypes.length===0)return false;
+      if(!f.productTypes.includes(pt))return false;
+      return true;
+    });
+    return fields.map(f=>pi(f.label,cfData[f.id])).join('');
+  }
+  function customNamedSectionM(sectionName,formMatch){
+    const fields=(config.customFields||[]).filter(f=>{
+      if(formMatch==='customer'&&f.form==='engineer')return false;
+      if(formMatch==='engineer'&&f.form==='customer')return false;
+      if(f.section!==sectionName)return false;
+      if(!f.productTypes||f.productTypes.length===0)return false;
+      if(!f.productTypes.includes(pt))return false;
+      return true;
+    });
+    if(!fields.length)return '';
+    return `<div class='isection-title' style='margin-bottom:8px;color:var(--pur)'>${sectionName}</div><div class='igrid' style='margin-bottom:16px'>${fields.map(f=>pi(f.label,cfData[f.id])).join('')}</div>`;
+  }
+
   const bodyHTML = `
-    <div class='isection-title' style='margin-bottom:8px;color:var(--grn)'>Operator &amp; Vehicle</div>
+    ${mSecTitle('operator','--grn')}
     <div class='igrid' style='margin-bottom:16px'>
       ${pi('Operator', rec.operator)}
       ${pi('Location / Depot', rec.location)}
+      ${rec.address?pi('Address', rec.address, true):''}
       ${pi('Contact Name', rec.contactName)}
       ${pi('Contact Number', rec.contactNum)}
       ${pi('SR Number', rec.srNumber)}
+      ${cfSectionM('operator','customer')}
+    </div>
+    ${mSecTitle('vehicle','--grn')}
+    <div class='igrid' style='margin-bottom:16px'>
       ${pi('Vehicle ID', rec.vehicle)}
       ${pi('Fleet Number', rec.fleetNumber)}
       ${pi('Registration', rec.registration)}
@@ -3034,45 +3084,50 @@ openEngPopup = function(rec, viewOnly) {
       ${pi('Mileage', rec.mileage)}
       ${pi('Date In Service', rec.dateService)}
       ${pi('VOR', rec.vor)}
+      ${pi('DMU Supplied', rec.dmu)}
+      ${pi('DIANA Recording', rec.diana)}
+      ${cfSectionM('vehicle','customer')}
     </div>
-    <div class='isection-title' style='margin-bottom:8px;color:var(--red)'>Reported Fault</div>
+    ${mSecTitle('fault','--red')}
     <div class='igrid' style='margin-bottom:16px'>
       ${pi('Date Reported', rec.dateReported)}
       ${pi('Failure Type', rec.failure)}
       ${pi('Occurrence', rec.occurrence)}
       ${pi('Warning Lights', rec.warnings)}
-      ${rec.defect?pi('Defect', rec.defect):''}
+      ${pi(lbl('e-defect','Defect'), rec.defect, true)}
+      ${cfSectionM('fault','customer')}
     </div>
-    <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Engineer</div>
+    ${mSecTitle('attendance','--blu')}
     <div class='igrid' style='margin-bottom:16px'>
       ${pi('Engineer', rec.engineer)}
       ${pi('Region', rec.region)}
-    </div>
-    <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Attendance</div>
-    <div class='igrid' style='margin-bottom:16px'>
       ${pi('Attendance',_buildAttendanceLines(rec,'html'),true)}
       ${pi('Status', rec.status)}
+      ${cfSectionM('attendance','engineer')}
     </div>
-    <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Diagnosis &amp; Outcome</div>
+    ${mSecTitle('diagnosis','--blu')}
     <div class='igrid' style='margin-bottom:16px'>
-      ${pi('Defect Rectified', rec.rectified)}
-      ${pi('Inverter Serial Number', rec.inverter)}
-      ${pi('Warranty', rec.warranty)}
-      ${pi('Liability', rec.voithFault)}
-      ${rec.diagnosis?pi('Diagnosis', rec.diagnosis):''}
-      ${rec.comments?pi('Comments', rec.comments):''}
+      ${pi(lbl('e-rectified','Defect Rectified'), rec.rectified)}
+      ${pi(lbl('e-inverter','Inverter Serial Number'), rec.inverter)}
+      ${pi(lbl('e-warranty','Warranty'), rec.warranty)}
+      ${pi(lbl('e-voith','Liability'), rec.voithFault)}
+      ${pi(lbl('e-diagnosis','Diagnosis and Comments'), rec.diagnosis, true)}
+      ${pi(lbl('e-comments','Chargeable Details'), rec.comments, true)}
+      ${cfSectionM('diagnosis','engineer')}
     </div>
-    <div class='isection-title' style='margin-bottom:8px;color:var(--blu)'>Parts &amp; Software</div>
+    ${mSecTitle('parts','--blu')}
     <div class='igrid' style='margin-bottom:16px'>
-      <div class='iitem'><label>Components Replaced</label><span>${compList}</span></div>
-      ${pi('Initial Software Version', rec.swInitial)}
-      ${pi('Final Software Version', rec.swFinal)}
+      <div class='iitem full'><label>Components Replaced</label><span>${compList}</span></div>
+      ${pi(lbl('e-sw-init','Initial Software Version'), rec.swInitial)}
+      ${pi(lbl('e-sw-fin','Final Software Version'), rec.swFinal)}
+      ${cfSectionM('parts','engineer')}
     </div>
     ${Array.isArray(rec.partsOrdered)&&rec.partsOrdered.length?`
     <div class='isection-title' style='margin-bottom:8px;color:var(--amb)'>Parts Ordered</div>
     <div class='igrid' style='margin-bottom:16px'>${rec.partsOrdered.map((p,i)=>
       pi('Order '+(i+1), [p.dateOrdered&&'Ordered: '+p.dateOrdered,p.dateExpected&&'Expected: '+p.dateExpected,p.partNumber&&'Part #: '+p.partNumber].filter(Boolean).join(' · '))
     ).join('')}</div>`:''}
+    ${allCustomSecs.map(sec=>customNamedSectionM(sec,'engineer')).join('')}
     ${!_viewOnly?`
     <hr style='border:none;border-top:1px solid var(--bdr);margin:4px 0 16px'>
     <p style='font-size:13px;color:var(--txm);margin-bottom:16px'>Review the details above then tap Confirm to save.</p>
