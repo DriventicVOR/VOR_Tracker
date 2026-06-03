@@ -111,7 +111,8 @@ header{
 
 /* ── Info panel ─────────────────────────────────── */
 .ipanel{background:var(--surf);border:1px solid var(--bdr);
-  border-radius:10px;margin-bottom:12px;overflow:hidden}
+  border-radius:10px;margin-bottom:12px;overflow:hidden;display:none}
+.ipanel.vis{display:block}
 .ihead{padding:14px;display:flex;align-items:center;
   justify-content:space-between;cursor:pointer;
   background:var(--blu-l);border-bottom:1px solid var(--bdr)}
@@ -373,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.100</div>
+      <div class="h-ver">v3.107</div>
     </div>
   </div>
   <div class="h-right">
@@ -519,11 +520,16 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Diagnosis and Comments <span style="color:var(--red)">*</span></label>
-          <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%;resize:vertical"></textarea>
+          <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%"></textarea>
         </div>
         <div class="fg" style="margin-top:8px">
-          <label>Chargeable Details</label>
-          <textarea id="e-comments" rows="3" placeholder="Additional comments…" style="width:100%;resize:vertical"></textarea>
+          <label>Chargeable Number</label>
+          <input type="text" id="e-comments" placeholder="Enter chargeable number if job is chargeable" style="width:100%" oninput="updateChargeableInfo()">
+          </div>
+          <div class="fg full" id="chargeable-info-wrap" style="margin-top:8px;display:none">
+            <label>Chargeable Info</label>
+            <div id="chargeable-info" style="width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;background:var(--bg);color:var(--txm);min-height:36px;white-space:pre-wrap;line-height:1.5"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -655,8 +661,8 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     </div>
     <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:16px">
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--grey);margin-bottom:12px">Other Information</div>
-      <div class="fg" style="margin-bottom:10px"><label>Completed Diagnostics</label><textarea id="emob-completed-diag" rows="4" style="width:100%;resize:vertical"></textarea></div>
-      <div class="fg"><label>Further Details/Comments</label><textarea id="emob-further-comments" rows="4" style="width:100%;resize:vertical"></textarea></div>
+      <div class="fg" style="margin-bottom:10px"><label>Completed Diagnostics</label><textarea id="emob-completed-diag" rows="4" style="width:100%"></textarea></div>
+      <div class="fg"><label>Further Details/Comments</label><textarea id="emob-further-comments" rows="4" style="width:100%"></textarea></div>
     </div>
     </div>
     <div style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:10px">
@@ -727,7 +733,22 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   </div>
 </div>
 
-<script>
+<script>function updateChargeableInfo(){
+  const num=(document.getElementById('e-comments')||{}).value||'';
+  const wrap=document.getElementById('chargeable-info-wrap');
+  const box=document.getElementById('chargeable-info');
+  if(!wrap||!box)return;
+  const tmpl=(config&&typeof config.chargeable==='string'?config.chargeable:'');
+  if(num.trim()&&tmpl){
+    wrap.style.display='';
+    box.textContent=tmpl.replace(/\{chargenumber\}/g,num);
+  }else{
+    wrap.style.display='none';
+    box.textContent='';
+  }
+}
+
+
 
 
 
@@ -2185,6 +2206,7 @@ function loadRecord(){
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
   loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  updateChargeableInfo();
 
   renderCustomEngineerFields(rec.customFields||{});
   enableForm();
@@ -2248,18 +2270,22 @@ function toggleInfoPanel(){
 
 function hideForm(){
   currentRef=null;
-  document.getElementById('ipanel').classList.remove('vis');
+  document.getElementById('ipanel')?.classList.remove('vis');
   ['ig-operator','ig-vehicle','ig-fault','ig-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
-  document.getElementById('ig-custom-sections').innerHTML='';
-  document.getElementById('ig-created').textContent='';
+  const _ics=document.getElementById('ig-custom-sections');if(_ics)_ics.innerHTML='';
+  const _igc=document.getElementById('ig-created');if(_igc)_igc.textContent='';
   ['card-att','card-attendance','card-diag','card-parts'].forEach(id=>document.getElementById(id)?.classList.add('off'));
-  document.getElementById('interim-visits-list').innerHTML='';_interimCount=0;
+  const _ivl=document.getElementById('interim-visits-list');if(_ivl){_ivl.innerHTML='';}_interimCount=0;
   const pol=document.getElementById('parts-ordered-list');if(pol)pol.innerHTML='';_partsCount=0;
-  document.getElementById('visit-count-label').textContent='';
-  document.getElementById('custom-sections-engineer').innerHTML='';
+  const _vcl=document.getElementById('visit-count-label');if(_vcl)_vcl.textContent='';
+  // Grey out custom section cards instead of clearing
+  document.querySelectorAll('#custom-sections-engineer .fc').forEach(function(el){
+    el.classList.add('off');
+    el.querySelectorAll('input,select,textarea').forEach(function(inp){inp.value='';});
+  });
   // Clear inject points
   ['attendance','diagnosis','parts'].forEach(s=>{const el=document.getElementById('custom-inject-'+s+'-engineer');if(el)el.innerHTML=''});
-  document.getElementById('abar').style.display='none';
+  const _ab=document.getElementById('abar');if(_ab)_ab.style.display='none';
   buildCompRows([]);
   const rSel=document.getElementById('e-rectified');
   if(rSel)rSel.innerHTML='<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option><option value="ONGOING">ONGOING</option>';
@@ -2269,6 +2295,7 @@ function hideForm(){
     const el=document.getElementById(id);
     if(el)el.value='';
   });
+  const _srSel=document.getElementById('sr-select');if(_srSel)_srSel.value='';
 }
 
 // ── Validate & Save ────────────────────────────────────────────────
@@ -2341,7 +2368,7 @@ async function saveReport(){
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
     interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
-    comments:gv('e-comments'),components:getCompValues(),
+    comments:gv('e-comments'),chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
     status:(()=>{
       const att=gv('e-date-att');
@@ -3112,7 +3139,7 @@ openEngPopup = function(rec, viewOnly) {
       ${pi(lbl('e-warranty','Warranty'), rec.warranty)}
       ${pi(lbl('e-voith','Liability'), rec.voithFault)}
       ${pi(lbl('e-diagnosis','Diagnosis and Comments'), rec.diagnosis, true)}
-      ${pi(lbl('e-comments','Chargeable Details'), rec.comments, true)}
+      ${pi(lbl('e-comments','Chargeable Number'), rec.comments, true)}
       ${cfSectionM('diagnosis','engineer')}
     </div>
     ${mSecTitle('parts','--blu')}
