@@ -322,6 +322,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 .chart-export-bar button:hover{background:#1D4D73;color:#00F1C1;border-color:#1D4D73}
 .dash-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D4D73;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-family:inherit;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}.dash-toast.show{opacity:1}
 </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
 
@@ -329,7 +330,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo">
       <img src="data:image/png;base64,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" alt="Driventic">
-      <span>v4.259</span>
+      <span>v4.267</span>
     </div>
     <div class="htitle">VOR Dashboard</div>
   </div>
@@ -374,6 +375,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
     <button class="tab-btn" onclick="switchDashTab('callout')">Call-Out Stats</button>
     <button class="tab-btn" onclick="switchDashTab('uptime')">Uptime</button>
     <button class="tab-btn" onclick="switchDashTab('currentlyor')">Currently VOR</button>
+    <button class="tab-btn" onclick="switchDashTab('map')">Map</button>
   </div>
 
   <!-- Overview tab -->
@@ -1176,6 +1178,14 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
     <div id="currently-vor-chart" style="overflow-y:auto;max-height:70vh"></div>
   </div>
 </div>
+
+  <div id="tab-map" class="tab-panel">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <span id="map-status" style="font-size:12px;color:var(--grey)">Connect and select a customer to load locations.</span>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="map-open-only" onchange="renderMapTab()"> Open records only</label>
+    </div>
+    <div style="border-radius:8px;border:1px solid var(--bdr);overflow:hidden;height:calc(100vh - 220px);min-height:400px"><div id="map-container" style="width:100%;height:100%"></div></div>
+  </div>
 </main>
 
 <!-- Detail modal -->
@@ -3521,7 +3531,7 @@ async function updateOverviewUptime(recs){
 function switchDashTab(tab){
   _dashTab = tab;
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active', (i===0&&tab==='overview')||(i===1&&tab==='vordays')||(i===2&&tab==='mileage')||(i===3&&tab==='age')||(i===4&&tab==='usage')||(i===5&&tab==='comp')||(i===6&&tab==='defects')||(i===7&&tab==='liability')||(i===8&&tab==='callout')||(i===9&&tab==='uptime')||(i===10&&tab==='currentlyor'));
+    b.classList.toggle('active', (i===0&&tab==='overview')||(i===1&&tab==='vordays')||(i===2&&tab==='mileage')||(i===3&&tab==='age')||(i===4&&tab==='usage')||(i===5&&tab==='comp')||(i===6&&tab==='defects')||(i===7&&tab==='liability')||(i===8&&tab==='callout')||(i===9&&tab==='uptime')||(i===10&&tab==='currentlyor')||(i===11&&tab==='map'));
   });
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
   document.getElementById('tab-vordays').classList.toggle('active', tab==='vordays');
@@ -3546,7 +3556,131 @@ function switchDashTab(tab){
   if(tab==='callout')renderCalloutTab();
   if(tab==='uptime'){populateUptimeCustomerSel();renderUptimeTab();}
   if(tab==='currentlyor')renderCurrentlyVOR();
+  const _mapEl=document.getElementById('tab-map');if(_mapEl)_mapEl.classList.toggle('active',tab==='map');
+  if(tab==='map'){renderMapTab();setTimeout(function(){if(_leafletMap)_leafletMap.invalidateSize();},200);}
 }
+
+// ── Map tab ───────────────────────────────────────────────────────────
+let _leafletLoaded = false;
+let _leafletMap = null;
+let _mapMarkers = [];
+let _mapGroups = [];
+const MAP_ZOOM = 6;
+const MARKER_PX = 12;
+
+function _spreadLatLng(centerLatLng, n, i) {
+  if (n === 1) return centerLatLng;
+  // Golden angle spiral — organic bubble-like placement, no two points align
+  const GOLDEN_ANGLE = 2.39996323; // 137.508° in radians
+  const angle = i * GOLDEN_ANGLE;
+  const radius = MARKER_PX * 0.55 * Math.sqrt(i + 1);
+  const cp = _leafletMap.project(centerLatLng, MAP_ZOOM);
+  return _leafletMap.unproject(
+    L.point(cp.x + radius * Math.cos(angle), cp.y + radius * Math.sin(angle)),
+    MAP_ZOOM
+  );
+}
+
+function _redrawMarkers() {
+  if (!_leafletMap) return;
+  _mapMarkers.forEach(mk => mk.remove());
+  _mapMarkers = [];
+  const STATUS_COLOURS = {
+    'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
+    'Ongoing':'#3b82f6','Closed':'#22c55e','Rectified':'#22c55e'
+  };
+  _mapGroups.forEach(function(group) {
+    const n = group.recs.length;
+    const center = L.latLng(group.coords.lat, group.coords.lng);
+    group.recs.forEach(function(r, i) {
+      const colour = STATUS_COLOURS[r.status] || '#94a3b8';
+      const pos = _spreadLatLng(center, n, i);
+      const icon = L.divIcon({
+        className: '',
+        html: '<div style="width:' + MARKER_PX + 'px;height:' + MARKER_PX + 'px;border-radius:50%;background:' +
+              colour + ';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>',
+        iconSize: [MARKER_PX, MARKER_PX], iconAnchor: [MARKER_PX/2, MARKER_PX/2]
+      });
+      const recIdx = allRecords.indexOf(r);
+      const mk = L.marker(pos, {icon}).bindPopup(
+        '<b>' + (r.ref||'') + '</b><br>' +
+        (r.operator||'\u2014') + ' \u2014 ' + (r.vehicle||'\u2014') + '<br>' +
+        '<span style="color:' + colour + '">' + (r.status||'\u2014') + '</span><br>' +
+        '<small>' + (r.address||'') + '</small>' +
+        (recIdx >= 0 ? '<br><br><a href="#" onclick="event.preventDefault();if(_leafletMap)_leafletMap.closePopup();openDetailByIdx(' + recIdx + ')" style="color:#3b82f6">View record \u2192</a>' : '')
+      );
+      mk.addTo(_leafletMap);
+      _mapMarkers.push(mk);
+    });
+  });
+}
+
+async function renderMapTab() {
+  const statusEl = document.getElementById('map-status');
+  const container = document.getElementById('map-container');
+  if (!container) return;
+
+  if (!_leafletLoaded) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    _leafletLoaded = true;
+  }
+
+  if (!_leafletMap) {
+    _leafletMap = L.map(container, {
+      zoomControl: false, dragging: false, scrollWheelZoom: false,
+      doubleClickZoom: false, touchZoom: false, keyboard: false
+    }).setView([54.5, -3.5], MAP_ZOOM);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: MAP_ZOOM, minZoom: MAP_ZOOM
+    }).addTo(_leafletMap);
+  }
+
+  setTimeout(function() { if (_leafletMap) _leafletMap.invalidateSize(); }, 100);
+
+  const openOnly = document.getElementById('map-open-only') &&
+                   document.getElementById('map-open-only').checked;
+  let recs = getFiltered().filter(r => r._mapLat && r._mapLng);
+  if (openOnly) recs = recs.filter(r =>
+    r.status !== 'Closed' && r.status !== 'Cancelled' && r.status !== 'Duplicate');
+
+  const allFiltered = getFiltered();
+  const noCoords = allFiltered.filter(r => r.address && !r._mapLat).length;
+
+  if (!recs.length) {
+    if (statusEl) statusEl.textContent = 'No records with coordinates.' +
+      (noCoords ? ' ' + noCoords + ' record(s) need geocoding \u2014 open the Manager admin panel to update.' : '');
+    _mapGroups = [];
+    _mapMarkers.forEach(mk => mk.remove());
+    _mapMarkers = [];
+    return;
+  }
+
+  // Group by coords
+  const groupMap = {};
+  recs.forEach(r => {
+    const key = r._mapLat.toFixed(5) + ',' + r._mapLng.toFixed(5);
+    if (!groupMap[key]) groupMap[key] = {coords: {lat: r._mapLat, lng: r._mapLng}, recs: []};
+    groupMap[key].recs.push(r);
+  });
+
+  _mapGroups = Object.values(groupMap);
+  _redrawMarkers();
+
+  if (_mapMarkers.length) {
+    const group = L.featureGroup(_mapMarkers);
+    _leafletMap.fitBounds(group.getBounds().pad(0.15), {maxZoom: MAP_ZOOM});
+  }
+
+  if (statusEl) statusEl.textContent = recs.length + ' record' + (recs.length !== 1 ? 's' : '') + ' plotted' +
+    (noCoords ? ' \u2014 ' + noCoords + ' record(s) missing coordinates (open Manager admin to geocode).' : '.');
+}
+
 
 // ── VOR Days slicer state ─────────────────────────────────────────
 const LINE_COLORS=['#00f1c1','#ffb347','#a78bfa','#ff4757','#58a6ff','#ffa657','#34d399','#f472b6'];
@@ -4144,6 +4278,7 @@ function updateDashboard(resetSlicers=true){
   updateCharts(recs);
   renderTable();
   if(_dashTab==='currentlyor')renderCurrentlyVOR();
+  if(_dashTab==='map')renderMapTab();
 }
 
 function updateStats(recs){
