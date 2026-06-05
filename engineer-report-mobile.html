@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.108</div>
+      <div class="h-ver">v3.119</div>
     </div>
   </div>
   <div class="h-right">
@@ -536,6 +536,22 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
           </div>
         </div>
       </div>
+
+    <!-- Fault Codes card -->
+    <div class="fc off" id="card-fault-codes">
+      <div class="fch"><div class="dot"></div><span>Fault Codes</span></div>
+      <div class="fcb">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <input type="text" id="e-fc-1" placeholder="Code 1" style="width:100%">
+          <input type="text" id="e-fc-2" placeholder="Code 2" style="width:100%">
+          <input type="text" id="e-fc-3" placeholder="Code 3" style="width:100%">
+          <input type="text" id="e-fc-4" placeholder="Code 4" style="width:100%">
+          <input type="text" id="e-fc-5" placeholder="Code 5" style="width:100%">
+          <input type="text" id="e-fc-6" placeholder="Code 6" style="width:100%">
+          <input type="text" id="e-fc-7" placeholder="Code 7" style="width:100%">
+          <input type="text" id="e-fc-8" placeholder="Code 8" style="width:100%">
+        </div>
+      </div>
     </div>
 
     <!-- Parts & Software card -->
@@ -673,6 +689,21 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <button id="emob-save-btn" class="btn primary" onclick="saveEmobRequest()" disabled style="flex:1;opacity:0.5;cursor:not-allowed">&#9993; Save &amp; Email to eMob</button>
     </div>
   </div><!-- /tsb tab -->
+
+  <!-- Fault Lookup TAB -->
+  <div class="tab-view" id="eng-tab-fault-lookup">
+    <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-bottom:10px">Fault Code Lookup</div>
+      <p style="font-size:12px;color:var(--txm);margin:0 0 12px">Enter fault codes to find components replaced in matching records.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+        <input type="text" id="e-fl-1" placeholder="Code 1" oninput="updateFaultLookup()" style="width:100%;padding:8px;border:1px solid var(--bdr);border-radius:5px;background:var(--bg);color:var(--tx);font-size:14px">
+        <input type="text" id="e-fl-2" placeholder="Code 2" oninput="updateFaultLookup()" style="width:100%;padding:8px;border:1px solid var(--bdr);border-radius:5px;background:var(--bg);color:var(--tx);font-size:14px">
+        <input type="text" id="e-fl-3" placeholder="Code 3" oninput="updateFaultLookup()" style="width:100%;padding:8px;border:1px solid var(--bdr);border-radius:5px;background:var(--bg);color:var(--tx);font-size:14px">
+        <input type="text" id="e-fl-4" placeholder="Code 4" oninput="updateFaultLookup()" style="width:100%;padding:8px;border:1px solid var(--bdr);border-radius:5px;background:var(--bg);color:var(--tx);font-size:14px">
+      </div>
+      <div id="fl-results" style="font-size:13px;color:var(--txm)"><span>Enter fault codes above to search.</span></div>
+    </div>
+  </div>
 </div><!-- /page -->
 
 <!-- Bottom navigation -->
@@ -691,6 +722,9 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   </button>
   <button class="bnav-btn" id="bnav-emob" onclick="switchEngTab('emob')">
     <span class="ico">&#9889;</span>eMob
+  </button>
+  <button class="bnav-btn" id="bnav-fault-lookup" onclick="switchEngTab('fault-lookup')">
+    <span class="ico">&#128270;</span>Lookup
   </button>
 </nav>
 
@@ -2210,6 +2244,14 @@ function loadRecord(){
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
   loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
+    sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
+    sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
+    sv('e-fc-4',rec.faultCodes&&rec.faultCodes[3]||'');
+    sv('e-fc-5',rec.faultCodes&&rec.faultCodes[4]||'');
+    sv('e-fc-6',rec.faultCodes&&rec.faultCodes[5]||'');
+    sv('e-fc-7',rec.faultCodes&&rec.faultCodes[6]||'');
+    sv('e-fc-8',rec.faultCodes&&rec.faultCodes[7]||'');
   updateChargeableInfo();
 
   renderCustomEngineerFields(rec.customFields||{});
@@ -2259,8 +2301,46 @@ function updateVisitCount(){
 
 function sv(id,val){const el=document.getElementById(id);if(el)el.value=val||''}
 
+// ── Fault code lookup ─────────────────────────────────────────────
+function updateFaultLookup(){
+  var filters=['e-fl-1','e-fl-2','e-fl-3','e-fl-4']
+    .map(function(id){var el=document.getElementById(id);return el?(el.value||'').trim().toLowerCase():'';})
+    .filter(function(v){return v!='';});
+  var out=document.getElementById('fl-results');
+  if(!out)return;
+  if(!filters.length){
+    out.innerHTML='<span style="color:var(--txm)">Enter fault codes above to search.</span>';
+    return;
+  }
+  var compCount={};
+  (allRecords||[]).forEach(function(r){
+    var codes=(r.faultCodes||[]).map(function(v){return(v||'').trim().toLowerCase();}).filter(Boolean);
+    if(!filters.every(function(f){return codes.some(function(code){return code===f||code.indexOf(f)>=0;});}))return;
+    (r.components||[]).forEach(function(co){
+      var name=typeof co==='string'?co.trim():(co&&co.name?co.name.trim():'');
+      if(!name)return;
+      compCount[name]=(compCount[name]||0)+1;
+    });
+  });
+  var sorted=Object.keys(compCount).map(function(k){return[k,compCount[k]];}).sort(function(a,b){return b[1]-a[1];});
+  if(!sorted.length){
+    out.innerHTML='<span style="color:var(--txm)">No matching records found.</span>';
+    return;
+  }
+  out.innerHTML='<div style="font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--txm);'
+    +'padding-bottom:6px;border-bottom:1px solid var(--bdr);margin-bottom:6px;display:grid;grid-template-columns:1fr auto;gap:8px">'
+    +'<span>Component</span><span>Qty</span></div>'
+    +sorted.map(function(row){
+      return '<div style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr2)">'
+        +'<span>'+row[0]+'</span>'
+        +'<span style="font-weight:700;color:var(--grn);text-align:right">'+row[1]+'</span>'
+        +'</div>';
+    }).join('');
+}
+
+
 function enableForm(){
-  ['card-att','card-attendance','card-diag','card-parts'].forEach(id=>document.getElementById(id)?.classList.remove('off'));
+  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts'].forEach(id=>document.getElementById(id)?.classList.remove('off'));
   // Enable any custom section cards
   document.querySelectorAll('#custom-sections-engineer .fc').forEach(el=>el.classList.remove('off'));
   document.getElementById('abar').style.display='flex';
@@ -2278,7 +2358,7 @@ function hideForm(){
   ['ig-operator','ig-vehicle','ig-fault','ig-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
   const _ics=document.getElementById('ig-custom-sections');if(_ics)_ics.innerHTML='';
   const _igc=document.getElementById('ig-created');if(_igc)_igc.textContent='';
-  ['card-att','card-attendance','card-diag','card-parts'].forEach(id=>document.getElementById(id)?.classList.add('off'));
+  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts'].forEach(id=>document.getElementById(id)?.classList.add('off'));
   const _ivl=document.getElementById('interim-visits-list');if(_ivl){_ivl.innerHTML='';}_interimCount=0;
   const pol=document.getElementById('parts-ordered-list');if(pol)pol.innerHTML='';_partsCount=0;
   const _vcl=document.getElementById('visit-count-label');if(_vcl)_vcl.textContent='';
@@ -2295,7 +2375,7 @@ function hideForm(){
   if(rSel)rSel.innerHTML='<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option><option value="ONGOING">ONGOING</option>';
   // Clear all form inputs
   ['e-engineer','e-region','e-date-att','e-date-expected-att','e-date-repair','e-warranty',
-   'e-voith','e-inverter','e-diagnosis','e-sw-init','e-sw-fin'].forEach(id=>{
+   'e-voith','e-inverter','e-diagnosis','e-sw-init','e-sw-fin','e-fc-1','e-fc-2','e-fc-3','e-fc-4','e-fc-5','e-fc-6','e-fc-7','e-fc-8'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.value='';
   });
@@ -2374,6 +2454,7 @@ async function saveReport(){
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     comments:gv('e-comments'),chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
+    faultCodes:[gv('e-fc-1'),gv('e-fc-2'),gv('e-fc-3'),gv('e-fc-4'),gv('e-fc-5'),gv('e-fc-6'),gv('e-fc-7'),gv('e-fc-8')],
     status:(()=>{
       const att=gv('e-date-att');
       const rep=gv('e-date-repair');
@@ -2822,8 +2903,9 @@ async function reloadData(){
 
 // ── Vehicle Search tab ────────────────────────────────────────────
 function switchEngTab(tab){
-  ['report','search','tools','tsb','emob'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'':'none';});
-  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools',tsb:'bnav-tsb',emob:'bnav-emob'};
+  ['report','search','tools','tsb','emob','fault-lookup'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'block':'none';});
+  var pageEl=document.querySelector('.page');if(pageEl)pageEl.scrollTop=0;
+  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools',tsb:'bnav-tsb',emob:'bnav-emob','fault-lookup':'bnav-fault-lookup'};
   Object.keys(bm).forEach(function(t){var b=document.getElementById(bm[t]);if(b)b.classList.toggle('active',tab===t);});
   if(tab==='tools')toolsInit();
   if(tab==='tsb')tsbInit();
@@ -3005,6 +3087,7 @@ document.addEventListener('DOMContentLoaded',function(){
       loadConfig();
     }
   });
+  switchEngTab('report');
 });
 
 // ── Mobile-specific overrides ─────────────────────────────────────
@@ -3146,6 +3229,7 @@ openEngPopup = function(rec, viewOnly) {
       ${pi(lbl('e-comments','Chargeable Number'), rec.comments, true)}
       ${cfSectionM('diagnosis','engineer')}
     </div>
+    ${(rec.faultCodes||[]).some(v=>v&&v.trim())?`<div class='isection-title' style='margin-bottom:8px'>Fault Codes</div><div class='igrid' style='margin-bottom:16px'>${pi('Codes',(rec.faultCodes||[]).filter(v=>v&&v.trim()).join(' · '),true)}</div>`:''}
     ${mSecTitle('parts','--blu')}
     <div class='igrid' style='margin-bottom:16px'>
       <div class='iitem full'><label>Components Replaced</label><span>${compList}</span></div>
