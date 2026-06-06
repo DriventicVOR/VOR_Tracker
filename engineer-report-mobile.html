@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.121</div>
+      <div class="h-ver">v3.123</div>
     </div>
   </div>
   <div class="h-right">
@@ -1589,7 +1589,8 @@ function safeReloadData(){
 
 async function refreshRecords(){try{const d=await readJSON(customerRecordsFile());allRecords=d||[];}catch(e){}populateSRSelect();}
 
-async function writeRecords(){await writeJSON(customerRecordsFile(),allRecords);}
+async function readRecords(){try{const d=await readJSON(customerRecordsFile());return d||[];}catch(e){return [];}}
+async function writeRecords(recs){await writeJSON(customerRecordsFile(),(recs||allRecords).map(function(r){var o={};Object.assign(o,r);delete o._customer;return o;}));}
 
 
 function toggleEmobCheck(btn){
@@ -1902,12 +1903,16 @@ async function saveEmobRequest(){
     await writeJSON(filename,existing);
     showToast('eMob request saved as '+reqKey,'success');
     // ── Update SR record with eMob request reference ──────────
-    var srIdx=allRecords.findIndex(function(r){return r.ref===ref;});
-    if(srIdx>=0){
-      if(!allRecords[srIdx].emobRequests)allRecords[srIdx].emobRequests=[];
-      allRecords[srIdx].emobRequests.push({reqKey:reqKey,date:new Date().toISOString()});
-      try{await writeRecords();}catch(e){console.warn('Failed to update SR record:',e);}
-    }
+    try{
+      const _erFresh=await readRecords();
+      var srIdx=_erFresh.findIndex(function(r){return r.ref===ref;});
+      if(srIdx>=0){
+        if(!_erFresh[srIdx].emobRequests)_erFresh[srIdx].emobRequests=[];
+        _erFresh[srIdx].emobRequests.push({reqKey:reqKey,date:new Date().toISOString()});
+        await writeRecords(_erFresh);
+        allRecords=_erFresh.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
+      }
+    }catch(e){console.warn('Failed to update SR record:',e);}
   }catch(e){showToast('Save failed: '+e.message,'error');return;}
 
   // ── Build and open email ──────────────────────────────────────
@@ -2231,9 +2236,14 @@ function populateInfoPanel(rec){
   document.getElementById('ipanel').classList.add('vis');
 }
 
-function loadRecord(){
+async function loadRecord(){
   const ref=document.getElementById('sr-select').value;
   if(!ref){hideForm();return}
+  // Always fetch fresh data from Supabase before loading a record
+  try{
+    const _fresh=await readRecords();
+    if(_fresh&&_fresh.length) allRecords=_fresh;
+  }catch(e){console.warn('Could not refresh records before load:',e);}
   const rec=allRecords.find(r=>r.ref===ref);
   if(!rec){showToast('Record not found','error');return}
   currentRef=ref;
@@ -2497,6 +2507,7 @@ async function confirmSaveReport(sendEmail){
   allRecords[idx]={...allRecords[idx],..._pendingRecord};
   if(allRecords[idx].dateRepair) allRecords[idx].status='Closed';
   const savedRef=_pendingRecord.ref;
+  const _mergedRecord={...allRecords[idx]};
   // Update dropdown immediately — before any async work
   const _savedStatus=allRecords[idx].status;
   const _savedDateRepair=allRecords[idx].dateRepair;
@@ -2510,9 +2521,14 @@ async function confirmSaveReport(sendEmail){
   _pendingRecord=null;
   closeEngPopup();
   showToast(savedRef+' saved','success');
-  // Write to storage async
+  // Read fresh, apply, write
   try{
-    await writeJSON(customerRecordsFile(), allRecords.map(({_customer,...r})=>r));
+    const _fresh=await readRecords();
+    const _fi=_fresh.findIndex(function(r){return r.ref===savedRef;});
+    if(_fi>=0){_fresh[_fi]={..._fresh[_fi],..._mergedRecord};}
+    else{_fresh.push(_mergedRecord);}
+    await writeRecords(_fresh);
+    allRecords=_fresh.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
   }catch(e){
     showToast('Save failed: '+e.message,'error');
   }
