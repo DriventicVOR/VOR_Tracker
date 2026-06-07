@@ -321,6 +321,8 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 .chart-export-bar button{padding:4px 10px;font-size:11px;font-weight:600;border:1px solid var(--bdr);border-radius:4px;background:var(--surf);color:var(--txm);cursor:pointer;font-family:inherit;line-height:1.4;transition:background .15s,color .15s}
 .chart-export-bar button:hover{background:#1D4D73;color:#00F1C1;border-color:#1D4D73}
 .dash-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D4D73;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-family:inherit;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}.dash-toast.show{opacity:1}
+.map-tip{background:var(--navy2)!important;border:1px solid var(--bdr)!important;color:var(--offwhite)!important;font-size:12px!important;padding:4px 8px!important;border-radius:5px!important;box-shadow:0 2px 6px rgba(0,0,0,.4)!important;}
+.map-tip::before{display:none!important}
 </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
@@ -330,7 +332,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo">
       <img src="data:image/png;base64,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" alt="Driventic">
-      <span>v4.302</span>
+      <span>v4.306</span>
     </div>
     <div class="htitle">VOR Dashboard</div>
   </div>
@@ -1238,11 +1240,38 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
 </div>
 
   <div id="tab-map" class="tab-pane">
+    <!-- Controls row -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
       <span id="map-status" style="font-size:12px;color:var(--grey)">Connect and select a customer to load locations.</span>
-      <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="map-open-only" onchange="renderMapTab()"> Open records only</label>
+      <div class="view-toggle">
+        <button class="view-btn active" id="map-btn-open" onclick="toggleMapFilter('open')">Open</button>
+        <button class="view-btn active" id="map-btn-closed" onclick="toggleMapFilter('closed')">Closed</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--grey)">Colour by:</span>
+        <select class="row-hdr-sel" id="map-group-by" onchange="renderMapTab()" style="width:130px">
+          <option value="status">Open/Closed</option>
+          <option value="operator">Operator</option>
+          <option value="customer">Customer</option>
+          <option value="engineer">Engineer</option>
+          <option value="region">Region</option>
+          <option value="product">Product</option>
+          <option value="failure">Failure Type</option>
+          <option value="location">Depot</option>
+          <option value="voithFault">Liability</option>
+        </select>
+      </div>
     </div>
-    <div style="border-radius:8px;border:1px solid var(--bdr);overflow:hidden;height:calc(100vh - 220px);min-height:400px"><div id="map-container" style="width:100%;height:100%"></div></div>
+    <!-- Map + legend row -->
+    <div style="display:flex;gap:12px;align-items:flex-start;height:calc(100vh - 220px);min-height:400px">
+      <!-- Legend -->
+      <div id="map-legend" style="flex-shrink:0;width:160px;background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:12px;overflow-y:auto;max-height:100%">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:10px">Legend</div>
+        <div id="map-legend-items" style="display:flex;flex-direction:column;gap:7px"></div>
+      </div>
+      <!-- Map -->
+      <div style="flex:1;border-radius:8px;border:1px solid var(--bdr);overflow:hidden;height:100%"><div id="map-container" style="width:100%;height:100%"></div></div>
+    </div>
   </div>
   <!-- VORs Closed tab -->
   <div class="tab-pane" id="tab-vorclosed">
@@ -3967,6 +3996,14 @@ function renderVorClosedTab(){
   }
 }
 
+let _mapShowOpen=true;let _mapShowClosed=true;
+function toggleMapFilter(t){
+  if(t==='open')_mapShowOpen=!_mapShowOpen;
+  else _mapShowClosed=!_mapShowClosed;
+  document.getElementById('map-btn-open').classList.toggle('active',_mapShowOpen);
+  document.getElementById('map-btn-closed').classList.toggle('active',_mapShowClosed);
+  renderMapTab();
+}
 // ── Map tab ───────────────────────────────────────────────────────────
 let _leafletLoaded = false;
 let _leafletMap = null;
@@ -3988,19 +4025,30 @@ function _spreadLatLng(centerLatLng, n, i) {
   );
 }
 
-function _redrawMarkers() {
+function _redrawMarkers(colourFn) {
   if (!_leafletMap) return;
   _mapMarkers.forEach(mk => mk.remove());
   _mapMarkers = [];
-  const STATUS_COLOURS = {
-    'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
-    'Ongoing':'#3b82f6','Closed':'#22c55e','Rectified':'#22c55e'
+  const _defaultColourFn = (function(){
+    const SC={'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
+      'Ongoing':'#3b82f6','Vehicle Unavailable':'#94a3b8','Closed':'#22c55e','Rectified':'#22c55e'};
+    return function(r){return SC[r.status]||'#94a3b8';};
+  })();
+  const _getColour = colourFn || _defaultColourFn;
+  // Tooltip label function: shows only the current legend grouping value
+  const _mgb=(document.getElementById('map-group-by')||{}).value||'status';
+  const _getLabel=function(r){
+    if(_mgb==='status')return r.status||'Unknown';
+    if(_mgb==='product'){const pt=r.productType||'';const ps=r.productSubType||'';return pt&&ps?pt+' — '+ps:pt||ps||'(none)';}
+    if(_mgb==='customer')return r._customerName||r._customer||'Unknown';
+    if(_mgb==='voithFault')return liabLabel(r.voithFault)||'None';
+    return r[_mgb]||'Unknown';
   };
   _mapGroups.forEach(function(group) {
     const n = group.recs.length;
     const center = L.latLng(group.coords.lat, group.coords.lng);
     group.recs.forEach(function(r, i) {
-      const colour = STATUS_COLOURS[r.status] || '#94a3b8';
+      const colour = _getColour(r);
       const pos = _spreadLatLng(center, n, i);
       const icon = L.divIcon({
         className: '',
@@ -4009,7 +4057,9 @@ function _redrawMarkers() {
         iconSize: [MARKER_PX, MARKER_PX], iconAnchor: [MARKER_PX/2, MARKER_PX/2]
       });
       const recIdx = allRecords.indexOf(r);
-      const mk = L.marker(pos, {icon}).bindPopup(
+      const mk = L.marker(pos, {icon})
+        .bindTooltip(_getLabel(r),{permanent:false,direction:'top',opacity:0.95,className:'map-tip'})
+        .bindPopup(
         '<b>' + (r.ref||'') + '</b><br>' +
         (r.operator||'\u2014') + ' \u2014 ' + (r.vehicle||'\u2014') + '<br>' +
         '<span style="color:' + colour + '">' + (r.status||'\u2014') + '</span><br>' +
@@ -4050,11 +4100,11 @@ async function renderMapTab() {
 
   setTimeout(function() { if (_leafletMap) _leafletMap.invalidateSize(); }, 100);
 
-  const openOnly = document.getElementById('map-open-only') &&
-                   document.getElementById('map-open-only').checked;
-  let recs = getFiltered().filter(r => r._mapLat && r._mapLng);
-  if (openOnly) recs = recs.filter(r =>
-    r.status !== 'Closed' && r.status !== 'Cancelled' && r.status !== 'Duplicate');
+  const _isOpen=r=>r.status!=='Closed'&&r.status!=='Cancelled'&&r.status!=='Duplicate'&&r.status!=='Rectified';
+  let recs = getFiltered().filter(r => r._mapLat && r._mapLng).filter(r=>{
+    if(_isOpen(r)) return _mapShowOpen;
+    return _mapShowClosed;
+  });
 
   const allFiltered = getFiltered();
   const noCoords = allFiltered.filter(r => r.address && !r._mapLat).length;
@@ -4077,7 +4127,56 @@ async function renderMapTab() {
   });
 
   _mapGroups = Object.values(groupMap);
-  _redrawMarkers();
+  // Build colour function based on selected grouping
+  const _mapGroupBy = (document.getElementById('map-group-by')||{}).value || 'status';
+  let _colourFn;
+  if(_mapGroupBy === 'status'){
+    const _SC={'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
+      'Ongoing':'#3b82f6','Vehicle Unavailable':'#94a3b8','Closed':'#22c55e','Rectified':'#22c55e'};
+    _colourFn=function(r){return _SC[r.status]||'#94a3b8';};
+  } else {
+    const _GK=function(r){
+      if(_mapGroupBy==='product'){const pt=r.productType||'';const ps=r.productSubType||'';return pt&&ps?pt+' — '+ps:pt||ps||'(none)';}
+      if(_mapGroupBy==='customer')return r._customerName||r._customer||'Unknown';
+      if(_mapGroupBy==='voithFault')return liabLabel(r.voithFault)||'None';
+      return r[_mapGroupBy]||'Unknown';
+    };
+    const _COLS=['#00f1c1','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#10b981','#f97316','#06b6d4','#84cc16','#fbbf24','#e11d48'];
+    const _ckCounts={}; recs.forEach(function(r){const k=_GK(r);_ckCounts[k]=(_ckCounts[k]||0)+1;});
+    const _ukeys=Object.keys(_ckCounts).sort(function(a,b){return _ckCounts[b]-_ckCounts[a];});
+    const _CM={}; _ukeys.forEach(function(k,i){_CM[k]=_COLS[i%_COLS.length];});
+    _colourFn=function(r){return _CM[_GK(r)]||'#94a3b8';};
+  }
+  _redrawMarkers(_colourFn);
+
+  // Build legend
+  const _legendEl=document.getElementById('map-legend-items');
+  if(_legendEl){
+    const _legendRow=(colour,label,count)=>
+      `<div style='display:flex;align-items:center;gap:7px'>`+
+      `<div style='width:11px;height:11px;border-radius:50%;background:${colour};flex-shrink:0'></div>`+
+      `<span style='font-size:11px;color:var(--offwhite);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap' title='${label}'>${label}</span>`+
+      `<span style='font-size:11px;color:var(--grey);flex-shrink:0;margin-left:4px'>${count}</span>`+
+      `</div>`;
+    if(_mapGroupBy==='status'){
+      const _SC2={'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
+        'Ongoing':'#3b82f6','Vehicle Unavailable':'#94a3b8','Closed':'#22c55e','Rectified':'#22c55e'};
+      const _sCounts={}; recs.forEach(r=>{const s=r.status||'Unknown';_sCounts[s]=(_sCounts[s]||0)+1;});
+      const _sEntries=Object.entries(_sCounts).sort((a,b)=>b[1]-a[1]);
+      _legendEl.innerHTML=_sEntries.map(([s,n])=>_legendRow(_SC2[s]||'#94a3b8',s,n)).join('');
+    } else {
+      const _GK2=function(r){
+        if(_mapGroupBy==='product'){const pt=r.productType||'';const ps=r.productSubType||'';return pt&&ps?pt+' — '+ps:pt||ps||'(none)';}
+        if(_mapGroupBy==='customer')return r._customerName||r._customer||'Unknown';
+        if(_mapGroupBy==='voithFault')return liabLabel(r.voithFault)||'None';
+        return r[_mapGroupBy]||'Unknown';
+      };
+      const _COLS2=['#00f1c1','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#10b981','#f97316','#06b6d4','#84cc16','#fbbf24','#e11d48'];
+      const _gCounts={}; recs.forEach(r=>{const k=_GK2(r);_gCounts[k]=(_gCounts[k]||0)+1;});
+      const _sortedKeys=Object.keys(_gCounts).sort((a,b)=>_gCounts[b]-_gCounts[a]);
+      _legendEl.innerHTML=_sortedKeys.map((k,i)=>_legendRow(_COLS2[i%_COLS2.length],k,_gCounts[k])).join('');
+    }
+  }
 
   if (_mapMarkers.length) {
     const group = L.featureGroup(_mapMarkers);
