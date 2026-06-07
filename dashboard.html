@@ -30,7 +30,7 @@
   --bdr:rgba(255,255,255,.07);
   --bdr2:rgba(0,241,193,.2);
 }
-html,body{height:100%;font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--offwhite);-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--offwhite);-webkit-font-smoothing:antialiased}
 /* ── Header ── */
 header{
   background:var(--navy2);
@@ -332,7 +332,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
   <div style="display:flex;align-items:center;gap:16px">
     <div class="logo">
       <img src="data:image/png;base64,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" alt="Driventic">
-      <span>v4.306</span>
+      <span>v4.316</span>
     </div>
     <div class="htitle">VOR Dashboard</div>
   </div>
@@ -1248,6 +1248,12 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
         <button class="view-btn active" id="map-btn-closed" onclick="toggleMapFilter('closed')">Closed</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--grey)">Size:</span>
+        <button class="view-btn active" onclick="adjustMarkerSize(-1)" style="padding:3px 8px;font-size:13px;line-height:1">−</button>
+        <span id="map-size-val" style="font-size:11px;color:var(--offwhite);min-width:28px;text-align:center">10px</span>
+        <button class="view-btn active" onclick="adjustMarkerSize(1)" style="padding:3px 8px;font-size:13px;line-height:1">+</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
         <span style="font-size:11px;color:var(--grey)">Colour by:</span>
         <select class="row-hdr-sel" id="map-group-by" onchange="renderMapTab()" style="width:130px">
           <option value="status">Open/Closed</option>
@@ -1259,6 +1265,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;min-height:ca
           <option value="failure">Failure Type</option>
           <option value="location">Depot</option>
           <option value="voithFault">Liability</option>
+          <option value="daysOpen">Days Open</option>
         </select>
       </div>
     </div>
@@ -3996,7 +4003,7 @@ function renderVorClosedTab(){
   }
 }
 
-let _mapShowOpen=true;let _mapShowClosed=true;
+let _mapShowOpen=true;let _mapShowClosed=true;let _mapBoundsSet=false;
 function toggleMapFilter(t){
   if(t==='open')_mapShowOpen=!_mapShowOpen;
   else _mapShowClosed=!_mapShowClosed;
@@ -4010,18 +4017,27 @@ let _leafletMap = null;
 let _mapMarkers = [];
 let _mapGroups = [];
 const MAP_ZOOM = 6;
-const MARKER_PX = 12;
+let MARKER_PX = 10;
+const MARKER_PX_MIN = 4;
+const MARKER_PX_MAX = 20;
+function _markerRadiusFactor(){return 0.635*Math.sqrt(14/MARKER_PX);}
+function adjustMarkerSize(delta){
+  MARKER_PX=Math.min(MARKER_PX_MAX,Math.max(MARKER_PX_MIN,MARKER_PX+delta));
+  document.getElementById('map-size-val').textContent=MARKER_PX+'px';
+  _redrawMarkers(window._lastColourFn);
+}
 
 function _spreadLatLng(centerLatLng, n, i) {
   if (n === 1) return centerLatLng;
   // Golden angle spiral — organic bubble-like placement, no two points align
   const GOLDEN_ANGLE = 2.39996323; // 137.508° in radians
   const angle = i * GOLDEN_ANGLE;
-  const radius = MARKER_PX * 0.55 * Math.sqrt(i + 1);
-  const cp = _leafletMap.project(centerLatLng, MAP_ZOOM);
+  const radius = MARKER_PX * _markerRadiusFactor() * Math.sqrt(i + 1);
+  const _curZoom = _leafletMap.getZoom();
+  const cp = _leafletMap.project(centerLatLng, _curZoom);
   return _leafletMap.unproject(
     L.point(cp.x + radius * Math.cos(angle), cp.y + radius * Math.sin(angle)),
-    MAP_ZOOM
+    _curZoom
   );
 }
 
@@ -4038,6 +4054,16 @@ function _redrawMarkers(colourFn) {
   // Tooltip label function: shows only the current legend grouping value
   const _mgb=(document.getElementById('map-group-by')||{}).value||'status';
   const _getLabel=function(r){
+    if(_mgb==='daysOpen'){
+      if(!r.dateReported)return 'Unknown';
+      const _t2=new Date();_t2.setHours(0,0,0,0);
+      const _d2=Math.round(((r.dateRepair?new Date(r.dateRepair):_t2)-new Date(r.dateReported))/86400000);
+      const _b2=[{lo:0,hi:1,l:'0–1 days'},{lo:1,hi:2,l:'1–2 days'},{lo:2,hi:3,l:'2–3 days'},
+        {lo:3,hi:4,l:'3–4 days'},{lo:4,hi:5,l:'4–5 days'},{lo:5,hi:6,l:'5–6 days'},
+        {lo:6,hi:7,l:'6–7 days'},{lo:7,hi:14,l:'7–14 days'},{lo:15,hi:21,l:'15–21 days'},
+        {lo:22,hi:28,l:'22–28 days'},{lo:29,hi:Infinity,l:'29+ days'}];
+      const _bb=_b2.find(b=>_d2>=b.lo&&_d2<b.hi);return _bb?_bb.l:'29+ days';
+    }
     if(_mgb==='status')return r.status||'Unknown';
     if(_mgb==='product'){const pt=r.productType||'';const ps=r.productSubType||'';return pt&&ps?pt+' — '+ps:pt||ps||'(none)';}
     if(_mgb==='customer')return r._customerName||r._customer||'Unknown';
@@ -4053,7 +4079,7 @@ function _redrawMarkers(colourFn) {
       const icon = L.divIcon({
         className: '',
         html: '<div style="width:' + MARKER_PX + 'px;height:' + MARKER_PX + 'px;border-radius:50%;background:' +
-              colour + ';border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>',
+              colour + ';outline:' + (MARKER_PX <= 6 ? 1 : 2) + 'px solid rgba(0,0,0,0.7);box-shadow:0 1px 4px rgba(0,0,0,.5)"></div>',
         iconSize: [MARKER_PX, MARKER_PX], iconAnchor: [MARKER_PX/2, MARKER_PX/2]
       });
       const recIdx = allRecords.indexOf(r);
@@ -4089,12 +4115,13 @@ async function renderMapTab() {
 
   if (!_leafletMap) {
     _leafletMap = L.map(container, {
-      zoomControl: false, dragging: false, scrollWheelZoom: false,
-      doubleClickZoom: false, touchZoom: false, keyboard: false
+      zoomControl: true, dragging: true, scrollWheelZoom: true,
+      doubleClickZoom: true, touchZoom: true, keyboard: true
     }).setView([54.5, -3.5], MAP_ZOOM);
+    _leafletMap.on('zoomend', function(){_redrawMarkers(window._lastColourFn);});
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '\u00a9 <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: MAP_ZOOM, minZoom: MAP_ZOOM
+      maxZoom: 18, minZoom: 4
     }).addTo(_leafletMap);
   }
 
@@ -4130,7 +4157,41 @@ async function renderMapTab() {
   // Build colour function based on selected grouping
   const _mapGroupBy = (document.getElementById('map-group-by')||{}).value || 'status';
   let _colourFn;
-  if(_mapGroupBy === 'status'){
+  // Days Open grouping
+  const _doBins=[
+    {label:'0–1 days', lo:0, hi:1,   col:'#22c55e'},
+    {label:'1–2 days', lo:1, hi:2,   col:'#4ade80'},
+    {label:'2–3 days', lo:2, hi:3,   col:'#84cc16'},
+    {label:'3–4 days', lo:3, hi:4,   col:'#facc15'},
+    {label:'4–5 days', lo:4, hi:5,   col:'#fb923c'},
+    {label:'5–6 days', lo:5, hi:6,   col:'#f97316'},
+    {label:'6–7 days', lo:6, hi:7,   col:'#ef4444'},
+    {label:'7–14 days',lo:7, hi:14,  col:'#dc2626'},
+    {label:'15–21 days',lo:15,hi:21,  col:'#b91c1c'},
+    {label:'22–28 days',lo:22,hi:28,  col:'#9f1239'},
+    {label:'29+ days', lo:29,hi:Infinity,col:'#6b21a8'}
+  ];
+  const _doGetDays=(r)=>{
+    if(!r.dateReported)return null;
+    const _today=new Date();_today.setHours(0,0,0,0);
+    const _end=r.dateRepair?new Date(r.dateRepair):_today;
+    return Math.round((_end-new Date(r.dateReported))/(86400000));
+  };
+  const _doColour=(r)=>{
+    const d=_doGetDays(r);
+    if(d===null)return '#94a3b8';
+    const b=_doBins.find(b=>d>=b.lo&&d<b.hi);
+    return b?b.col:'#6b21a8';
+  };
+  const _doLabel=(r)=>{
+    const d=_doGetDays(r);
+    if(d===null)return 'Unknown';
+    const b=_doBins.find(b=>d>=b.lo&&d<b.hi);
+    return b?b.label:'29+ days';
+  };
+  if(_mapGroupBy==='daysOpen'){
+    _colourFn=_doColour;
+  } else if(_mapGroupBy === 'status'){
     const _SC={'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
       'Ongoing':'#3b82f6','Vehicle Unavailable':'#94a3b8','Closed':'#22c55e','Rectified':'#22c55e'};
     _colourFn=function(r){return _SC[r.status]||'#94a3b8';};
@@ -4147,6 +4208,7 @@ async function renderMapTab() {
     const _CM={}; _ukeys.forEach(function(k,i){_CM[k]=_COLS[i%_COLS.length];});
     _colourFn=function(r){return _CM[_GK(r)]||'#94a3b8';};
   }
+  window._lastColourFn=_colourFn;
   _redrawMarkers(_colourFn);
 
   // Build legend
@@ -4158,7 +4220,17 @@ async function renderMapTab() {
       `<span style='font-size:11px;color:var(--offwhite);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap' title='${label}'>${label}</span>`+
       `<span style='font-size:11px;color:var(--grey);flex-shrink:0;margin-left:4px'>${count}</span>`+
       `</div>`;
-    if(_mapGroupBy==='status'){
+    if(_mapGroupBy==='daysOpen'){
+      const _doCounts={};
+      recs.forEach(function(r){
+        const l=_doLabel(r);
+        _doCounts[l]=(_doCounts[l]||0)+1;
+      });
+      // Show bins in their natural order (not count order), filtering to those with data
+      _legendEl.innerHTML=_doBins.filter(b=>_doCounts[b.label]).map(b=>
+        _legendRow(b.col,b.label,_doCounts[b.label])
+      ).join('');
+    } else if(_mapGroupBy==='status'){
       const _SC2={'Open':'#ef4444','Awaiting report':'#f97316','Awaiting Parts':'#eab308',
         'Ongoing':'#3b82f6','Vehicle Unavailable':'#94a3b8','Closed':'#22c55e','Rectified':'#22c55e'};
       const _sCounts={}; recs.forEach(r=>{const s=r.status||'Unknown';_sCounts[s]=(_sCounts[s]||0)+1;});
@@ -4178,9 +4250,10 @@ async function renderMapTab() {
     }
   }
 
-  if (_mapMarkers.length) {
+  if (_mapMarkers.length && !_mapBoundsSet) {
     const group = L.featureGroup(_mapMarkers);
     _leafletMap.fitBounds(group.getBounds().pad(0.15), {maxZoom: MAP_ZOOM});
+    _mapBoundsSet = true;
   }
 
   if (statusEl) statusEl.textContent = recs.length + ' record' + (recs.length !== 1 ? 's' : '') + ' plotted' +
@@ -4799,6 +4872,7 @@ function updateDashboard(resetSlicers=true){
     _compCusts=new Set();_compPTs=new Set();_compSubs=new Set();_compItems=new Set();_compItemsStale=false;
     _defCusts=new Set();_defPTs=new Set();_defSubs=new Set();
     _vcCusts=new Set();_vcPTs=new Set();_vcSubs=new Set();_vcLiabs=new Set();
+    _mapBoundsSet=false;
     _vorLiabs=new Set();_milLiabs=new Set();_ageLiabs=new Set();
     _liabCusts=new Set();_liabPTs=new Set();_liabSubs=new Set();_liabLiabs=new Set();
     _vorStatuses=new Set();_milStatuses=new Set();_ageStatuses=new Set();
