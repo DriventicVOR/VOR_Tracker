@@ -364,7 +364,6 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 .tool-inv-row{cursor:pointer;transition:background .1s}.tool-inv-row:hover{background:rgba(0,0,0,0.04)}.tool-inv-selected{background:rgba(0,0,0,0.07)!important}.tool-eng-sublist td{background:#f0f4f8}.tool-eng-subitem{transition:background .1s}.tool-eng-subitem:hover{background:#e2eaf2!important}
 .emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}
 .emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}.emob-req-card{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)}.emob-req-card .req-date{font-size:13px;color:var(--txm)}.emob-req-card .req-key{font-size:13px;font-weight:600;font-family:monospace;color:var(--offwhite)}
-.diag-panel{position:fixed;bottom:20px;right:20px;z-index:9999;background:#0d1829;border:1px solid var(--bdr);border-radius:10px;padding:12px 16px;font-size:12px;font-family:'IBM Plex Mono',monospace;min-width:280px;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.6);}.diag-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.06em}.diag-row{display:flex;align-items:flex-start;gap:8px;padding:3px 0;color:#8896a8;font-size:11px;line-height:1.4}.diag-row.ok{color:#4ade80}.diag-row.warn{color:#f59e0b}.diag-row.err{color:#f87171}.diag-icon{flex-shrink:0;width:12px;margin-top:1px}.diag-close{cursor:pointer;opacity:.5;font-size:13px;line-height:1}.diag-close:hover{opacity:1}
 </style>
 </head>
 <body>
@@ -375,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.142</div>
+      <div class="h-ver">v3.144</div>
     </div>
   </div>
   <div class="h-right">
@@ -390,7 +389,6 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 </header>
 
 <!-- Scrollable content area -->
-<div id="diag-panel" class="diag-panel" style="display:none"></div>
 <div class="page">
 
   <!-- ── REPORT TAB ──────────────────────────── -->
@@ -1289,42 +1287,12 @@ const SB_BUCKET='vor-data';
 
 function getToken(){return localStorage.getItem('sb_token')||'';}
 function saveToken(t){localStorage.setItem('sb_token',t);}
-function showDiag(steps){
-  let el=document.getElementById('diag-panel');
-  if(!el)return;
-  clearTimeout(window._diagTimer);
-  el.style.display='block';
-  const hasWarn=steps.some(s=>s.t==='warn'||s.t==='err');
-  el.innerHTML='<div class="diag-header">Connection Diagnostics<span class="diag-close" onclick="this.closest(\'#diag-panel\').style.display=\'none\'">✕</span></div>'
-    +steps.map(s=>'<div class="diag-row '+s.t+'"><span class="diag-icon">'+(s.t==='ok'?'✓':s.t==='err'?'✗':'⚠')+'</span><span>'+s.m+'</span></div>').join('');
-  window._diagTimer=setTimeout(function(){if(el)el.style.display='none';},hasWarn?20000:8000);
-}
 function clearStoredKey(){
   localStorage.removeItem('sb_token');
   showToast('Stored API key cleared','success');
 }
 
 
-async function listBucket(){
-  try{
-    const token=getToken();
-    const r=await fetch(SB_URL+'/storage/v1/object/list/'+SB_BUCKET,{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+token,'apikey':token,'Content-Type':'application/json'},
-      body:JSON.stringify({prefix:'',limit:50,offset:0})
-    });
-    if(!r.ok)return null;
-    return await r.json();
-  }catch(e){return null;}
-}
-async function probeStatus(filename){
-  try{
-    const token=getToken();
-    const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,
-      {headers:{'Authorization':'Bearer '+token,'apikey':token}});
-    return r.status;
-  }catch(e){return 0;}
-}
 async function readJSON(filename){
   const token=getToken();
   const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,{headers:{'Authorization':'Bearer '+token,'apikey':token}});
@@ -2873,15 +2841,11 @@ async function connectStorage(){
   if(!getToken()){document.getElementById('token-modal').style.display='flex';return;}
   if(window._connecting)return;
   window._connecting=true;
-  const _diag=[];
   try{
     const data=await readJSON('customers.json');
     customers=data||[{name:'WrightBus',prefix:'WB'}];
     if(!customers.length)customers=[{name:'WrightBus',prefix:'WB'}];
     activeCustomer=customers[0];
-    _diag.push({t:'ok',m:'Supabase storage reachable'});
-    const _custSrc=data?'customers.json':'customers.json not found — using fallback WrightBus (prefix: WB)';
-    _diag.push({t:data?'ok':'warn',m:_custSrc});
     document.getElementById('no-folder-banner').style.display='none';
     document.getElementById('reconnect-bar').classList.remove('show');
     document.getElementById('hstat').textContent='✓ Connected';
@@ -2889,44 +2853,10 @@ async function connectStorage(){
     document.getElementById('customer-sel-wrap').style.display='flex';
     renderCustomerSelect();
     await loadConfig();
-    const _cfgOps=(config&&config.operators)?config.operators.length:0;
-    const _cfgEng=(config&&config.engineers)?config.engineers.length:0;
-    _diag.push({t:_cfgOps>0?'ok':'warn',m:'Config: '+_cfgOps+' operators, '+_cfgEng+' engineers'});
-    const _recFile=customerRecordsFile();
-    const _rawRecs=await readJSON(_recFile);
-    allRecords=_rawRecs||[];
-    populateSRSelect();
-    const _rc=allRecords.length;
-    if(_rc>0){
-      _diag.push({t:'ok',m:'Records: '+_rc+' SR'+((_rc===1)?'':'s')+' loaded from '+_recFile});
-    } else {
-      const _st=await probeStatus(_recFile);
-      const _bucket='vor-data';
-      _diag.push({t:'err',m:'HTTP '+_st+' reading '+_recFile});
-      // Try the /authenticated/ path variant used for private buckets
-      const _stAuth=await (async()=>{
-        try{
-          const token=getToken();
-          const r=await fetch(SB_URL+'/storage/v1/object/authenticated/'+_bucket+'/'+_recFile,
-            {headers:{'Authorization':'Bearer '+token,'apikey':token}});
-          return r.status;
-        }catch(e){return 0;}
-      })();
-      _diag.push({t:_stAuth===200?'ok':'warn',m:'Authenticated path HTTP '+_stAuth+(_stAuth===200?' — bucket requires /authenticated/ path':'')});
-      // Try config file for comparison
-      const _stCfg=await probeStatus(customerConfigFile());
-      _diag.push({t:'warn',m:'Config file ('+customerConfigFile()+') probe: HTTP '+_stCfg+' — '+((_stCfg===200&&_st!==200)?'config readable but records not — likely per-file RLS or records file missing/replaced':'same access pattern')});
-      _diag.push({t:'warn',m:'To fix: open Supabase → Storage → vor-data → find WB-records.json → confirm it exists at bucket root, then re-save a record from the manager form to re-upload it with current key permissions.'});
-    }
+    await refreshRecords();
     showToast('Connected','success');
-  }catch(e){
-    _diag.push({t:'err',m:'Error: '+e.message});
-    showToast('Connection failed: '+e.message,'error');
-  }
-  finally{
-    window._connecting=false;
-    showDiag(_diag);
-  }
+  }catch(e){showToast('Connection failed: '+e.message,'error');}
+  finally{window._connecting=false;}
 }
 
 
