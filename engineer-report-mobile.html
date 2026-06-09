@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.134</div>
+      <div class="h-ver">v3.135</div>
     </div>
   </div>
   <div class="h-right">
@@ -384,6 +384,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     </div>
         <button class="hbtn sec" id="reload-btn" onclick="safeReloadData()" style="display:none">&#8635;</button>
     <button class="hbtn" onclick="connectStorage()">&#9654;</button>
+    <button class="hbtn sec" onclick="clearStoredKey()" title="Clear stored API key">&#128274;</button>
   </div>
 </header>
 
@@ -1286,6 +1287,11 @@ const SB_BUCKET='vor-data';
 
 function getToken(){return localStorage.getItem('sb_token')||'';}
 function saveToken(t){localStorage.setItem('sb_token',t);}
+function clearStoredKey(){
+  localStorage.removeItem('sb_token');
+  showToast('Stored API key cleared','success');
+}
+
 
 async function readJSON(filename){
   const token=getToken();
