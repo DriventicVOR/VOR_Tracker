@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.133</div>
+      <div class="h-ver">v3.134</div>
     </div>
   </div>
   <div class="h-right">
@@ -425,6 +425,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div class="iref" id="iref"></div>
         <div class="ihead-right">
           <div class="badge b-pend" id="ibadge">Awaiting report</div>
+          <span id="iwarranty-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1.5px solid;display:none;flex-shrink:0"></span>
           <div class="itoggle" id="itoggle">&#9660;</div>
         </div>
       </div>
@@ -2302,6 +2303,19 @@ function populateInfoPanel(rec){
   const created=rec.createdAt?new Date(rec.createdAt).toLocaleString('en-GB',
     {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
   document.getElementById('ig-created').textContent='Submitted: '+created;
+  const _wb=document.getElementById('iwarranty-badge');
+  if(_wb){
+    const _dis=rec.dateService||rec.dateInService||'';
+    if(_dis){
+      const _inSvc=new Date(_dis);const _today=new Date();_today.setHours(0,0,0,0);
+      const _iw=(_today-_inSvc)/(1000*60*60*24*365.25)<=2;
+      _wb.textContent=_iw?'In Warranty':'Out of Warranty';
+      _wb.style.color=_iw?'#16a34a':'#dc2626';
+      _wb.style.background=_iw?'#dcfce7':'#fee2e2';
+      _wb.style.borderColor=_iw?'#86efac':'#fca5a5';
+      _wb.style.display='inline-flex';
+    }else{_wb.style.display='none';}
+  }
   document.getElementById('ibody').classList.remove('collapsed');
   document.getElementById('itoggle').textContent='▼ Collapse';
   document.getElementById('ipanel').classList.add('vis');
