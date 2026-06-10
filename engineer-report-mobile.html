@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.144</div>
+      <div class="h-ver">v3.149</div>
     </div>
   </div>
   <div class="h-right">
@@ -1583,7 +1583,7 @@ function hasUnsavedChanges(){
     ['e-date-att',rec.dateAttended],['e-date-repair',rec.dateRepair],
     ['e-warranty',rec.warranty],['e-voith',rec.voithFault],
     ['e-rectified',rec.rectified],['e-inverter',rec.inverter],
-    ['e-diagnosis',rec.diagnosis],['e-comments',rec.comments],
+    ['e-diagnosis',rec.diagnosis],['e-comments',rec.chargeableNumber||rec.comments||''],
     ['e-sw-init',rec.swInitial],['e-sw-fin',rec.swFinal]
   ];
   for(const [id,saved] of fields){
@@ -1626,7 +1626,16 @@ function safeReloadData(){
   }
 }
 
-async function refreshRecords(){try{const d=await readJSON(customerRecordsFile());allRecords=d||[];}catch(e){}populateSRSelect();}
+async function refreshRecords(){
+  try{
+    const d=await readJSON(customerRecordsFile());
+    allRecords=d||[];
+    if(!allRecords.length)showToast('Connected but no records found in '+customerRecordsFile(),'error');
+  }catch(e){
+    showToast('Failed to load records: '+e.message,'error');
+  }
+  populateSRSelect();
+}
 
 let _warrantyFleetCache=null;
 async function checkWarranty(){
@@ -2344,7 +2353,7 @@ async function loadRecord(){
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
-  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.comments);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
     sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
@@ -2548,7 +2557,7 @@ function validate(strict){
 // Staged record — built from form, not yet saved
 let _pendingRecord=null;
 
-async function saveReport(){
+async function saveReport(sendEmailAfter){
   const repairDateFilled=!!gv('e-date-repair');
   if(!validate(repairDateFilled)){showToast('Fill in all required fields','error');return}
   if(!currentRef){showToast('No record loaded','error');return}
@@ -2579,7 +2588,7 @@ async function saveReport(){
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
     interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
-    comments:gv('e-comments'),chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
+    chargeableNumber:gv('e-comments'),chargeableInfo:(document.getElementById('chargeable-info')||{}).textContent||'',chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
     faultCodes:[gv('e-fc-1'),gv('e-fc-2'),gv('e-fc-3'),gv('e-fc-4'),gv('e-fc-5'),gv('e-fc-6'),gv('e-fc-7'),gv('e-fc-8')],
     status:(()=>{
@@ -2608,7 +2617,11 @@ async function saveReport(){
       return;
     }
   }
-  openEngPopup(_pendingRecord);
+  if(sendEmailAfter){
+    await confirmSaveReport(true);
+  } else {
+    openEngPopup(_pendingRecord);
+  }
 }
 
 async function confirmSaveReport(sendEmail){
@@ -2754,7 +2767,12 @@ async function sendReportEmail(rec){
   // Diagnosis & Outcome
   sep('DIAGNOSIS & OUTCOME');
   if(inc('diagnosis')){lines.push('Diagnosis:');lines.push('  '+v(rec.diagnosis));}
-  if(inc('comments')){lines.push('Comments:');lines.push('  '+v(rec.comments));}
+  const _chargeNum=rec.chargeableNumber||rec.comments||'';
+  if(_chargeNum.trim()){
+    lines.push('Chargeable Number:');lines.push('  '+v(_chargeNum));
+    const _chargeInfo=rec.chargeableInfo||'';
+    if(_chargeInfo.trim()){lines.push('Chargeable Info:');lines.push('  '+v(_chargeInfo));}
+  }
   addCF('DIAGNOSIS & OUTCOME');
 
   // Parts & Software
@@ -2848,14 +2866,29 @@ async function connectStorage(){
     activeCustomer=customers[0];
     document.getElementById('no-folder-banner').style.display='none';
     document.getElementById('reconnect-bar').classList.remove('show');
-    document.getElementById('hstat').textContent='✓ Connected';
+    document.getElementById('hstat').textContent='↻ Connecting…';
+    document.getElementById('hstat').className='hstat';
     document.getElementById('reload-btn').style.display='';
     document.getElementById('customer-sel-wrap').style.display='flex';
     renderCustomerSelect();
     await loadConfig();
     await refreshRecords();
-    showToast('Connected','success');
-  }catch(e){showToast('Connection failed: '+e.message,'error');}
+    const _rc=allRecords?allRecords.length:0;
+    const _hs=document.getElementById('hstat');
+    if(_rc>0){
+      _hs.textContent='✓ Connected — '+_rc+' record'+(_rc===1?'':'s');
+      _hs.className='hstat ok';
+      showToast('Connected — '+_rc+' record'+(_rc===1?'':'s')+' loaded','success');
+    } else {
+      _hs.textContent='⚠ Connected — no data';
+      _hs.className='hstat warn';
+      showToast('Connected but no records loaded','error');
+    }
+  }catch(e){
+    document.getElementById('hstat').textContent='✗ Connection failed';
+    document.getElementById('hstat').className='hstat err';
+    showToast('Connection failed: '+e.message,'error');
+  }
   finally{window._connecting=false;}
 }
 
@@ -3221,8 +3254,7 @@ function htlHideTip(){
 }
 
 function saveAndEmail(){
-  window._doSendEmail=true;
-  confirmSaveReport(true);
+  saveReport(true);
 }
 
 // ── Boot ─────────────────────────────────────────────────────────
@@ -3387,7 +3419,7 @@ openEngPopup = function(rec, viewOnly) {
       ${pi(lbl('e-warranty','Warranty'), rec.warranty)}
       ${pi(lbl('e-voith','Liability'), rec.voithFault)}
       ${pi(lbl('e-diagnosis','Diagnosis and Comments'), rec.diagnosis, true)}
-      ${pi(lbl('e-comments','Chargeable Number'), rec.comments, true)}
+      ${pi(lbl('e-comments','Chargeable Number'), rec.chargeableNumber||rec.comments||'', true)}
       ${cfSectionM('diagnosis','engineer')}
     </div>
     ${(rec.faultCodes||[]).some(v=>v&&v.trim())?`<div class='isection-title' style='margin-bottom:8px'>Fault Codes</div><div class='igrid' style='margin-bottom:16px'>${pi('Codes',(rec.faultCodes||[]).filter(v=>v&&v.trim()).join(' · '),true)}</div>`:''}
