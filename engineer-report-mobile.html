@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.173</div>
+      <div class="h-ver">v3.176</div>
     </div>
   </div>
   <div class="h-right">
@@ -1392,7 +1392,7 @@ function compRowHTML(val,idx,partNum,symptom,rootCause){
   return`<div class="comp-row" id="comp-row-${idx}" style="border:1px solid var(--bdr);border-radius:6px;padding:10px;margin-bottom:8px;background:var(--surf2)">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
       <select style="width:220px;flex-shrink:0;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-${idx}" onchange="updateCompPNRequired(${idx})"><option value="">None</option>${opts}</select>
-      <input type="text" id="e-comp-pn-${idx}" value="${partNum||''}" placeholder="Part number *" style="flex:1;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx)">
+      <input type="text" id="e-comp-pn-${idx}" value="${partNum||''}" placeholder="Part number *" list="pl-datalist" style="flex:1;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx)">
       ${rmBtn}
     </div>
     <div style="display:flex;gap:8px">
@@ -2174,7 +2174,7 @@ function _renderPartsCard(list,item){
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
+    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" list="pl-datalist" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
     +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
     +'</div>';
   list.appendChild(div);
@@ -2940,6 +2940,21 @@ async function switchCustomer(){
   showToast('Switched to '+activeCustomer.name,'success');
 }
 
+
+var _partsListCache=[];
+async function _loadPartsListData(){
+  try{
+    const d=await readJSON('parts-list.json');
+    _partsListCache=Array.isArray(d)?d:[];
+    const dl=document.getElementById('pl-datalist');
+    if(!dl)return;
+    dl.innerHTML=_partsListCache.map(function(p){
+      const pn=(p.partNumber||'').trim();
+      const desc=(p.description||'').trim();
+      return '<option value="'+pn+'"'+(desc?' label="'+desc+'"':'')+'>';
+    }).join('');
+  }catch(e){}
+}
 async function connectStorage(){
   if(!getToken()){document.getElementById('token-modal').style.display='flex';return;}
   if(window._connecting)return;
@@ -2958,6 +2973,7 @@ async function connectStorage(){
     renderCustomerSelect();
     await loadConfig();
     await refreshRecords();
+    _loadPartsListData();
     const _rc=allRecords?allRecords.length:0;
     const _hs=document.getElementById('hstat');
     if(_rc>0){
@@ -3170,7 +3186,9 @@ async function _sendPartsRequestEmail(){
     const elQ=document.getElementById('po-quantity-'+p.idx);
     const qty=elQ?elQ.value.trim():p.quantity;
     const pn=el?el.value.trim():p.partNumber;
-    return 'Part Number: '+pn+(qty?' | Quantity: '+qty:'');
+    const _desc=(_partsListCache||[]).find(function(x){return String(x.partNumber||'').trim().toLowerCase()===pn.toLowerCase();});
+    const desc=_desc?(_desc.description||'').trim():'';
+    return (qty?qty+' x ':'')+pn+(desc?' - '+desc:'');
   });
   unrequested.forEach(function(p){p.requested=true;});
   renderCombinedList();
@@ -4280,5 +4298,7 @@ function tsbViewClose(){var m=document.getElementById('tsb-view-modal');if(m)m.s
     </div>
   </div>
 </div>
+
+<datalist id="pl-datalist"></datalist>
 </body>
 </html>
