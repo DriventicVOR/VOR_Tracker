@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.149</div>
+      <div class="h-ver">v3.173</div>
     </div>
   </div>
   <div class="h-right">
@@ -2088,7 +2088,33 @@ var _interimCount  = 0;
 var _partsCount    = 0;
 var _dataloggerCount = 0;
 
+function _syncCombinedFromDOM(){
+  _combinedItems.forEach(function(x){
+    if(x.type==='parts'){
+      var elPn=document.getElementById('po-part-number-'+x.idx);
+      var elQ=document.getElementById('po-quantity-'+x.idx);
+      var elDo=document.getElementById('po-date-ordered-'+x.idx);
+      var elDr=document.getElementById('po-date-received-'+x.idx);
+      if(elPn)x.partNumber=elPn.value;
+      if(elQ)x.quantity=elQ.value;
+      if(elDo){x.date=elDo.value;x.dateOrdered=elDo.value;}
+      if(elDr)x.dateReceived=elDr.value;
+    } else if(x.type==='interim'){
+      var elD=document.getElementById('interim-date-'+x.idx);
+      var elC=document.getElementById('interim-comments-'+x.idx);
+      if(elD){x.date=elD.value;}
+      if(elC)x.comments=elC.value;
+    } else if(x.type==='datalogger'){
+      var elDf=document.getElementById('dl-date-fitted-'+x.idx);
+      var elDrm=document.getElementById('dl-date-removed-'+x.idx);
+      if(elDf){x.date=elDf.value;x.dateFitted=elDf.value;}
+      if(elDrm)x.dateRemoved=elDrm.value;
+    }
+  });
+}
+
 function renderCombinedList(){
+  _syncCombinedFromDOM();
   var list=document.getElementById('combined-visits-list');
   if(!list)return;
   var sorted=_combinedItems.slice().sort(function(a,b){
@@ -2147,9 +2173,10 @@ function _renderPartsCard(list,item){
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Date Expected</label><input type="date" id="po-date-expected-'+i+'" value="'+(item.dateExpected||'')+'" style="width:100%"></div>'
-    +'</div>'
-    +'<div class="fg" style="margin:top:8px"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%"></div>';
+    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
+    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
+    +'</div>';
   list.appendChild(div);
 }
 
@@ -2176,7 +2203,7 @@ function addNewInterimVisit(){
 
 function addNewPartsOrdered(){
   var i=_partsCount++;
-  _combinedItems.push({type:'parts',idx:i,date:'',dateOrdered:'',dateExpected:'',partNumber:''});
+  _combinedItems.push({type:'parts',idx:i,date:'',dateOrdered:'',dateReceived:'',partNumber:'',quantity:'',requested:false});
   renderCombinedList();
 }
 
@@ -2194,7 +2221,7 @@ function loadPartsOrdered(items){
   _combinedItems=_combinedItems.filter(function(x){return x.type!=='parts';});
   (items||[]).forEach(function(p){
     var i=_partsCount++;
-    _combinedItems.push({type:'parts',idx:i,date:p.dateOrdered||'',dateOrdered:p.dateOrdered||'',dateExpected:p.dateExpected||'',partNumber:p.partNumber||''});
+    _combinedItems.push({type:'parts',idx:i,date:p.dateOrdered||'',dateOrdered:p.dateOrdered||'',dateReceived:p.dateReceived||'',partNumber:p.partNumber||'',quantity:p.quantity||'',requested:p.requested||false});
   });
 }
 
@@ -2537,6 +2564,41 @@ function validate(strict){
     if(!el)return;
     if(!el.value||!el.value.trim()){el.classList.add('err');ok=false;}
   });
+  // Quantity required if part number entered
+  var _partsQtyOk=true;
+  _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(x){
+    const _pnEl=document.getElementById('po-part-number-'+x.idx);
+    const _qEl=document.getElementById('po-quantity-'+x.idx);
+    if(_pnEl&&_pnEl.value.trim()&&_qEl&&!_qEl.value.trim()){
+      _qEl.style.borderColor='#dc2626';
+      _partsQtyOk=false;
+    } else if(_qEl){
+      _qEl.style.borderColor='';
+    }
+  });
+  if(!_partsQtyOk){
+    showToast('Please enter a quantity for all parts','error');
+    return false;
+  }
+  // Date Received mandatory if vehicle repair date is set
+  const _repairDateEl=document.getElementById('e-date-repair');
+  if(_repairDateEl&&_repairDateEl.value.trim()){
+    var _partsRcvOk=true;
+    _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(x){
+      const _pnEl=document.getElementById('po-part-number-'+x.idx);
+      const _drEl=document.getElementById('po-date-received-'+x.idx);
+      if(_pnEl&&_pnEl.value.trim()&&_drEl&&!_drEl.value.trim()){
+        _drEl.style.borderColor='#dc2626';
+        _partsRcvOk=false;
+      } else if(_drEl){
+        _drEl.style.borderColor='';
+      }
+    });
+    if(!_partsRcvOk){
+      showToast('Date Received is required for all parts when a Vehicle Repair Date is entered','error');
+      return false;
+    }
+  }
   if(strict){
     document.querySelectorAll('[data-cfreq="1"]').forEach(el=>{
       el.classList.remove('err');
@@ -2586,7 +2648,7 @@ async function saveReport(sendEmailAfter){
     engineer:gv('e-engineer'),region:gv('e-region'),
     dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
-    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateExpected:document.getElementById('po-date-expected-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||''};}),rectified:rect,
+    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateReceived:document.getElementById('po-date-received-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||'',quantity:document.getElementById('po-quantity-'+i)?.value||'',requested:x.requested||false};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     chargeableNumber:gv('e-comments'),chargeableInfo:(document.getElementById('chargeable-info')||{}).textContent||'',chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
     swInitial:gv('e-sw-init'),swFinal:gv('e-sw-fin'),
@@ -2595,7 +2657,7 @@ async function saveReport(sendEmailAfter){
       const att=gv('e-date-att');
       const rep=gv('e-date-repair');
       var _iv=_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var el=document.getElementById('interim-date-'+x.idx);return{date:el?el.value:x.date||'',vehicleUnavailable:document.getElementById('interim-unavail-'+x.idx)?.checked?'Y':'N'};});
-      var _po=_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){return{dateOrdered:document.getElementById('po-date-ordered-'+x.idx)?.value||x.dateOrdered||'',dateExpected:document.getElementById('po-date-expected-'+x.idx)?.value||x.dateExpected||''};});
+      var _po=_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){return{dateOrdered:document.getElementById('po-date-ordered-'+x.idx)?.value||x.dateOrdered||'',dateReceived:document.getElementById('po-date-received-'+x.idx)?.value||x.dateReceived||'',requested:x.requested||false};});
       return calcRecordStatus(att, rep, rect, _po, _iv, document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N');
     })(),
     vorDays:calcVorDays(gv('e-date-repair')?allRecords[idx].dateReported:'',gv('e-date-repair')),
@@ -2675,6 +2737,29 @@ async function confirmSaveReport(sendEmail){
       document.body.appendChild(eLink);
       eLink.click();
       setTimeout(()=>{ if(eLink.parentNode)document.body.removeChild(eLink); },20000);
+    }
+  }
+  // Check for unrequested parts after save
+  if(_hasUnrequestedParts()){
+    const _pm=document.getElementById('parts-request-modal');
+    if(_pm){
+      const _cnt=_combinedItems.filter(function(x){
+        if(x.type!=='parts'||x.requested)return false;
+        const el=document.getElementById('po-part-number-'+x.idx);
+        return !!(el?el.value.trim():x.partNumber);
+      }).length;
+      document.getElementById('parts-request-count').textContent=_cnt+' part'+(_cnt===1?'':'s');
+      _pm.style.display='flex';
+      document.getElementById('parts-request-yes').onclick=async function(){
+        _pm.style.display='none';
+        await _sendPartsRequestEmail();
+        hideForm();document.getElementById('sr-select').value='';populateSRSelect();
+      };
+      document.getElementById('parts-request-no').onclick=function(){
+        _pm.style.display='none';
+        hideForm();document.getElementById('sr-select').value='';populateSRSelect();
+      };
+      return;
     }
   }
   hideForm();
@@ -2907,7 +2992,7 @@ function _buildAttendanceLines(rec, fmt){
   });
   (rec.partsOrdered||[]).forEach(function(p){
     mid.push({date:p.dateOrdered||'9999',order:1,
-      label:'Parts Ordered: '+(p.dateOrdered||'—')+(p.partNumber?' ('+p.partNumber+')':'')+(p.dateExpected?' — Exp: '+p.dateExpected:'')});
+      label:'Parts Ordered: '+(p.dateOrdered||'—')+(p.partNumber?' ('+p.partNumber+')':'')});
   });
   (rec.datalogger||[]).forEach(function(d){
     mid.push({date:d.dateFitted||'9999',order:2,
@@ -3044,7 +3129,7 @@ function openEngPopup(rec){
     <div class='popup-section'>
       <div class='popup-section-title'>Parts Ordered</div>
       <div class='popup-grid'>${rec.partsOrdered.map((p,i)=>
-        pi('Order '+(i+1), [p.dateOrdered&&'Ordered: '+p.dateOrdered, p.dateExpected&&'Expected: '+p.dateExpected, p.partNumber&&'Part #: '+p.partNumber].filter(Boolean).join(' · '), true)
+        pi('Part '+(i+1), [(p.partNumber?'Part Number: '+p.partNumber:''), (p.quantity?'Quantity: '+p.quantity:''), (p.requested?'✓ Requested':'⚠ Not Requested'), (p.dateOrdered?'Ordered: '+p.dateOrdered:''), (p.dateReceived?'Received: '+p.dateReceived:'')].filter(Boolean).join(' · '), true)
       ).join('')}</div>
     </div>`:''}
   `;
@@ -3071,6 +3156,137 @@ function fillSel(id,arr,ph){
   if(cur)el.value=cur;
 }
 function gv(id){return document.getElementById(id)?.value?.trim()||'';}
+async function _sendPartsRequestEmail(){
+  const recipients=(config.partsMailingList||[]).filter(Boolean);
+  if(!recipients.length)return;
+  const unrequested=_combinedItems.filter(function(x){
+    if(x.type!=='parts'||x.requested)return false;
+    const el=document.getElementById('po-part-number-'+x.idx);
+    return !!(el?el.value.trim():x.partNumber);
+  });
+  if(!unrequested.length)return;
+  const lines=unrequested.map(function(p){
+    const el=document.getElementById('po-part-number-'+p.idx);
+    const elQ=document.getElementById('po-quantity-'+p.idx);
+    const qty=elQ?elQ.value.trim():p.quantity;
+    const pn=el?el.value.trim():p.partNumber;
+    return 'Part Number: '+pn+(qty?' | Quantity: '+qty:'');
+  });
+  unrequested.forEach(function(p){p.requested=true;});
+  renderCombinedList();
+  // Write requested:true back to the saved record directly
+  if(currentRef){
+    try{
+      const _fresh=await readRecords();
+      const _ri=_fresh.findIndex(function(r){return r.ref===currentRef;});
+      if(_ri>=0&&_fresh[_ri].partsOrdered){
+        var _pi=0;
+        _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(item){
+          if(_fresh[_ri].partsOrdered[_pi]){
+            _fresh[_ri].partsOrdered[_pi].requested=item.requested;
+            if(_fresh[_ri].partsOrdered[_pi].dateExpected!==undefined)delete _fresh[_ri].partsOrdered[_pi].dateExpected;
+          }
+          _pi++;
+        });
+        await writeRecords(_fresh);
+        allRecords=_fresh;
+      }
+    }catch(e){showToast('Could not save requested state: '+e.message,'error');}
+  }
+  // Build subject and body from saved record
+  const _rec=allRecords.find(function(r){return r.ref===currentRef;});
+  var subject='';
+  var body='';
+  if(_rec){
+    const _eng=_rec.engineer||'';
+    const _op=_rec.operator||'';
+    const _dep=_rec.location||_rec.depot||'';
+    const _ref=_rec.ref||currentRef||'';
+    const _daysVor=_rec.dateReported
+      ?Math.floor((new Date()-new Date(_rec.dateReported))/(1000*60*60*24))
+      :'';
+    const _subParts=[_eng,_op,_dep,_ref,_daysVor!==''?_daysVor+' Days VOR':''].filter(Boolean);
+    subject=_subParts.join(' - ');
+    const _addr=_rec.address||'';
+    body=(_addr?'Depot Address: '+_addr+'\n\n':'')+'Parts Requested:\n'+lines.join('\n');
+  } else {
+    body=lines.join('\n');
+  }
+  window.location.href='mailto:'+recipients.join(',')
+    +'?subject='+encodeURIComponent(subject)
+    +'&body='+encodeURIComponent(body);
+}
+function _hasUnrequestedParts(){
+  return _combinedItems.some(function(x){
+    if(x.type!=='parts'||x.requested)return false;
+    const el=document.getElementById('po-part-number-'+x.idx);
+    return !!(el?el.value.trim():x.partNumber);
+  });
+}
+
+async function requestParts(){
+  const recipients=(config.partsMailingList||[]).filter(Boolean);
+  if(!recipients.length){
+    showToast('No Parts Mailing List configured — add addresses in the manager admin panel under Field Service Team','error');
+    return;
+  }
+  // Read current DOM values (user may have typed a part number without saving)
+  const unrequested=_combinedItems.filter(function(x){
+    if(x.type!=='parts'||x.requested)return false;
+    const el=document.getElementById('po-part-number-'+x.idx);
+    return !!(el?el.value.trim():x.partNumber);
+  });
+  if(!unrequested.length){
+    const anyParts=_combinedItems.some(function(x){return x.type==='parts';});
+    showToast(anyParts?'All parts have already been requested':'No parts with a part number to request','info');
+    return;
+  }
+  // Build email body using current DOM values
+  const lines=unrequested.map(function(p){
+    const el=document.getElementById('po-part-number-'+p.idx);
+    const pn=el?el.value.trim():p.partNumber;
+    const elDo=document.getElementById('po-date-ordered-'+p.idx);
+    const elDe=document.getElementById('po-date-expected-'+p.idx);
+    var l='Part Number: '+pn;
+    const dOrd=elDo?elDo.value:p.dateOrdered;
+    const dExp=elDe?elDe.value:p.dateExpected;
+    if(dOrd)l+=' | Ordered: '+dOrd;
+    if(dExp)l+=' | Expected: '+dExp;
+    return l;
+  });
+  const body=lines.join('\n');
+  // Mark as requested
+  unrequested.forEach(function(p){p.requested=true;});
+  // Sync requested state into _pendingRecord so the save writes the correct value
+  if(window._pendingRecord&&window._pendingRecord.partsOrdered){
+    var _pi=0;
+    _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(item){
+      if(_pendingRecord.partsOrdered[_pi]){
+        _pendingRecord.partsOrdered[_pi].requested=item.requested;
+      }
+      _pi++;
+    });
+  }
+  renderCombinedList();
+  // Save to JSON
+  if(currentRef){
+    try{
+      const fresh=await readRecords();
+      const ri=fresh.findIndex(function(r){return r.ref===currentRef;});
+      if(ri>=0){
+        fresh[ri].partsOrdered=_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){return{dateOrdered:x.dateOrdered||'',dateExpected:x.dateExpected||'',dateReceived:x.dateReceived||'',partNumber:x.partNumber||'',requested:x.requested||false};});
+        await writeRecords(fresh);
+        allRecords=fresh;
+        showToast(unrequested.length+' part'+(unrequested.length===1?'':'s')+' marked as requested','success');
+      }
+    }catch(e){showToast('Could not save requested state: '+e.message,'error');}
+  }
+  // Open email
+  window.location.href='mailto:'+recipients.join(',')
+    +'?subject='+encodeURIComponent('')
+    +'&body='+encodeURIComponent(body);
+}
+
 function cancelReport(){
   hideForm();
   document.getElementById('sr-select').value='';
@@ -3433,7 +3649,7 @@ openEngPopup = function(rec, viewOnly) {
     ${Array.isArray(rec.partsOrdered)&&rec.partsOrdered.length?`
     <div class='isection-title' style='margin-bottom:8px;color:var(--amb)'>Parts Ordered</div>
     <div class='igrid' style='margin-bottom:16px'>${rec.partsOrdered.map((p,i)=>
-      pi('Order '+(i+1), [p.dateOrdered&&'Ordered: '+p.dateOrdered,p.dateExpected&&'Expected: '+p.dateExpected,p.partNumber&&'Part #: '+p.partNumber].filter(Boolean).join(' · '))
+      pi('Part '+(i+1), [(p.partNumber?'Part Number: '+p.partNumber:''),(p.quantity?'Quantity: '+p.quantity:''),(p.requested?'✓ Requested':'⚠ Not Requested'),(p.dateOrdered?'Ordered: '+p.dateOrdered:''),(p.dateReceived?'Received: '+p.dateReceived:'')].filter(Boolean).join(' · '))
     ).join('')}</div>`:''}
     ${allCustomSecs.map(sec=>customNamedSectionM(sec,'engineer')).join('')}
     ${!_viewOnly?`
@@ -4039,6 +4255,19 @@ function tsbViewClose(){var m=document.getElementById('tsb-view-modal');if(m)m.s
   </div>
 </div>
 
+
+<!-- Parts request modal -->
+<div id="parts-request-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:28px 20px;max-width:300px;width:90%;text-align:center">
+    <div style="font-size:22px;margin-bottom:8px">📦</div>
+    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:6px">Request Parts?</div>
+    <div style="font-size:12px;color:var(--txm);margin-bottom:20px">You have <span id="parts-request-count"></span> that haven't been ordered yet. Would you like to request them now?</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn sm" id="parts-request-no">No</button>
+      <button class="btn primary sm" id="parts-request-yes">Yes, Request</button>
+    </div>
+  </div>
+</div>
 <!-- Date range warning modal -->
 <div id="date-check-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
   <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:28px 24px;max-width:320px;width:90%;text-align:center">
