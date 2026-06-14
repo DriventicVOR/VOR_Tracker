@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.184</div>
+      <div class="h-ver">v3.190</div>
     </div>
   </div>
   <div class="h-right">
@@ -594,7 +594,6 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     <!-- Action bar -->
     <div class="abar" id="abar">
       <button type="button" class="btn primary" onclick="saveReport()">&#10003; Save Report</button>
-      <button type="button" class="btn primary" id="save-email-btn" style="background:var(--green);display:none" onclick="saveAndEmail()">&#9993; Save &amp; Email</button>
       <button type="button" class="btn ghost" onclick="cancelReport()">Cancel</button>
     </div>
 
@@ -2631,7 +2630,7 @@ function validate(strict){
 // Staged record — built from form, not yet saved
 let _pendingRecord=null;
 
-async function saveReport(sendEmailAfter){
+async function saveReport(){
   const repairDateFilled=!!gv('e-date-repair');
   if(!validate(repairDateFilled)){showToast('Fill in all required fields','error');return}
   if(!currentRef){showToast('No record loaded','error');return}
@@ -2692,11 +2691,7 @@ async function saveReport(sendEmailAfter){
       return;
     }
   }
-  if(sendEmailAfter){
-    await confirmSaveReport(true);
-  } else {
-    openEngPopup(_pendingRecord);
-  }
+  openEngPopup(_pendingRecord);
 }
 
 async function confirmSaveReport(sendEmail){
@@ -2823,6 +2818,10 @@ async function sendReportEmail(rec){
   lines.push('==================');
   if(inc('ref'))    add('Reference',rec.ref);
   if(inc('status')) add('Status',rec.status);
+  if(inc('comments')){
+    const _chargeInfoHdr=rec.chargeableInfo||'';
+    if(_chargeInfoHdr.trim())add('Chargeable Info',_chargeInfoHdr);
+  }
 
   // Operator & Vehicle
   sep('OPERATOR & VEHICLE');
@@ -2854,7 +2853,7 @@ async function sendReportEmail(rec){
   if(inc('engineer'))     add('Engineer',rec.engineer);
   if(inc('region'))       add('Region',rec.region);
   if(inc('dateAttended')||inc('interimVisits')||inc('dateRepair')){
-    _buildAttendanceLines(rec,'items').forEach(function(x){lines.push(x.label);});
+    _buildAttendanceLines(rec,'items',inc('partsOrdered')).forEach(function(x){lines.push(x.label);});
   }
   if(inc('warranty'))    add('Warranty',rec.warranty);
   if(inc('voithFault'))  add('Liability',rec.voithFault);
@@ -2865,11 +2864,13 @@ async function sendReportEmail(rec){
   // Diagnosis & Outcome
   sep('DIAGNOSIS & OUTCOME');
   if(inc('diagnosis')){lines.push('Diagnosis:');lines.push('  '+v(rec.diagnosis));}
-  const _chargeNum=rec.chargeableNumber||rec.comments||'';
-  if(_chargeNum.trim()){
-    lines.push('Chargeable Number:');lines.push('  '+v(_chargeNum));
-    const _chargeInfo=rec.chargeableInfo||'';
-    if(_chargeInfo.trim()){lines.push('Chargeable Info:');lines.push('  '+v(_chargeInfo));}
+  if(inc('faultCategory'))add('Fault Category',rec.faultCategory);
+  if(inc('faultDetail'))  add('Fault Detail',rec.faultDetail);
+  if(inc('comments')){
+    const _chargeNum=rec.chargeableNumber||rec.comments||'';
+    if(_chargeNum.trim()){
+      lines.push('Chargeable Number:');lines.push('  '+v(_chargeNum));
+    }
   }
   addCF('DIAGNOSIS & OUTCOME');
 
@@ -3098,7 +3099,8 @@ async function connectStorage(){
 
 
 
-function _buildAttendanceLines(rec, fmt){
+function _buildAttendanceLines(rec, fmt, includeParts){
+  if(includeParts===undefined)includeParts=true;
   var result=[];
   if(rec.dateReported) result.push('Date Reported: '+rec.dateReported);
   if(rec.dateAttended) result.push('Date First Attended: '+rec.dateAttended);
@@ -3109,10 +3111,12 @@ function _buildAttendanceLines(rec, fmt){
       label:'Interim Visit '+interimNum+': '+(v.date||'—')+(v.comments?' — '+v.comments:'')+(v.vehicleUnavailable==='Y'?' — Vehicle unavailable':'')});
     interimNum++;
   });
-  (rec.partsOrdered||[]).forEach(function(p){
-    mid.push({date:p.dateOrdered||'9999',order:1,
-      label:'Parts Ordered: '+(p.dateOrdered||'—')+(p.partNumber?' ('+p.partNumber+')':'')});
-  });
+  if(includeParts){
+    (rec.partsOrdered||[]).forEach(function(p){
+      mid.push({date:p.dateOrdered||'9999',order:1,
+        label:'Parts Ordered: '+(p.dateOrdered||'—')+(p.partNumber?' ('+p.partNumber+')':'')});
+    });
+  }
   (rec.datalogger||[]).forEach(function(d){
     mid.push({date:d.dateFitted||'9999',order:2,
       label:'Datalogger Fitted: '+(d.dateFitted||'—')+(d.dateRemoved?' — Removed: '+d.dateRemoved:'')});
@@ -3591,7 +3595,7 @@ function htlHideTip(){
 }
 
 function saveAndEmail(){
-  saveReport(true);
+  confirmSaveReport(true);
 }
 
 // ── Boot ─────────────────────────────────────────────────────────
@@ -3780,7 +3784,8 @@ openEngPopup = function(rec, viewOnly) {
     <hr style='border:none;border-top:1px solid var(--bdr);margin:4px 0 16px'>
     <p style='font-size:13px;color:var(--txm);margin-bottom:16px'>Review the details above then tap Confirm to save.</p>
     <div style='display:flex;flex-direction:column;gap:10px'>
-      <button class='btn primary' onclick='confirmSaveReport(false)'>&#10003; Confirm Save</button>
+      <button class='btn primary' onclick='confirmSaveReport(false)'>&#10003; Confirm &amp; Save</button>
+      ${rec.dateRepair?"<button class='btn primary' style='background:var(--green)' onclick='saveAndEmail()'>&#9993; Save &amp; Email</button>":''}
       <button class='btn ghost' onclick='closeEngPopup()'>Cancel</button>
     </div>`:'<div style="padding-top:16px"><button class=\'btn ghost\' style=\'width:100%\' onclick=\'closeEngPopup()\'>&#x2715; Close</button></div>'}
   `;
@@ -3822,16 +3827,6 @@ document.addEventListener('DOMContentLoaded', function() {
     connectStorage();
   } else {
     document.getElementById('token-modal').style.display = 'flex';
-  }
-  // Show Save & Email only when repair date has a value
-  const repairInput = document.getElementById('e-date-repair');
-  if (repairInput) {
-    function updateSaveEmailVisibility() {
-      const btn = document.getElementById('save-email-btn');
-      if (btn) btn.style.display = repairInput.value ? '' : 'none';
-    }
-    repairInput.addEventListener('input', updateSaveEmailVisibility);
-    repairInput.addEventListener('change', updateSaveEmailVisibility);
   }
   // HTL markers: support tap on mobile
   document.addEventListener('touchstart', function(e) {
