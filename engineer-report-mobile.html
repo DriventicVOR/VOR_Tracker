@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.181</div>
+      <div class="h-ver">v3.184</div>
     </div>
   </div>
   <div class="h-right">
@@ -526,20 +526,17 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Diagnosis and Comments <span style="color:var(--red)">*</span></label>
-          <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%" oninput="suggestFaultDiagnosis()"></textarea>
+          <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%"></textarea>
         </div>
         <div class="fg" style="margin-top:8px">
-          <label style="display:flex;justify-content:space-between;align-items:center">
-            <span>Fault Category</span>
-            <button type="button" class="btn sm" onclick="suggestFaultDiagnosis(true)" title="Re-run auto-suggestion based on Diagnosis text">&#128260; Suggest</button>
-          </label>
-          <select id="e-fault-category" style="width:100%" onchange="window._faultManualOverride=true;onFaultCategoryChange()">
+          <label>Fault Category</label>
+          <select id="e-fault-category" style="width:100%" onchange="onFaultCategoryChange()">
             <option value="">Select…</option>
           </select>
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Fault Detail</label>
-          <select id="e-fault-detail" style="width:100%" onchange="window._faultManualOverride=true" disabled>
+          <select id="e-fault-detail" style="width:100%" disabled>
             <option value="">Select…</option>
           </select>
         </div>
@@ -2395,7 +2392,7 @@ async function loadRecord(){
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
-  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');window._faultManualOverride=!!(rec.faultCategory);buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
     sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
@@ -2951,7 +2948,7 @@ async function switchCustomer(){
   if(hcn)hcn.textContent=activeCustomer?.name||'';
   if(currentRef)cancelReport();
   config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-  await loadConfig();
+  await loadConfig();_syncFaultTaxonomyFromConfig();
   await refreshRecords();
   showToast('Switched to '+activeCustomer.name,'success');
 }
@@ -2972,7 +2969,7 @@ async function _loadPartsListData(){
   }catch(e){}
 }
 // ── Fault Diagnosis Taxonomy ───────────────────────────────────────
-const FAULT_TAXONOMY={
+const FAULT_TAXONOMY_DEFAULT={
   'CCU / Charging Relay Fault':[
     'CCU1 Relay Failed','CCU2 Relay Failed','CCU Negative Relay Failed','CCU2 Needs Reflashing','Charges on Commercial Charger Only'
   ],
@@ -3020,88 +3017,20 @@ const FAULT_TAXONOMY={
   ]
 };
 
-// Keyword sets for auto-suggestion. Keys are "Category|||Detail".
-const FAULT_KEYWORDS={
-  'CCU / Charging Relay Fault|||CCU1 Relay Failed':['ccu1 relay','ccu 1 relay','ccu1 failed','ccu 1 failed'],
-  'CCU / Charging Relay Fault|||CCU2 Relay Failed':['ccu2 relay','ccu 2 relay','ccu2 failed','ccu 2 failed'],
-  'CCU / Charging Relay Fault|||CCU Negative Relay Failed':['ccu negative relay','negative relay failed','negative relay'],
-  'CCU / Charging Relay Fault|||CCU2 Needs Reflashing':['ccu2 reflash','ccu 2 reflash','reflash ccu2','ccu2 needs reflashing'],
-  'CCU / Charging Relay Fault|||Charges on Commercial Charger Only':['commercial charger only','only charges on commercial','only charges commercial'],
+let FAULT_TAXONOMY=FAULT_TAXONOMY_DEFAULT;
 
-  'EACU Fault|||EACU1 Failure':['eacu1 fail','eacu 1 fail','eacu1 failure','eacu 1 failure'],
-  'EACU Fault|||EACU2 Failure':['eacu2 fail','eacu 2 fail','eacu2 failure','eacu 2 failure'],
-  'EACU Fault|||EACU3 Failure':['eacu3 fail','eacu 3 fail','eacu3 failure','eacu 3 failure'],
-  'EACU Fault|||EACU Fuse Blown':['eacu fuse','fuse blown','eacu fuse blown','blown fuse eacu'],
-  'EACU Fault|||EACU Plug Not Connected':['eacu plug','eacu not connected','plug not connected','eacu disconnected','eacu plug disconnected'],
 
-  'Discharge Resistor Fault|||Discharge Resistor Open Circuit':['discharge resistor open circuit','open circuit discharge resistor','discharge resistor o/c','discharge resistor open'],
-  'Discharge Resistor Fault|||Discharge Resistor Out of Range':['discharge resistor out of range','resistor out of range','discharge resistor reading out of range'],
-  'Discharge Resistor Fault|||Isolation Resistance Borderline':['isolation resistance borderline','borderline isolation','insulation resistance borderline','isolation resistance low'],
-
-  'Inverter / GDU Fault|||Faulty Inverter':['faulty inverter','inverter fault','inverter faulty','inverter is faulty'],
-  'Inverter / GDU Fault|||GDU Over Temperature':['gdu over temp','gdu overtemperature','gdu temperature','over temperature gdu','gdu overheating','gdu running hot'],
-  'Inverter / GDU Fault|||Intermittent IVT Dropout':['intermittent ivt','ivt dropout','ivt intermittent','ivt drop out'],
-
-  'DMU / Software Issue|||Incorrect Dataset Installed':['incorrect dataset','wrong dataset','dataset incorrect','dataset was incorrect'],
-  'DMU / Software Issue|||Dataset Updated':['dataset updated','updated dataset','dataset upgrade','dataset was updated'],
-  'DMU / Software Issue|||Software Reflashed':['software reflashed','reflashed software','software updated','reflash dmu','dmu reflashed'],
-  'DMU / Software Issue|||DMU Missing Programs':['dmu missing program','missing programs','programs missing','dmu programs missing'],
-  'DMU / Software Issue|||DMU Lost SSUR Signal':['ssur signal','lost ssur','ssur lost','ssur signal lost'],
-  'DMU / Software Issue|||Pre-Production Software Found':['pre-production software','pre production software','preproduction software','pre-prod software'],
-
-  'Resolver / Motor Fault|||Resolver Position Fault':['resolver position fault','resolver fault','resolver position','resolver position error'],
-  'Resolver / Motor Fault|||Motor Output Flange Manually Rotated':['output flange','flange manually rotated','motor flange rotated','output flange rotated'],
-  'Resolver / Motor Fault|||Traction Motor Fault':['traction motor fault','motor fault','traction motor'],
-
-  'DIS Fault|||DIS Internal Failure':['dis internal failure','dis internal fault','internal dis failure','dis internal error'],
-  'DIS Fault|||DIS 24V Dropout':['dis 24v dropout','24v dropout dis','dis 24v drop out','dis 24 volt dropout'],
-  'DIS Fault|||Water Ingress \u2013 DIS Cable':['water ingress dis','dis cable water','water in dis cable','water ingress dis cable'],
-  'DIS Fault|||DIS Software Updated':['dis software updated','dis software update','updated dis software','dis software upgrade'],
-
-  'HV Battery / Insulation Fault|||HV String Fault':['hv string fault','string fault','hv string','high voltage string fault'],
-  'HV Battery / Insulation Fault|||Insulation Fault Found':['insulation fault','insulation fault found','insulation failure'],
-  'HV Battery / Insulation Fault|||HVIL Fault':['hvil fault','hvil','hv interlock fault','high voltage interlock'],
-  'HV Battery / Insulation Fault|||Bender Isolation Monitor Faulty':['bender','isolation monitor faulty','bender isolation','bender faulty','isolation monitor fault'],
-  'HV Battery / Insulation Fault|||Battery Cable Short':['battery cable short','cable short','short circuit battery cable','hv cable short'],
-
-  'Transmission / Gearbox Fault|||Metal Debris in Gearbox':['metal debris','debris in gearbox','metal in gearbox','metal particles gearbox'],
-  'Transmission / Gearbox Fault|||Gearbox Exchange Required':['gearbox exchange','exchange gearbox','gearbox exchange required','requires gearbox exchange'],
-  'Transmission / Gearbox Fault|||Transmission Leak':['transmission leak','gearbox leak','leak from transmission','leaking transmission','leaking gearbox'],
-  'Transmission / Gearbox Fault|||Retaining Ring Fault':['retaining ring','retaining ring fault','retaining ring failure'],
-
-  'Charge Lock / Charger Hardware|||Charge Lock Motor Faulty':['charge lock motor','charge lock faulty','charge lock fault','charge lock motor faulty'],
-  'Charge Lock / Charger Hardware|||Charger Not Recognising Vehicle':['charger not recognising','charger not recognizing','not recognising vehicle','charger doesn\u2019t recognise','charger not detecting vehicle'],
-  'Charge Lock / Charger Hardware|||Charging Indicator LED Faulty':['charging indicator led','led faulty','indicator led fault','charge led not working'],
-  'Charge Lock / Charger Hardware|||Faulty Charge Loom':['charge loom','faulty charge loom','charging loom fault','charge loom damaged'],
-
-  'Event Memory / Passive Fault Cleared|||Cleared Event Memory \u2013 No Fault Returned':['cleared event memory','event memory cleared','no fault returned','event memory cleared no fault'],
-  'Event Memory / Passive Fault Cleared|||Passive Fault Codes Cleared':['passive fault','passive fault codes cleared','cleared passive fault','passive faults cleared'],
-  'Event Memory / Passive Fault Cleared|||VEDS Not Ready \u2013 Startup Sequence Issue':['veds not ready','startup sequence issue','startup sequence','veds startup issue'],
-
-  'No Fault Found|||Unable to Replicate Fault':['unable to replicate','could not replicate','no fault found','unable to reproduce','fault not replicated','could not reproduce'],
-  'No Fault Found|||Data Logger Fitted for Monitoring':['data logger fitted','datalogger fitted','logger fitted for monitoring','fitted data logger','fitted datalogger'],
-  'No Fault Found|||All Systems Checked OK':['all systems checked','systems ok','checked ok','all checks passed','all systems ok'],
-
-  'Non-Driventic \u2013 Passed to WB/ASO|||P-CAN Issue \u2013 Passed to WB':['p-can','pcan issue','p can issue','p-can issue','passed to wb p-can'],
-  'Non-Driventic \u2013 Passed to WB/ASO|||Security Loop Fault (Non-Driventic)':['security loop fault','security loop'],
-  'Non-Driventic \u2013 Passed to WB/ASO|||BMS Fault \u2013 Passed to WB':['bms fault','bms issue','bms passed to wb'],
-  'Non-Driventic \u2013 Passed to WB/ASO|||TPMS-Related Fault':['tpms','tyre pressure','tire pressure'],
-  'Non-Driventic \u2013 Passed to WB/ASO|||24V Battery Fault \u2013 Passed to WB':['24v battery fault','24 volt battery fault','24v battery','24v battery passed to wb'],
-
-  'Resolver / Motor Fault|||Resolver Issue Identified via Diana':['diana resolver','resolver identified via diana','diana identified resolver','diana - resolver','diana resolver issue'],
-  'EACU Fault|||EACU Dropout Identified via Diana':['diana eacu','eacu dropout identified via diana','diana eacu dropout','diana - eacu'],
-  'Transmission / Gearbox Fault|||Gear Selector CAN Loss':['gear selector can loss','can loss gear selector','gear selector can','gear selector loss of can'],
-
-  'PDB / Wiring Fault|||Damaged Pins at PDB':['damaged pins','pdb pins damaged','pins at pdb','pdb pins'],
-  'PDB / Wiring Fault|||Water Ingress in PDB':['water ingress pdb','pdb water ingress','water in pdb','water ingress in pdb'],
-  'PDB / Wiring Fault|||Blown Fuse in PDB':['blown fuse pdb','pdb fuse blown','fuse blown in pdb','blown fuse in pdb'],
-  'PDB / Wiring Fault|||Wiring/Plug Connection Fault':['wiring fault','plug connection fault','loose connection','wiring/plug','wiring or plug fault','loose plug'],
-
-  'Other|||Chargeable Job \u2013 PO Required':['chargeable','po required','purchase order required','chargeable job'],
-  'Other|||Out of Warranty':['out of warranty','warranty expired','not under warranty','outside warranty'],
-  'Other|||Awaiting Parts/Equipment':['awaiting parts','waiting for parts','awaiting equipment','parts awaited'],
-  'Other|||Job Closed \u2013 No Action Required':['no action required','job closed no action','closed no action','no further action required']
-};
+function _sortFaultTaxonomy(tax){
+  const out={};
+  Object.keys(tax).sort(function(a,b){return a.localeCompare(b);}).forEach(function(k){
+    out[k]=(tax[k]||[]).slice().sort(function(a,b){return a.localeCompare(b);});
+  });
+  return out;
+}
+function _syncFaultTaxonomyFromConfig(){
+  FAULT_TAXONOMY=_sortFaultTaxonomy((config.faultTaxonomy&&Object.keys(config.faultTaxonomy).length)?config.faultTaxonomy:FAULT_TAXONOMY_DEFAULT);
+  _populateFaultCategorySelect();
+}
 
 function _populateFaultCategorySelect(){
   const sel=document.getElementById('e-fault-category');
@@ -3129,43 +3058,6 @@ function onFaultCategoryChange(preserveDetail){
   detSel.disabled=!cat;
 }
 
-// Score every detail item against the diagnosis+comments text and
-// auto-select the best match if the user hasn't manually chosen one.
-function suggestFaultDiagnosis(force){
-  const catSel=document.getElementById('e-fault-category');
-  const detSel=document.getElementById('e-fault-detail');
-  if(!catSel||!detSel)return;
-  if(!force&&window._faultManualOverride)return;
-  const diagText=(document.getElementById('e-diagnosis')?.value||'').toLowerCase();
-  const commentText=(document.getElementById('e-comments')?.value||'').toLowerCase();
-  const text=diagText+' '+commentText;
-  if(!text.trim()){
-    if(force&&typeof showToast==='function')showToast('Enter a diagnosis description first','info');
-    return;
-  }
-
-  let best=null,bestScore=0;
-  Object.keys(FAULT_KEYWORDS).forEach(function(key){
-    const kws=FAULT_KEYWORDS[key];
-    let score=0;
-    kws.forEach(function(kw){if(text.indexOf(kw)>=0)score+=kw.split(' ').length;});
-    if(score>bestScore){bestScore=score;best=key;}
-  });
-  if(!best){
-    if(force&&typeof showToast==='function')showToast('No matching fault category found — please select manually','info');
-    return;
-  }
-
-  const sep=best.indexOf('|||');
-  const cat=best.slice(0,sep);
-  const det=best.slice(sep+3);
-  catSel.value=cat;
-  onFaultCategoryChange(det);
-  // Mark as auto-suggested, not manually chosen, so future edits can still re-suggest
-  window._faultManualOverride=false;
-  if(force&&typeof showToast==='function')showToast('Suggested: '+cat+' — '+det,'success');
-}
-
 async function connectStorage(){
   if(!getToken()){document.getElementById('token-modal').style.display='flex';return;}
   if(window._connecting)return;
@@ -3182,7 +3074,7 @@ async function connectStorage(){
     document.getElementById('reload-btn').style.display='';
     document.getElementById('customer-sel-wrap').style.display='flex';
     renderCustomerSelect();
-    await loadConfig();
+    await loadConfig();_syncFaultTaxonomyFromConfig();
     await refreshRecords();
     _loadPartsListData();
     const _rc=allRecords?allRecords.length:0;
@@ -3522,7 +3414,7 @@ function cancelReport(){
   document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'));
 }
 async function reloadData(){
-  await loadConfig();
+  await loadConfig();_syncFaultTaxonomyFromConfig();
   await refreshRecords();
   showToast('Updated','success');
 }
