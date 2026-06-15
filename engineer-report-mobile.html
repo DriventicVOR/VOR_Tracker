@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.190</div>
+      <div class="h-ver">v3.193</div>
     </div>
   </div>
   <div class="h-right">
@@ -1322,6 +1322,51 @@ async function writeJSON(filename,data){
   if(!r.ok){const err=await r.text();throw new Error('Write '+filename+' failed ('+r.status+'): '+err.slice(0,80));}
   return true;
 }
+
+// ── App version check ────────────────────────────────────────────
+// Tracks the latest known version of each VOR tool in a shared JSON
+// file. If this file is older than what's recorded, the record is
+// updated. If this file is older than the recorded version, the user
+// is warned that a newer version is available and to refresh.
+const APP_VERSION='3.193';
+const APP_TOOL_KEY='engineer-report-mobile';
+const VERSIONS_FILE='latest-versions.json';
+
+function _verParts(v){
+  const p=String(v||'0.0').split('.');
+  return {major:parseInt(p[0],10)||0,minor:parseInt(p[1],10)||0};
+}
+function _verCompare(a,b){
+  const pa=_verParts(a),pb=_verParts(b);
+  if(pa.major!==pb.major)return pa.major<pb.major?-1:1;
+  if(pa.minor!==pb.minor)return pa.minor<pb.minor?-1:1;
+  return 0;
+}
+function _showNewVersionWarning(newVer){
+  if(document.getElementById('version-warning-modal'))return;
+  const m=document.createElement('div');
+  m.id='version-warning-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99999;display:flex;align-items:center;justify-content:center;font-family:inherit';
+  m.innerHTML='<div style="background:#1D4D73;color:#fff;padding:24px 28px;border-radius:10px;max-width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)">'
+    +'<div style="font-size:16px;font-weight:700;margin-bottom:10px">Update Available</div>'
+    +'<div style="font-size:13px;opacity:.85;margin-bottom:18px;line-height:1.5">A newer version (v'+newVer+') of this tool is available. Please refresh the page to update.</div>'
+    +'<button onclick="location.reload()" style="background:#00F1C1;color:#0a0f1e;border:none;padding:10px 24px;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Refresh Now</button>'
+    +'</div>';
+  document.body.appendChild(m);
+}
+// Read-only check: the maintenance tool is responsible for updating
+// latest-versions.json when a build is marked as released. This just
+// warns the user if their version is behind the recorded release.
+async function checkAppVersion(){
+  try{
+    const data=await readJSON(VERSIONS_FILE)||{};
+    const stored=data[APP_TOOL_KEY];
+    if(stored&&_verCompare(APP_VERSION,stored)<0){
+      _showNewVersionWarning(stored);
+    }
+  }catch(e){}
+}
+setInterval(checkAppVersion,30000);
 
 
 async function loadConfig(){
@@ -3064,6 +3109,7 @@ async function connectStorage(){
   if(window._connecting)return;
   window._connecting=true;
   try{
+    checkAppVersion();
     const data=await readJSON('customers.json');
     customers=data||[{name:'WrightBus',prefix:'WB'}];
     if(!customers.length)customers=[{name:'WrightBus',prefix:'WB'}];
