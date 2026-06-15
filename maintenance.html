@@ -75,6 +75,16 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 .usage-details{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey)}
 .usage-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey);white-space:nowrap}
 .usage-empty{font-size:13px;color:var(--grey);padding:20px;text-align:center}
+.tabbar{display:flex;gap:4px;margin:18px 0 18px;border-bottom:1px solid var(--bdr)}
+.tab-btn{padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--grey);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.tab-btn:hover{color:var(--offwhite)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.heatmap-scroll{overflow-x:auto}
+.heatmap-table{border-collapse:collapse;font-size:11px}
+.heatmap-table th,.heatmap-table td{padding:4px 8px;text-align:center;border:1px solid rgba(255,255,255,.04);min-width:36px;white-space:nowrap}
+.heatmap-table th{color:var(--grey);font-weight:600;font-size:10px}
+.heatmap-table th:first-child,.heatmap-table td:first-child{position:sticky;left:0;background:var(--navy2);z-index:1;text-align:left;font-weight:600;color:var(--offwhite)}
+.heatmap-cell{font-family:'IBM Plex Mono',monospace;color:var(--offwhite)}
 </style>
 </head>
 <body>
@@ -83,7 +93,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.3</span></div>
+      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.4</span></div>
 </header>
 
 <div class="wrap">
@@ -91,35 +101,70 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div class="hsub">Tracks the latest <em>released</em> version of each tool in <code>latest-versions.json</code>. Tools warn their users to refresh if their build is behind the version recorded here.</div>
   <div id="hstat" class="hstat warn">Connecting…</div>
 
-  <div class="note">
-    "Live build" is read directly from each deployed page. "Released (tracked)" is the version recorded in <code>latest-versions.json</code> — the value that triggers the "update available" prompt in older builds.
-    Use <strong>Mark as released</strong> once you're happy with a tool's current build; this is the only thing that writes to the tracker.
+  <div class="tabbar">
+    <button class="tab-btn active" data-tab="versions" onclick="switchMaintTab('versions')">Form Versions</button>
+    <button class="tab-btn" data-tab="usage" onclick="switchMaintTab('usage')">Usage Logs</button>
+    <button class="tab-btn" data-tab="heatmap" onclick="switchMaintTab('heatmap')">User Heat Map</button>
   </div>
 
-  <div class="toolbar">
-    <button class="btn primary" onclick="refreshAll()">&#8635; Refresh</button>
-    <button class="btn primary" onclick="runBackup()">&#11015; Backup JSON Files</button>
-    <button class="btn" onclick="getBackupFolder(true)">Change Backup Folder</button>
-    <span id="backup-folder-label" style="font-size:12px;color:var(--grey)"></span>
-  </div>
-  <div id="backup-status" style="font-size:12px;color:var(--grey);margin:-6px 0 14px"></div>
+  <div id="tab-versions" class="tab-pane">
+    <div class="note">
+      "Live build" is read directly from each deployed page. "Released (tracked)" is the version recorded in <code>latest-versions.json</code> — the value that triggers the "update available" prompt in older builds.
+      Use <strong>Mark as released</strong> once you're happy with a tool's current build; this is the only thing that writes to the tracker.
+    </div>
 
-  <div id="tool-list"></div>
+    <div class="toolbar">
+      <button class="btn primary" onclick="refreshAll()">&#8635; Refresh</button>
+      <button class="btn primary" onclick="runBackup()">&#11015; Backup JSON Files</button>
+      <button class="btn" onclick="getBackupFolder(true)">Change Backup Folder</button>
+      <span id="backup-folder-label" style="font-size:12px;color:var(--grey)"></span>
+    </div>
+    <div id="backup-status" style="font-size:12px;color:var(--grey);margin:-6px 0 14px"></div>
 
-  <div class="page-title" style="margin-top:32px;font-size:16px">Usage Logs</div>
-  <div class="hsub">Per-user action logs written by the four tools (sign-ins, saves, eMob requests, admin changes, etc.), stored as <code>usage-logs/&lt;name&gt;.json</code>. Each file holds the most recent 500 actions for that person.</div>
+    <div id="tool-list"></div>
+  </div>
 
-  <div class="toolbar">
-    <select id="usage-user-sel" class="usage-sel" onchange="loadUsageLog(this.value)">
-      <option value="">Select a user…</option>
-      <option value="__all__">— All Users (combined) —</option>
-    </select>
-    <button class="btn" onclick="loadUsageUsers()">&#8635; Refresh user list</button>
+  <div id="tab-usage" class="tab-pane" style="display:none">
+    <div class="hsub">Per-user action logs written by the four tools (sign-ins, saves, eMob requests, admin changes, etc.), stored as <code>usage-logs/&lt;name&gt;.json</code>. Each file holds the most recent 500 actions for that person.</div>
+
+    <div class="toolbar">
+      <select id="usage-user-sel" class="usage-sel" onchange="loadUsageLog(this.value)">
+        <option value="">Select a user…</option>
+        <option value="__all__">— All Users (combined) —</option>
+      </select>
+      <button class="btn" onclick="loadUsageUsers()">&#8635; Refresh user list</button>
+    </div>
+    <div id="usage-chart-wrap" style="display:none;background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:16px 20px;margin-bottom:14px">
+      <canvas id="usage-chart" height="90"></canvas>
+    </div>
+    <div id="usage-log-wrap"><div class="usage-empty">Select a user to view their recent activity.</div></div>
   </div>
-  <div id="usage-chart-wrap" style="display:none;background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:16px 20px;margin-bottom:14px">
-    <canvas id="usage-chart" height="90"></canvas>
+
+  <div id="tab-heatmap" class="tab-pane" style="display:none">
+    <div class="hsub">Activity heat map across all users. Darker cells indicate more activity for that user in that time bucket.</div>
+
+    <div class="toolbar">
+      <select id="heatmap-metric" class="usage-sel" onchange="renderHeatmap()">
+        <option value="total">Total logs</option>
+        <option value="opened">Records opened</option>
+        <option value="closed">Records closed</option>
+        <option value="sum">Opened + Closed</option>
+      </select>
+      <select id="heatmap-axis" class="usage-sel" onchange="onHeatmapAxisChange()">
+        <option value="linear">Linear timeline</option>
+        <option value="timeofday">Time of day (0–24h)</option>
+      </select>
+      <select id="heatmap-increment" class="usage-sel" onchange="renderHeatmap()">
+        <option value="hour">Hourly</option>
+        <option value="day" selected>Daily</option>
+        <option value="week">Weekly</option>
+        <option value="month">Monthly</option>
+      </select>
+      <button class="btn" onclick="renderHeatmap(true)">&#8635; Refresh</button>
+    </div>
+    <div id="heatmap-note" style="font-size:12px;color:var(--grey);margin:-6px 0 10px"></div>
+    <div id="heatmap-wrap" class="heatmap-scroll"><div class="usage-empty">Loading…</div></div>
   </div>
-  <div id="usage-log-wrap"><div class="usage-empty">Select a user to view their recent activity.</div></div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -136,7 +181,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 </div>
 
 <script>
-// ── VOR Tracker — Version Maintenance v1.3 ─────────────────────────
+// ── VOR Tracker — Version Maintenance v1.4 ─────────────────────────
 const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
 const SB_BUCKET='vor-data';
 const VERSIONS_FILE='latest-versions.json';
@@ -415,6 +460,189 @@ function usageDateKey(ts){
   return d.toISOString().slice(0,10);
 }
 
+let _allUsageEntriesCache=null;
+
+// Fetch and combine every user's usage-logs/<name>.json into one array,
+// each entry tagged with `_user`. Cached for the session; pass
+// forceRefresh=true (or call loadUsageUsers(), which clears the cache)
+// to re-fetch.
+async function fetchAllUsageEntries(forceRefresh){
+  if(_allUsageEntriesCache&&!forceRefresh)return _allUsageEntriesCache;
+  let sel=document.getElementById('usage-user-sel');
+  let names=Array.from(sel.options).map(o=>o.value).filter(v=>v&&v!=='__all__');
+  if(!names.length){
+    await loadUsageUsers();
+    sel=document.getElementById('usage-user-sel');
+    names=Array.from(sel.options).map(o=>o.value).filter(v=>v&&v!=='__all__');
+  }
+  const results=await Promise.all(names.map(async n=>{
+    try{
+      const log=await readJSON('usage-logs/'+n+'.json');
+      return Array.isArray(log)?log.map(e=>({...e,_user:n})):[];
+    }catch(e){return [];}
+  }));
+  _allUsageEntriesCache=results.flat();
+  return _allUsageEntriesCache;
+}
+
+// ── Heat map ──────────────────────────────────────────────────────
+// "Records opened"/"Records closed" map to the action types written by
+// the Engineer Report tools: a report being opened for work, and a
+// report being saved (completed/handed back). Adjust these lists if
+// other actions should count towards "opened"/"closed".
+const HEATMAP_OPENED_ACTIONS=['report_opened'];
+const HEATMAP_CLOSED_ACTIONS=['report_saved','report_saved_and_emailed'];
+const HEATMAP_MAX_COLS=120;
+
+function heatmapActionMatches(action, metric){
+  if(metric==='total')return true;
+  if(metric==='opened')return HEATMAP_OPENED_ACTIONS.includes(action);
+  if(metric==='closed')return HEATMAP_CLOSED_ACTIONS.includes(action);
+  if(metric==='sum')return HEATMAP_OPENED_ACTIONS.includes(action)||HEATMAP_CLOSED_ACTIONS.includes(action);
+  return false;
+}
+
+function onHeatmapAxisChange(){
+  const axis=document.getElementById('heatmap-axis').value;
+  document.getElementById('heatmap-increment').style.display=(axis==='linear')?'':'none';
+  renderHeatmap();
+}
+
+// Bucket key for a timestamp under a given linear increment (UTC-based).
+function linearColKey(ts,increment){
+  const d=new Date(ts);
+  if(isNaN(d.getTime()))return null;
+  if(increment==='hour')return d.toISOString().slice(0,13);
+  if(increment==='day')return d.toISOString().slice(0,10);
+  if(increment==='month')return d.toISOString().slice(0,7);
+  if(increment==='week'){
+    const dow=(d.getUTCDay()+6)%7; // 0=Mon
+    const monday=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate()-dow));
+    return monday.toISOString().slice(0,10);
+  }
+  return null;
+}
+
+function linearColLabel(key,increment){
+  if(increment==='hour'){
+    const d=new Date(key+':00:00Z');
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+String(d.getUTCHours()).padStart(2,'0')+':00';
+  }
+  if(increment==='day'){
+    const d=new Date(key+'T00:00:00Z');
+    return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  }
+  if(increment==='week'){
+    const d=new Date(key+'T00:00:00Z');
+    return 'Wk '+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+  }
+  if(increment==='month'){
+    const d=new Date(key+'-01T00:00:00Z');
+    return d.toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+  }
+  return key;
+}
+
+// Build the full list of {key,label} columns spanning minD..maxD at the
+// given increment (capped at HEATMAP_MAX_COLS, keeping the most recent).
+function buildLinearColumns(minD,maxD,increment){
+  let cur;
+  if(increment==='hour')cur=new Date(Date.UTC(minD.getUTCFullYear(),minD.getUTCMonth(),minD.getUTCDate(),minD.getUTCHours()));
+  else if(increment==='day')cur=new Date(Date.UTC(minD.getUTCFullYear(),minD.getUTCMonth(),minD.getUTCDate()));
+  else if(increment==='week'){const dow=(minD.getUTCDay()+6)%7;cur=new Date(Date.UTC(minD.getUTCFullYear(),minD.getUTCMonth(),minD.getUTCDate()-dow));}
+  else cur=new Date(Date.UTC(minD.getUTCFullYear(),minD.getUTCMonth(),1));
+
+  const stepMs={hour:3600000,day:86400000,week:7*86400000}[increment];
+  const cols=[];
+  let safety=0;
+  while(cur<=maxD&&safety<5000){
+    safety++;
+    const key=linearColKey(cur.toISOString(),increment);
+    cols.push({key,label:linearColLabel(key,increment)});
+    if(increment==='month')cur=new Date(Date.UTC(cur.getUTCFullYear(),cur.getUTCMonth()+1,1));
+    else cur=new Date(cur.getTime()+stepMs);
+  }
+  return cols;
+}
+
+async function renderHeatmap(forceRefresh){
+  const wrap=document.getElementById('heatmap-wrap');
+  const noteEl=document.getElementById('heatmap-note');
+  wrap.innerHTML='<div class="usage-empty">Loading…</div>';
+  noteEl.textContent='';
+
+  let entries;
+  try{
+    entries=await fetchAllUsageEntries(forceRefresh);
+  }catch(e){
+    wrap.innerHTML='<div class="usage-empty">Failed to load: '+e.message+'</div>';
+    return;
+  }
+  if(!entries.length){
+    wrap.innerHTML='<div class="usage-empty">No usage data yet.</div>';
+    return;
+  }
+
+  const metric=document.getElementById('heatmap-metric').value;
+  const axis=document.getElementById('heatmap-axis').value;
+  const increment=document.getElementById('heatmap-increment').value;
+
+  const filtered=entries.filter(e=>heatmapActionMatches(e.action,metric));
+  const users=[...new Set(entries.map(e=>e._user))].sort((a,b)=>a.localeCompare(b));
+
+  let columns,getColKey;
+  if(axis==='timeofday'){
+    columns=[];
+    for(let h=0;h<24;h++)columns.push({key:String(h),label:String(h).padStart(2,'0')+':00'});
+    getColKey=(ts)=>{const d=new Date(ts);return isNaN(d.getTime())?null:String(d.getUTCHours());};
+  } else {
+    const timestamps=entries.map(e=>new Date(e.timestamp)).filter(d=>!isNaN(d.getTime()));
+    if(!timestamps.length){wrap.innerHTML='<div class="usage-empty">No usage data yet.</div>';return;}
+    const minD=new Date(Math.min(...timestamps));
+    const maxD=new Date(Math.max(...timestamps));
+    columns=buildLinearColumns(minD,maxD,increment);
+    getColKey=(ts)=>linearColKey(ts,increment);
+    if(columns.length>HEATMAP_MAX_COLS){
+      const dropped=columns.length-HEATMAP_MAX_COLS;
+      columns=columns.slice(columns.length-HEATMAP_MAX_COLS);
+      noteEl.textContent='Showing the most recent '+HEATMAP_MAX_COLS+' '+increment+' buckets ('+dropped+' earlier '+(dropped===1?'bucket':'buckets')+' not shown).';
+    }
+  }
+
+  const colKeySet=new Set(columns.map(c=>c.key));
+  const matrix={};
+  users.forEach(u=>{matrix[u]={};columns.forEach(c=>{matrix[u][c.key]=0;});});
+  filtered.forEach(e=>{
+    const key=getColKey(e.timestamp);
+    if(key===null||!colKeySet.has(key))return;
+    if(!matrix[e._user])return;
+    matrix[e._user][key]++;
+  });
+
+  let maxVal=0;
+  users.forEach(u=>columns.forEach(c=>{if(matrix[u][c.key]>maxVal)maxVal=matrix[u][c.key];}));
+
+  function cellStyle(v){
+    if(!v)return 'background:rgba(255,255,255,.02)';
+    const ratio=maxVal?v/maxVal:0;
+    return 'background:rgba(0,241,193,'+(0.12+0.78*ratio).toFixed(2)+')';
+  }
+
+  let html='<table class="heatmap-table"><thead><tr><th>User</th>'
+    +columns.map(c=>'<th>'+c.label+'</th>').join('')
+    +'</tr></thead><tbody>';
+  users.forEach(u=>{
+    html+='<tr><td>'+u+'</td>';
+    columns.forEach(c=>{
+      const v=matrix[u][c.key];
+      html+='<td class="heatmap-cell" style="'+cellStyle(v)+'" title="'+u+' — '+c.label+': '+v+'">'+(v||'')+'</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+
 // Render a stacked bar chart of action counts per day, one series per tool.
 function renderUsageChart(entries){
   const wrap=document.getElementById('usage-chart-wrap');
@@ -474,7 +702,14 @@ function usageFormatTime(ts){
     +d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
 
+function switchMaintTab(name){
+  document.querySelectorAll('.tab-pane').forEach(el=>{el.style.display=(el.id==='tab-'+name)?'block':'none';});
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  if(name==='heatmap')renderHeatmap();
+}
+
 async function loadUsageUsers(){
+  _allUsageEntriesCache=null;
   const sel=document.getElementById('usage-user-sel');
   const current=sel.value;
   sel.innerHTML='<option value="">Loading…</option>';
@@ -522,20 +757,8 @@ async function loadUsageLog(name){
 
   let entries=[];
   if(name==='__all__'){
-    const sel=document.getElementById('usage-user-sel');
-    const names=Array.from(sel.options).map(o=>o.value).filter(v=>v&&v!=='__all__');
-    if(!names.length){
-      wrap.innerHTML='<div class="usage-empty">No usage logs found.</div>';
-      return;
-    }
     try{
-      const results=await Promise.all(names.map(async n=>{
-        try{
-          const log=await readJSON('usage-logs/'+n+'.json');
-          return Array.isArray(log)?log.map(e=>({...e,_user:n})):[];
-        }catch(e){return [];}
-      }));
-      entries=results.flat();
+      entries=await fetchAllUsageEntries();
     }catch(e){
       wrap.innerHTML='<div class="usage-empty">Failed to load logs: '+e.message+'</div>';
       return;
