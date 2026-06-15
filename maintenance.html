@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VOR Tracker — Version Maintenance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Driventic palette */
+  --navy:#0a0f1e;
+  --navy2:#111827;
+  --navy3:#1a2234;
+  --navy4:#1e2a3a;
+  --teal:#00f1c1;
+  --teal2:#00c9a0;
+  --white:#ffffff;
+  --offwhite:#e8edf4;
+  --grey:#8896a8;
+  --grey2:#4a5568;
+  --grey3:#2d3748;
+  --red:#ff4757;
+  --amber:#ffb347;
+  --green:#00c06b;
+  --purple:#a78bfa;
+  --bdr:rgba(255,255,255,.07);
+  --bdr2:rgba(0,241,193,.2);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--offwhite);-webkit-font-smoothing:antialiased}
+header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32px;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center}
+.logo img{height:46px;width:auto;display:block;object-fit:contain}
+.htitle{font-size:13px;font-weight:600;color:var(--white);letter-spacing:.04em;text-transform:uppercase;margin-left:16px}
+.wrap{max-width:920px;margin:0 auto;padding:28px 20px 60px}
+.page-title{font-size:20px;font-weight:700;color:var(--white)}
+.hsub{font-size:13px;color:var(--grey);margin-top:4px}
+.hstat{font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;padding:4px 10px;border-radius:5px;display:inline-block;margin-top:10px}
+.hstat.warn{background:rgba(255,179,71,.12);color:var(--amber);border:1px solid rgba(255,179,71,.3)}
+.hstat.err{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+.hstat.ok{background:rgba(0,241,193,.12);color:var(--teal);border:1px solid var(--bdr2)}
+.toolbar{display:flex;gap:10px;align-items:center;margin:18px 0}
+.btn{padding:9px 16px;border-radius:6px;border:1px solid var(--bdr);background:var(--navy3);color:var(--offwhite);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--bdr2)}
+.btn.primary{background:var(--teal);color:var(--navy);border-color:var(--teal)}
+.btn.primary:hover{background:var(--teal2)}
+.btn.release{background:var(--teal);color:var(--navy);border-color:var(--teal)}
+.btn.release:hover{background:var(--teal2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.card{background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:18px 20px;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.tool-name{font-size:15px;font-weight:700;flex:1;min-width:180px;color:var(--white)}
+.ver-block{display:flex;flex-direction:column;gap:2px;min-width:140px}
+.ver-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);font-weight:700}
+.ver-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--offwhite)}
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;white-space:nowrap;font-family:'IBM Plex Mono',monospace}
+.badge.ahead{background:rgba(255,179,71,.12);color:var(--amber);border:1px solid rgba(255,179,71,.3)}
+.badge.behind{background:rgba(255,71,87,.12);color:var(--red);border:1px solid rgba(255,71,87,.3)}
+.badge.match{background:rgba(0,241,193,.12);color:var(--teal);border:1px solid var(--bdr2)}
+.badge.unknown{background:rgba(255,255,255,.04);color:var(--grey);border:1px solid var(--bdr)}
+.err-note{font-size:12px;color:var(--red);margin-top:4px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy3);color:var(--offwhite);border:1px solid var(--bdr2);padding:10px 20px;border-radius:6px;font-size:13px;z-index:9999;display:none}
+.toast.show{display:block}
+.note{font-size:12px;color:var(--grey);line-height:1.6;background:rgba(0,241,193,.06);border:1px solid var(--bdr2);border-radius:6px;padding:12px 14px;margin-bottom:18px}
+.ver-input{width:90px;padding:7px 8px;border:1px solid var(--bdr);border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--navy3);color:var(--offwhite)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+        <img src="data:image/webp;base64,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" alt="Driventic">
+      </div>
+      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.0</span></div>
+</header>
+
+<div class="wrap">
+  <div class="page-title">VOR Tracker — Version Maintenance</div>
+  <div class="hsub">Tracks the latest <em>released</em> version of each tool in <code>latest-versions.json</code>. Tools warn their users to refresh if their build is behind the version recorded here.</div>
+  <div id="hstat" class="hstat warn">Connecting…</div>
+
+  <div class="note">
+    "Live build" is read directly from each deployed page. "Released (tracked)" is the version recorded in <code>latest-versions.json</code> — the value that triggers the "update available" prompt in older builds.
+    Use <strong>Mark as released</strong> once you're happy with a tool's current build; this is the only thing that writes to the tracker.
+  </div>
+
+  <div class="toolbar">
+    <button class="btn primary" onclick="refreshAll()">&#8635; Refresh</button>
+  </div>
+
+  <div id="tool-list"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Access key modal -->
+<div id="token-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:none;align-items:center;justify-content:center">
+  <form onsubmit="return false" autocomplete="off" style="background:#1a1a2e;border-radius:10px;padding:28px;width:400px;box-shadow:0 8px 30px rgba(0,0,0,.4)">
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px;color:#fff">&#128274; Access Key</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.5">Enter your access key to connect. Saved in your browser — only needed once per device.</div>
+    <input type="password" id="token-inp" placeholder="Enter access key..." autocomplete="new-password" style="width:100%;padding:10px;border:1px solid #444;border-radius:6px;font-size:13px;box-sizing:border-box;margin-bottom:10px;background:#111;color:#fff" onkeydown="if(event.key==='Enter')document.getElementById('token-submit-btn').click()">
+    <button id="token-submit-btn" type="button" style="width:100%;padding:11px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer">Connect</button>
+    <div id="token-error" style="color:#e74c3c;font-size:12px;margin-top:8px;min-height:16px"></div>
+  </form>
+</div>
+
+<script>
+// ── VOR Tracker — Version Maintenance v1.0 ─────────────────────────
+const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
+const SB_BUCKET='vor-data';
+const VERSIONS_FILE='latest-versions.json';
+
+// Tools to track. 'file' is fetched relative to this page's own
+// location (same GitHub Pages site) to read each tool's current
+// APP_VERSION constant.
+const TOOLS=[
+  {key:'dashboard',              name:'Dashboard',                file:'dashboard.html'},
+  {key:'engineer-report',        name:'Engineer Report (Desktop)',file:'engineer-report.html'},
+  {key:'engineer-report-mobile', name:'Engineer Report (Mobile)', file:'engineer-report-mobile.html'},
+  {key:'manager-entry',          name:'Manager Entry',            file:'manager-entry.html'},
+];
+
+function getToken(){return localStorage.getItem('sb_token')||'';}
+function saveToken(t){localStorage.setItem('sb_token',t);}
+
+async function readJSON(filename){
+  const token=getToken();
+  const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,{headers:{'Authorization':'Bearer '+token,'apikey':token}});
+  if(r.status===401||r.status===403)throw new Error('Invalid access key');
+  if(r.status===404||r.status===400)return null;
+  if(!r.ok)throw new Error('Read '+filename+' failed ('+r.status+')');
+  return await r.json();
+}
+async function writeJSON(filename,data){
+  const token=getToken();
+  const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,{
+    method:'POST',headers:{'Authorization':'Bearer '+token,'apikey':token,'Content-Type':'application/json','x-upsert':'true'},
+    body:JSON.stringify(data, null, 2)
+  });
+  if(!r.ok){const err=await r.text();throw new Error('Write '+filename+' failed ('+r.status+'): '+err.slice(0,80));}
+  return true;
+}
+
+function _verParts(v){
+  const p=String(v||'0.0').split('.');
+  return {major:parseInt(p[0],10)||0,minor:parseInt(p[1],10)||0};
+}
+function _verCompare(a,b){
+  const pa=_verParts(a),pb=_verParts(b);
+  if(pa.major!==pb.major)return pa.major<pb.major?-1:1;
+  if(pa.minor!==pb.minor)return pa.minor<pb.minor?-1:1;
+  return 0;
+}
+function fmtVer(v){return v?'v'+v:'—';}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='error'?'#c0392b':'#1a1a2e';
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+let trackerData={};
+
+async function refreshAll(){
+  const hstat=document.getElementById('hstat');
+  hstat.textContent='Connecting…';hstat.className='hstat warn';
+  const list=document.getElementById('tool-list');
+  list.innerHTML='';
+
+  try{
+    trackerData=await readJSON(VERSIONS_FILE)||{};
+  }catch(e){
+    hstat.textContent='✗ '+e.message;hstat.className='hstat err';
+    if(/Invalid access key/.test(e.message)){
+      localStorage.removeItem('sb_token');
+      document.getElementById('token-modal').style.display='flex';
+    }
+    return;
+  }
+  hstat.textContent='✓ Connected';hstat.className='hstat ok';
+
+  for(const tool of TOOLS){
+    const row=document.createElement('div');
+    row.className='card';
+    row.id='card-'+tool.key;
+    row.innerHTML=renderRow(tool,null,trackerData[tool.key],'Loading…');
+    list.appendChild(row);
+  }
+
+  for(const tool of TOOLS){
+    let live=null,err=null;
+    try{
+      const res=await fetch(tool.file+'?t='+Date.now());
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const html=await res.text();
+      const m=html.match(/const\s+APP_VERSION\s*=\s*'([\d.]+)'/);
+      if(!m)throw new Error('APP_VERSION not found');
+      live=m[1];
+    }catch(e){
+      err=e.message;
+    }
+    const row=document.getElementById('card-'+tool.key);
+    row.innerHTML=renderRow(tool,live,trackerData[tool.key],err);
+  }
+}
+
+function renderRow(tool,live,released,err){
+  let badge='<span class="badge unknown">Unknown</span>';
+  if(live&&released){
+    const cmp=_verCompare(live,released);
+    if(cmp===0)badge='<span class="badge match">Up to date</span>';
+    else if(cmp>0)badge='<span class="badge ahead">Build ahead of release</span>';
+    else badge='<span class="badge behind">Build behind release</span>';
+  }else if(live&&!released){
+    badge='<span class="badge ahead">Not yet released</span>';
+  }
+  // Pre-fill the version box with the auto-detected live build when
+  // available; otherwise leave blank for manual entry (e.g. when this
+  // page is opened locally via file:// and cross-file fetches are
+  // blocked by the browser).
+  const prefill=live||'';
+  return `
+    <div class="row">
+      <div class="tool-name">${tool.name}</div>
+      <div class="ver-block">
+        <div class="ver-label">Live build</div>
+        <div class="ver-val">${err?'—':fmtVer(live)}</div>
+      </div>
+      <div class="ver-block">
+        <div class="ver-label">Released (tracked)</div>
+        <div class="ver-val">${fmtVer(released)}</div>
+      </div>
+      ${badge}
+      <input type="text" class="ver-input" id="ver-input-${tool.key}" placeholder="e.g. 4.97" value="${prefill}">
+      <button class="btn release" onclick="markReleased('${tool.key}')">Mark as released</button>
+    </div>
+    ${err?`<div class="err-note">Could not read live build automatically (${err}) — enter the version manually above.</div>`:''}
+  `;
+}
+
+async function markReleased(key){
+  const input=document.getElementById('ver-input-'+key);
+  const version=(input?input.value:'').trim();
+  if(!/^\d+\.\d+$/.test(version)){showToast('Enter a version like 4.97','error');return;}
+  try{
+    trackerData=await readJSON(VERSIONS_FILE)||{};
+    trackerData[key]=version;
+    await writeJSON(VERSIONS_FILE,trackerData);
+    showToast(key+' marked as released: v'+version);
+    refreshAll();
+  }catch(e){
+    showToast('Failed: '+e.message,'error');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('token-submit-btn').addEventListener('click',function(){
+    const t=document.getElementById('token-inp').value.trim();
+    const err=document.getElementById('token-error');
+    if(!t){err.textContent='Please enter an access key';return;}
+    saveToken(t);err.textContent='';
+    document.getElementById('token-modal').style.display='none';
+    refreshAll();
+  });
+
+  if(getToken()){
+    refreshAll();
+  }else{
+    document.getElementById('token-modal').style.display='flex';
+  }
+});
+</script>
+</body>
+</html>
