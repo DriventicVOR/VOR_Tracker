@@ -364,6 +364,8 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 .tool-inv-row{cursor:pointer;transition:background .1s}.tool-inv-row:hover{background:rgba(0,0,0,0.04)}.tool-inv-selected{background:rgba(0,0,0,0.07)!important}.tool-eng-sublist td{background:#f0f4f8}.tool-eng-subitem{transition:background .1s}.tool-eng-subitem:hover{background:#e2eaf2!important}
 .emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}
 .emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}.emob-req-card{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)}.emob-req-card .req-date{font-size:13px;color:var(--txm)}.emob-req-card .req-key{font-size:13px;font-weight:600;font-family:monospace;color:var(--offwhite)}
+#identity-eng-sel{background:#1a1a2e;color:#fff}
+#identity-eng-sel option{background:#1a1a2e;color:#fff}
 </style>
 </head>
 <body>
@@ -374,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.199</div>
+      <div class="h-ver">v3.200</div>
     </div>
   </div>
   <div class="h-right">
@@ -1351,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.199';
+const APP_VERSION='3.200';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
