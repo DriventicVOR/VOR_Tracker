@@ -6,6 +6,7 @@
 <title>VOR Tracker — Version Maintenance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   /* Driventic palette */
@@ -64,6 +65,16 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 .toast.show{display:block}
 .note{font-size:12px;color:var(--grey);line-height:1.6;background:rgba(0,241,193,.06);border:1px solid var(--bdr2);border-radius:6px;padding:12px 14px;margin-bottom:18px}
 .ver-input{width:90px;padding:7px 8px;border:1px solid var(--bdr);border-radius:5px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--navy3);color:var(--offwhite)}
+.usage-sel{padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-family:inherit;font-size:13px;background:var(--navy3);color:var(--offwhite);min-width:200px}
+.usage-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.usage-table th{text-align:left;color:var(--grey);font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.usage-table td{padding:8px 10px;border-bottom:1px solid var(--bdr);vertical-align:top;color:var(--offwhite)}
+.usage-table tr:last-child td{border-bottom:none}
+.usage-tool-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(0,241,193,.1);color:var(--teal);border:1px solid var(--bdr2);white-space:nowrap}
+.usage-action{font-weight:600}
+.usage-details{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey)}
+.usage-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey);white-space:nowrap}
+.usage-empty{font-size:13px;color:var(--grey);padding:20px;text-align:center}
 </style>
 </head>
 <body>
@@ -72,7 +83,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.1</span></div>
+      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.3</span></div>
 </header>
 
 <div class="wrap">
@@ -94,6 +105,21 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div id="backup-status" style="font-size:12px;color:var(--grey);margin:-6px 0 14px"></div>
 
   <div id="tool-list"></div>
+
+  <div class="page-title" style="margin-top:32px;font-size:16px">Usage Logs</div>
+  <div class="hsub">Per-user action logs written by the four tools (sign-ins, saves, eMob requests, admin changes, etc.), stored as <code>usage-logs/&lt;name&gt;.json</code>. Each file holds the most recent 500 actions for that person.</div>
+
+  <div class="toolbar">
+    <select id="usage-user-sel" class="usage-sel" onchange="loadUsageLog(this.value)">
+      <option value="">Select a user…</option>
+      <option value="__all__">— All Users (combined) —</option>
+    </select>
+    <button class="btn" onclick="loadUsageUsers()">&#8635; Refresh user list</button>
+  </div>
+  <div id="usage-chart-wrap" style="display:none;background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:16px 20px;margin-bottom:14px">
+    <canvas id="usage-chart" height="90"></canvas>
+  </div>
+  <div id="usage-log-wrap"><div class="usage-empty">Select a user to view their recent activity.</div></div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -110,7 +136,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 </div>
 
 <script>
-// ── VOR Tracker — Version Maintenance v1.1 ─────────────────────────
+// ── VOR Tracker — Version Maintenance v1.3 ─────────────────────────
 const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
 const SB_BUCKET='vor-data';
 const VERSIONS_FILE='latest-versions.json';
@@ -186,6 +212,7 @@ async function refreshAll(){
     return;
   }
   hstat.textContent='✓ Connected';hstat.className='hstat ok';
+  loadUsageUsers();
 
   for(const tool of TOOLS){
     const row=document.createElement('div');
@@ -345,6 +372,213 @@ async function getBackupFolder(forcePick){
   }catch(e){
     return null; // user cancelled the picker
   }
+}
+
+// ── Usage Logs ───────────────────────────────────────────────────
+// Friendly labels for the tools and actions written by logAction()
+// across the four apps. Anything not listed falls back to the raw key.
+const USAGE_TOOL_LABELS={
+  'dashboard':'Dashboard',
+  'engineer-report':'Engineer Report (Desktop)',
+  'engineer-report-mobile':'Engineer Report (Mobile)',
+  'manager-entry':'Manager Entry',
+};
+const USAGE_ACTION_LABELS={
+  'connected':'Connected',
+  'report_opened':'Report opened',
+  'report_saved':'Report saved',
+  'report_saved_and_emailed':'Report saved & emailed',
+  'emob_request_submitted':'eMob request submitted',
+  'record_created':'Record created',
+  'record_updated':'Record updated',
+  'record_deleted':'Record deleted',
+  'admin_config_changed':'Admin config changed',
+  'tool_added':'Tool added',
+  'tool_removed':'Tool removed',
+  'tool_transferred':'Tool transferred',
+  'viewed_tab':'Viewed tab',
+  'exported_data':'Exported data',
+  'generated_report':'Generated report',
+};
+
+const USAGE_TOOL_COLORS={
+  'dashboard':'#00f1c1',
+  'engineer-report':'#a78bfa',
+  'engineer-report-mobile':'#ffb347',
+  'manager-entry':'#00c06b',
+};
+let _usageChart=null;
+
+function usageDateKey(ts){
+  const d=new Date(ts);
+  if(isNaN(d.getTime()))return '';
+  return d.toISOString().slice(0,10);
+}
+
+// Render a stacked bar chart of action counts per day, one series per tool.
+function renderUsageChart(entries){
+  const wrap=document.getElementById('usage-chart-wrap');
+  if(!entries.length){wrap.style.display='none';return;}
+  // Build date range (daily) spanning the data
+  const dateKeys=entries.map(e=>usageDateKey(e.timestamp)).filter(Boolean);
+  if(!dateKeys.length){wrap.style.display='none';return;}
+  const minD=new Date(dateKeys.reduce((a,b)=>a<b?a:b));
+  const maxD=new Date(dateKeys.reduce((a,b)=>a>b?a:b));
+  const labels=[];
+  for(let d=new Date(minD); d<=maxD; d.setDate(d.getDate()+1)){
+    labels.push(d.toISOString().slice(0,10));
+  }
+  // Count per tool per day
+  const tools=Object.keys(USAGE_TOOL_LABELS);
+  const counts={};
+  tools.forEach(t=>{counts[t]={};labels.forEach(l=>counts[t][l]=0);});
+  entries.forEach(e=>{
+    const key=usageDateKey(e.timestamp);
+    if(!counts[e.tool])counts[e.tool]={};
+    if(counts[e.tool][key]===undefined)counts[e.tool][key]=0;
+    counts[e.tool][key]++;
+  });
+  const datasets=tools.filter(t=>labels.some(l=>counts[t][l]>0)).map(t=>({
+    label:USAGE_TOOL_LABELS[t]||t,
+    data:labels.map(l=>counts[t][l]||0),
+    backgroundColor:USAGE_TOOL_COLORS[t]||'#8896a8',
+  }));
+  wrap.style.display='block';
+  const ctx=document.getElementById('usage-chart').getContext('2d');
+  if(_usageChart)_usageChart.destroy();
+  _usageChart=new Chart(ctx,{
+    type:'bar',
+    data:{labels:labels.map(l=>{
+        const d=new Date(l);
+        return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+      }),datasets},
+    options:{
+      responsive:true,
+      scales:{
+        x:{stacked:true,ticks:{color:'#8896a8',maxRotation:0,autoSkip:true},grid:{color:'rgba(255,255,255,.05)'}},
+        y:{stacked:true,beginAtZero:true,ticks:{color:'#8896a8',precision:0},grid:{color:'rgba(255,255,255,.05)'}}
+      },
+      plugins:{legend:{labels:{color:'#e8edf4',font:{size:11}}}}
+    }
+  });
+}
+
+function usageFormatDetails(details){
+  if(!details||typeof details!=='object')return '';
+  return Object.entries(details).map(([k,v])=>k+': '+(Array.isArray(v)?v.join(', '):v)).join(' · ');
+}
+function usageFormatTime(ts){
+  const d=new Date(ts);
+  if(isNaN(d.getTime()))return ts||'';
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '
+    +d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function loadUsageUsers(){
+  const sel=document.getElementById('usage-user-sel');
+  const current=sel.value;
+  sel.innerHTML='<option value="">Loading…</option>';
+  let files;
+  try{
+    files=await listBucketFiles_prefixed('usage-logs');
+  }catch(e){
+    sel.innerHTML='<option value="">Select a user…</option>';
+    showToast('Failed to list usage logs: '+e.message,'error');
+    return;
+  }
+  const names=(files||[])
+    .filter(f=>f&&f.name&&f.name.toLowerCase().endsWith('.json'))
+    .map(f=>f.name.replace(/\.json$/i,''))
+    .sort((a,b)=>a.localeCompare(b));
+  sel.innerHTML='<option value="">Select a user…</option>'
+    +names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  if(current&&names.includes(current)){sel.value=current;loadUsageLog(current);}
+}
+
+async function listBucketFiles_prefixed(prefix){
+  const token=getToken();
+  const r=await fetch(SB_URL+'/storage/v1/object/list/'+SB_BUCKET,{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'apikey':token,'Content-Type':'application/json'},
+    body:JSON.stringify({prefix:prefix+'/',limit:1000,sortBy:{column:'name',order:'asc'}})
+  });
+  if(r.status===401||r.status===403)throw new Error('Invalid access key');
+  if(!r.ok)throw new Error('List failed ('+r.status+')');
+  return await r.json();
+}
+
+const USAGE_ALL_TABLE_LIMIT=200;
+
+async function loadUsageLog(name){
+  const wrap=document.getElementById('usage-log-wrap');
+  const chartWrap=document.getElementById('usage-chart-wrap');
+  if(!name){
+    wrap.innerHTML='<div class="usage-empty">Select a user to view their recent activity.</div>';
+    chartWrap.style.display='none';
+    return;
+  }
+  wrap.innerHTML='<div class="usage-empty">Loading…</div>';
+  chartWrap.style.display='none';
+
+  let entries=[];
+  if(name==='__all__'){
+    const sel=document.getElementById('usage-user-sel');
+    const names=Array.from(sel.options).map(o=>o.value).filter(v=>v&&v!=='__all__');
+    if(!names.length){
+      wrap.innerHTML='<div class="usage-empty">No usage logs found.</div>';
+      return;
+    }
+    try{
+      const results=await Promise.all(names.map(async n=>{
+        try{
+          const log=await readJSON('usage-logs/'+n+'.json');
+          return Array.isArray(log)?log.map(e=>({...e,_user:n})):[];
+        }catch(e){return [];}
+      }));
+      entries=results.flat();
+    }catch(e){
+      wrap.innerHTML='<div class="usage-empty">Failed to load logs: '+e.message+'</div>';
+      return;
+    }
+    if(!entries.length){
+      wrap.innerHTML='<div class="usage-empty">No actions recorded yet.</div>';
+      return;
+    }
+  } else {
+    let log;
+    try{
+      log=await readJSON('usage-logs/'+name+'.json');
+    }catch(e){
+      wrap.innerHTML='<div class="usage-empty">Failed to load log: '+e.message+'</div>';
+      return;
+    }
+    if(!Array.isArray(log)||!log.length){
+      wrap.innerHTML='<div class="usage-empty">No actions recorded for '+name+' yet.</div>';
+      return;
+    }
+    entries=log;
+  }
+
+  renderUsageChart(entries);
+
+  const showUser=name==='__all__';
+  let rows=[...entries].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  const totalCount=rows.length;
+  let truncated=false;
+  if(showUser&&rows.length>USAGE_ALL_TABLE_LIMIT){
+    rows=rows.slice(0,USAGE_ALL_TABLE_LIMIT);
+    truncated=true;
+  }
+  wrap.innerHTML=`<table class="usage-table">
+    <thead><tr>${showUser?'<th>User</th>':''}<th>Time</th><th>Tool</th><th>Action</th><th>Details</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      ${showUser?'<td>'+r._user+'</td>':''}
+      <td class="usage-time">${usageFormatTime(r.timestamp)}</td>
+      <td><span class="usage-tool-badge">${USAGE_TOOL_LABELS[r.tool]||r.tool}</span></td>
+      <td class="usage-action">${USAGE_ACTION_LABELS[r.action]||r.action}</td>
+      <td class="usage-details">${usageFormatDetails(r.details)}</td>
+    </tr>`).join('')}</tbody>
+  </table>${truncated?'<div class="usage-empty">Showing most recent '+USAGE_ALL_TABLE_LIMIT+' of '+totalCount+' entries — chart above reflects all of them.</div>':''}`;
 }
 
 async function listBucketFiles(){
