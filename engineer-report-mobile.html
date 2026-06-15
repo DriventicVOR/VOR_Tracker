@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.200</div>
+      <div class="h-ver">v3.202</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.200';
+const APP_VERSION='3.202';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1404,6 +1404,30 @@ const IDENTITY_KEY='vor_identity_name';
 function getIdentity(){return localStorage.getItem(IDENTITY_KEY)||'';}
 function setIdentity(name){localStorage.setItem(IDENTITY_KEY,name);}
 function clearIdentity(){localStorage.removeItem(IDENTITY_KEY);}
+
+// ── Usage / action log ───────────────────────────────────────────
+// Lightweight per-user action log for usage monitoring. Each signed-in
+// user gets their own JSON file (usage-logs/<NAME>.json) containing an
+// array of {tool, action, details, timestamp}, capped to the most
+// recent entries to keep file sizes small and avoid one shared file
+// that many people write to concurrently. Logging is best-effort and
+// never blocks the UI or surfaces errors to the user.
+const TOOL_NAME='engineer-report-mobile';
+const USAGE_LOG_MAX_ENTRIES=500;
+async function logAction(tool, action, details){
+  try{
+    const name=getIdentity();
+    if(!name)return;
+    const safeName=name.replace(/[^A-Za-z0-9 _-]/g,'').trim();
+    if(!safeName)return;
+    const path='usage-logs/'+safeName+'.json';
+    let log=[];
+    try{ const existing=await readJSON(path); if(Array.isArray(existing))log=existing; }catch(e){}
+    log.push({tool,action,details:details||null,timestamp:new Date().toISOString()});
+    if(log.length>USAGE_LOG_MAX_ENTRIES)log=log.slice(log.length-USAGE_LOG_MAX_ENTRIES);
+    await writeJSON(path,log);
+  }catch(e){console.warn('logAction failed:',e);}
+}
 
 function updateIdentityDisplay(){
   const badge=document.getElementById('identity-badge');
@@ -2165,6 +2189,7 @@ async function saveEmobRequest(){
   try{
     await writeJSON(filename,existing);
     showToast('eMob request saved as '+reqKey,'success');
+    logAction(TOOL_NAME,'emob_request_submitted',{ref:ref,reqKey:reqKey});
     // ── Update SR record with eMob request reference ──────────
     try{
       const _erFresh=await readRecords();
@@ -2550,6 +2575,7 @@ async function loadRecord(){
   const rec=allRecords.find(r=>r.ref===ref);
   if(!rec){showToast('Record not found','error');return}
   currentRef=ref;
+  logAction(TOOL_NAME,'report_opened',{ref});
 
   populateInfoPanel(rec);
 
@@ -2894,6 +2920,7 @@ async function confirmSaveReport(sendEmail){
     else{_fresh.push(_mergedRecord);}
     await writeRecords(_fresh);
     allRecords=_fresh.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
+    logAction(TOOL_NAME,sendEmail?'report_saved_and_emailed':'report_saved',{ref:savedRef});
   }catch(e){
     showToast('Save failed: '+e.message,'error');
   }
@@ -3256,6 +3283,7 @@ async function connectStorage(){
       _hs.className='hstat warn';
       showToast('Connected but no records loaded','error');
     }
+    logAction(TOOL_NAME,'connected',{recordCount:_rc});
   }catch(e){
     document.getElementById('hstat').textContent='✗ Connection failed';
     document.getElementById('hstat').className='hstat err';
