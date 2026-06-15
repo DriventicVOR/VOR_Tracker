@@ -374,11 +374,12 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.193</div>
+      <div class="h-ver">v3.197</div>
     </div>
   </div>
   <div class="h-right">
     <div class="hstat" id="hstat">Not connected</div>
+    <div class="hstat" id="identity-badge" onclick="switchUser()" style="display:none;cursor:pointer;color:var(--teal);border:1px solid rgba(0,241,193,.3);background:rgba(0,241,193,.12)" title="Tap to switch user"><span id="identity-name"></span></div>
     <div id="customer-sel-wrap">
       <select id="customer-sel" onchange="switchCustomer()"></select>
     </div>
@@ -454,7 +455,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <div class="fcb">
         <div class="fg">
           <label>Engineer Name <span class="req">*</span></label>
-          <select id="e-engineer"><option value="">Select…</option></select>
+          <select id="e-engineer" onchange="onEngineerNameChange()"><option value="">Select…</option></select>
         </div>
         <div class="fg">
           <label>Region <span class="req">*</span></label>
@@ -789,6 +790,18 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <button class="btn ghost" onclick="closeConfirm()">Cancel</button>
     </div>
   </div>
+</div>
+
+<!-- Identity modal (bottom sheet) -->
+<div id="identity-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99998;align-items:flex-end;justify-content:center">
+  <form onsubmit="return false" autocomplete="off" style="background:#1a1a2e;border-radius:12px 12px 0 0;padding:28px;width:100%;box-shadow:0 -4px 30px rgba(0,0,0,.5);color:#fff">
+    <div class="tok-title">&#128100; Who's using this device?</div>
+    <div class="tok-sub">Select your name. If a PIN has been set for you, enter it below. Remembered on this device until you switch user.</div>
+    <select class="tok-inp" id="identity-eng-sel"><option value="">Select…</option></select>
+    <input type="password" class="tok-inp" id="identity-pin-inp" inputmode="numeric" maxlength="4" placeholder="PIN (if set)" autocomplete="new-password" style="font-family:'IBM Plex Mono',monospace;letter-spacing:.3em;text-align:center">
+    <div class="tok-err" id="identity-error"></div>
+    <button type="button" class="tok-btn" id="identity-submit-btn">Continue</button>
+  </form>
 </div>
 
 <!-- Token modal (bottom sheet) -->
@@ -1328,7 +1341,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.193';
+const APP_VERSION='3.197';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1367,6 +1380,79 @@ async function checkAppVersion(){
   }catch(e){}
 }
 setInterval(checkAppVersion,30000);
+
+// ── Engineer identity (PIN) ─────────────────────────────────────────
+// Lightweight local identity: lets the tool remember which engineer is
+// using this device (for defaulting the Engineer Name field and future
+// usage tracking), optionally protected by a 4-digit PIN set by the
+// manager in Admin → Engineers. Not a security mechanism — just reduces
+// misattribution on shared devices.
+const IDENTITY_KEY='vor_identity_name';
+
+function getIdentity(){return localStorage.getItem(IDENTITY_KEY)||'';}
+function setIdentity(name){localStorage.setItem(IDENTITY_KEY,name);}
+function clearIdentity(){localStorage.removeItem(IDENTITY_KEY);}
+
+function updateIdentityDisplay(){
+  const badge=document.getElementById('identity-badge');
+  const nameEl=document.getElementById('identity-name');
+  const name=getIdentity();
+  if(!badge||!nameEl)return;
+  if(name){
+    nameEl.textContent=name;
+    badge.style.display='';
+  }else{
+    badge.style.display='none';
+  }
+}
+
+// Auto-fill Region based on the selected Engineer Name, using the
+// Engineer → Region assignments set in Admin → Engineers. Only applies
+// when a region is assigned; the engineer can still change it manually.
+function onEngineerNameChange(){
+  const name=gv('e-engineer');
+  const region=name?(config.engineerRegions||{})[name]||'':'';
+  sv('e-region',region);
+}
+
+function checkIdentity(){
+  if(getIdentity()){updateIdentityDisplay();return;}
+  showIdentityModal();
+}
+
+function showIdentityModal(){
+  const sel=document.getElementById('identity-eng-sel');
+  if(sel){
+    const _identityNames=[...(config.engineers||[]),...(config.otherUsers||[])].sort();
+    sel.innerHTML='<option value="">Select…</option>'+_identityNames.map(e=>`<option value="${e}">${e}</option>`).join('');
+    sel.value='';
+  }
+  const pin=document.getElementById('identity-pin-inp');
+  if(pin)pin.value='';
+  const err=document.getElementById('identity-error');
+  if(err)err.textContent='';
+  document.getElementById('identity-modal').style.display='flex';
+}
+
+function switchUser(){
+  clearIdentity();
+  updateIdentityDisplay();
+  showIdentityModal();
+}
+
+function submitIdentity(){
+  const sel=document.getElementById('identity-eng-sel');
+  const pinInp=document.getElementById('identity-pin-inp');
+  const err=document.getElementById('identity-error');
+  const name=sel?sel.value:'';
+  const pin=(pinInp?pinInp.value:'').trim();
+  if(!name){err.textContent='Please select your name';return;}
+  const requiredPin=(config.engineerPins||{})[name]||'';
+  if(requiredPin&&pin!==requiredPin){err.textContent='Incorrect PIN';return;}
+  setIdentity(name);
+  document.getElementById('identity-modal').style.display='none';
+  updateIdentityDisplay();
+}
 
 
 async function loadConfig(){
@@ -3122,6 +3208,7 @@ async function connectStorage(){
     document.getElementById('customer-sel-wrap').style.display='flex';
     renderCustomerSelect();
     await loadConfig();_syncFaultTaxonomyFromConfig();
+    checkIdentity();
     await refreshRecords();
     _loadPartsListData();
     const _rc=allRecords?allRecords.length:0;
@@ -3647,6 +3734,7 @@ function saveAndEmail(){
 // ── Boot ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',function(){
   _populateFaultCategorySelect();
+  document.getElementById('identity-submit-btn').addEventListener('click',submitIdentity);
   document.getElementById('token-submit-btn').addEventListener('click',function(){
     const t=document.getElementById('token-inp').value.trim();
     const err=document.getElementById('token-error');
