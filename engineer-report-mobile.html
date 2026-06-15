@@ -374,7 +374,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.197</div>
+      <div class="h-ver">v3.199</div>
     </div>
   </div>
   <div class="h-right">
@@ -789,6 +789,16 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <button class="btn primary" id="cd-ok">OK</button>
       <button class="btn ghost" onclick="closeConfirm()">Cancel</button>
     </div>
+  </div>
+</div>
+
+<!-- Access denied overlay -->
+<div id="access-denied-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999999;align-items:center;justify-content:center">
+  <div style="background:#1a1a2e;border-radius:10px;padding:28px;width:90%;max-width:360px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4);color:#fff">
+    <div style="font-size:32px;margin-bottom:12px">&#128274;</div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:8px">Access Restricted</div>
+    <div style="font-size:13px;color:#aaa;margin-bottom:20px;line-height:1.5">This account doesn't have access to the Engineer Report tools. Contact your manager if you believe this is incorrect.</div>
+    <button onclick="switchUser()" style="width:100%;padding:12px;background:#1D4D73;border:none;border-radius:6px;color:#00F1C1;font-size:14px;font-weight:600;cursor:pointer">Switch User</button>
   </div>
 </div>
 
@@ -1341,7 +1351,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.197';
+const APP_VERSION='3.199';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1415,8 +1425,27 @@ function onEngineerNameChange(){
   sv('e-region',region);
 }
 
+const ACCESS_GROUP='engineerTools';
+
+function hasAccess(name){
+  const ua=(config.userAccess||{})[name];
+  if(!ua)return true; // default: allowed
+  return ua[ACCESS_GROUP]!==false;
+}
+
+function enforceAccess(){
+  const name=getIdentity();
+  const denied=document.getElementById('access-denied-modal');
+  if(!denied)return;
+  if(name&&!hasAccess(name)){
+    denied.style.display='flex';
+  }else{
+    denied.style.display='none';
+  }
+}
+
 function checkIdentity(){
-  if(getIdentity()){updateIdentityDisplay();return;}
+  if(getIdentity()){updateIdentityDisplay();enforceAccess();return;}
   showIdentityModal();
 }
 
@@ -1437,6 +1466,8 @@ function showIdentityModal(){
 function switchUser(){
   clearIdentity();
   updateIdentityDisplay();
+  const denied=document.getElementById('access-denied-modal');
+  if(denied)denied.style.display='none';
   showIdentityModal();
 }
 
@@ -1452,6 +1483,7 @@ function submitIdentity(){
   setIdentity(name);
   document.getElementById('identity-modal').style.display='none';
   updateIdentityDisplay();
+  enforceAccess();
 }
 
 
