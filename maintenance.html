@@ -95,6 +95,18 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 .recovery-field-key{color:var(--grey);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
 .recovery-field-val{color:var(--offwhite);font-weight:600;word-break:break-word}
 .recovery-actions{display:flex;gap:8px;flex-wrap:wrap}
+.active-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:28px}
+.active-table th,.active-table td{padding:7px 12px;border:1px solid var(--bdr);text-align:center}
+.active-table th{color:var(--grey);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;background:var(--navy2)}
+.active-table td:first-child{text-align:left;font-weight:600;color:var(--offwhite);background:var(--navy2);position:sticky;left:0}
+.active-table th:first-child{text-align:left}
+.active-cell-on{color:var(--teal);font-weight:700;font-family:'IBM Plex Mono',monospace}
+.active-cell-off{color:rgba(255,255,255,.1)}
+.session-table{width:100%;border-collapse:collapse;font-size:12px}
+.session-table th{text-align:left;color:var(--grey);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.session-table td{padding:7px 10px;border-bottom:1px solid var(--bdr);color:var(--offwhite);vertical-align:middle}
+.session-table tr:last-child td{border-bottom:none}
+.session-ongoing{color:var(--teal);font-weight:600;font-size:11px}
 </style>
 </head>
 <body>
@@ -103,7 +115,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.19</span></div>
+      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.21</span></div>
 </header>
 
 <div class="wrap">
@@ -115,6 +127,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <button class="tab-btn active" data-tab="versions" onclick="switchMaintTab('versions')">Form Versions</button>
     <button class="tab-btn" data-tab="usage" onclick="switchMaintTab('usage')">Usage Logs</button>
     <button class="tab-btn" data-tab="heatmap" onclick="switchMaintTab('heatmap')">User Heat Map</button>
+    <button class="tab-btn" data-tab="active" onclick="switchMaintTab('active')">Active Users</button>
     <button class="tab-btn" data-tab="recovery" onclick="switchMaintTab('recovery')">Record Recovery</button>
   </div>
 
@@ -185,6 +198,17 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <div id="heatmap-wrap" class="heatmap-scroll"><div class="usage-empty">Loading…</div></div>
   </div>
 
+  <div id="tab-active" class="tab-pane" style="display:none">
+    <div class="hsub">Active users are those with a heartbeat recorded within the last 5 minutes. The table shows current session duration per tool. Session history is reconstructed from heartbeat gaps (a gap of more than 12 minutes starts a new session).</div>
+    <div class="toolbar">
+      <button class="btn primary" onclick="loadActiveUsers()">&#8635; Refresh</button>
+      <span id="active-last-refresh" style="font-size:12px;color:var(--grey)"></span>
+    </div>
+    <div id="active-table-wrap"><div class="usage-empty">Click Refresh to load active user data.</div></div>
+    <div class="page-title" style="font-size:14px;margin-top:24px">Session History</div>
+    <div id="session-table-wrap"><div class="usage-empty"></div></div>
+  </div>
+
   <div id="tab-recovery" class="tab-pane" style="display:none">
     <div class="hsub">Search engineer shadow files for a specific record reference, or browse all records saved by a particular engineer. You can then re-insert a shadow copy back into the live records file.</div>
 
@@ -216,7 +240,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 </div>
 
 <script>
-// ── VOR Tracker — Version Maintenance v1.19 ─────────────────────────
+// ── VOR Tracker — Version Maintenance v1.21 ─────────────────────────
 const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
 const SB_BUCKET='vor-data';
 const VERSIONS_FILE='latest-versions.json';
@@ -787,6 +811,7 @@ function switchMaintTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   if(name==='heatmap')renderHeatmap();
   if(name==='recovery')loadRecoveryUsers();
+  if(name==='active')loadActiveUsers();
 }
 
 async function loadUsageUsers(){
@@ -934,6 +959,162 @@ async function recoverPreviewJSON(ref,engineer){
     const win=window.open('','_blank','width=700,height=600');
     win.document.write('<pre style="font-family:monospace;font-size:12px;padding:16px;background:#111;color:#e8edf4;white-space:pre-wrap">'+JSON.stringify(rec,null,2)+'</pre>');
   }catch(e){showToast('Failed: '+e.message,'error');}
+}
+
+
+// ── Active Users ─────────────────────────────────────────────────────────
+const HB_TOOLS = ['dashboard','engineer-report','engineer-report-mobile','manager-entry'];
+const HB_TOOL_LABELS = {
+  'dashboard':'Dashboard',
+  'engineer-report':'Eng Report',
+  'engineer-report-mobile':'Eng Mobile',
+  'manager-entry':'Manager Entry',
+};
+const ACTIVE_THRESHOLD_MS  = 5  * 60 * 1000;  // 5 minutes — user is "active"
+const SESSION_GAP_MS       = 12 * 60 * 1000;  // 12 minutes — new session if gap > this
+
+function fmtDuration(ms){
+  if(ms<0)ms=0;
+  const totalMins=Math.floor(ms/60000);
+  const h=Math.floor(totalMins/60);
+  const m=totalMins%60;
+  return h>0?h+'h '+String(m).padStart(2,'0')+'m':m+'m';
+}
+
+function fmtTime(ts){
+  const d=new Date(ts);
+  return isNaN(d)?'—':d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtDate(ts){
+  const d=new Date(ts);
+  return isNaN(d)?'—':d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+// Fetch all logs (action + heartbeats) for all users, tagged with {_user, tool, timestamp}
+async function fetchAllUserActivity(users){
+  const result={};  // result[user] = [{tool, action, timestamp}, ...]
+  await Promise.all(users.map(async user=>{
+    const fetches=[
+      // Action log
+      readJSON('usage-logs/'+user+'.json').catch(()=>null),
+      // All per-tool heartbeat files
+      ...HB_TOOLS.map(t=>readJSON('heartbeats/'+user+'-'+t+'.json').catch(()=>null)),
+    ];
+    const [actions,...hbResults]=await Promise.all(fetches);
+    const entries=[];
+    if(Array.isArray(actions)) actions.forEach(e=>entries.push({tool:e.tool||'unknown',action:e.action,timestamp:e.timestamp}));
+    hbResults.forEach(log=>{ if(Array.isArray(log)) log.forEach(e=>entries.push({tool:e.tool||'unknown',action:'heartbeat',timestamp:e.timestamp})); });
+    result[user]=entries.filter(e=>e.timestamp).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+  }));
+  return result;
+}
+
+// Reconstruct sessions from a flat sorted entry array for one user.
+// Sessions span multiple tools — tracks which tools were used.
+function buildUserSessions(entries){
+  if(!entries.length) return [];
+  const sessions=[];
+  let s={start:new Date(entries[0].timestamp),end:new Date(entries[0].timestamp),tools:new Set([entries[0].tool]),count:1};
+  for(let i=1;i<entries.length;i++){
+    const t=new Date(entries[i].timestamp);
+    if(t-s.end>SESSION_GAP_MS){
+      sessions.push({...s,tools:[...s.tools]});
+      s={start:t,end:t,tools:new Set([entries[i].tool]),count:1};
+    } else {
+      s.end=t;
+      s.tools.add(entries[i].tool);
+      s.count++;
+    }
+  }
+  sessions.push({...s,tools:[...s.tools]});
+  return sessions;
+}
+
+async function loadActiveUsers(){
+  const tableWrap=document.getElementById('active-table-wrap');
+  const sessionWrap=document.getElementById('session-table-wrap');
+  const refreshEl=document.getElementById('active-last-refresh');
+  tableWrap.innerHTML='<div class="usage-empty">Loading activity data…</div>';
+  sessionWrap.innerHTML='';
+
+  // Get user list
+  let files;
+  try{ files=await listBucketFiles_prefixed('usage-logs'); }
+  catch(e){ tableWrap.innerHTML='<div class="usage-empty">Failed to list users: '+e.message+'</div>'; return; }
+  const users=(files||[])
+    .filter(f=>f&&f.name&&f.name.toLowerCase().endsWith('.json')&&!f.name.startsWith('heartbeats/'))
+    .map(f=>f.name.replace(/\.json$/i,''))
+    .sort((a,b)=>a.localeCompare(b));
+
+  if(!users.length){ tableWrap.innerHTML='<div class="usage-empty">No users found.</div>'; return; }
+
+  const activityData=await fetchAllUserActivity(users);
+  const now=new Date();
+
+  // ── Active Users Table ──
+  // Per-user, per-tool: find most recent entry of any type for that tool
+  let tableHtml='<table class="active-table"><thead><tr><th>User</th>'
+    +HB_TOOLS.map(t=>'<th>'+HB_TOOL_LABELS[t]+'</th>').join('')
+    +'</tr></thead><tbody>';
+
+  let anyActive=false;
+  users.forEach(user=>{
+    const entries=activityData[user]||[];
+    let rowHtml='<tr><td>'+user+'</td>';
+    HB_TOOLS.forEach(tool=>{
+      const toolEntries=entries.filter(e=>e.tool===tool);
+      if(!toolEntries.length){ rowHtml+='<td class="active-cell-off">—</td>'; return; }
+      const latest=toolEntries[toolEntries.length-1]; // already sorted
+      const age=now-new Date(latest.timestamp);
+      if(age>ACTIVE_THRESHOLD_MS){ rowHtml+='<td class="active-cell-off">—</td>'; return; }
+      anyActive=true;
+      // Walk back to find session start on this tool
+      let sessionStart=new Date(latest.timestamp);
+      for(let i=toolEntries.length-2;i>=0;i--){
+        const gap=new Date(toolEntries[i+1].timestamp)-new Date(toolEntries[i].timestamp);
+        if(gap>SESSION_GAP_MS) break;
+        sessionStart=new Date(toolEntries[i].timestamp);
+      }
+      rowHtml+='<td class="active-cell-on">'+fmtDuration(now-sessionStart)+'</td>';
+    });
+    rowHtml+='</tr>';
+    tableHtml+=rowHtml;
+  });
+  tableHtml+='</tbody></table>';
+  if(!anyActive) tableHtml='<div class="usage-empty">No users currently active (no activity within the last 5 minutes).</div>';
+  tableWrap.innerHTML=tableHtml;
+
+  // ── Session History ──
+  const allSessions=[];
+  users.forEach(user=>{
+    buildUserSessions(activityData[user]||[]).forEach(s=>allSessions.push({user,...s}));
+  });
+  allSessions.sort((a,b)=>b.end-a.end);
+
+  if(!allSessions.length){
+    sessionWrap.innerHTML='<div class="usage-empty">No session history available.</div>';
+  } else {
+    let sh='<table class="session-table"><thead><tr>'
+      +'<th>User</th><th>Tools used</th><th>Date</th><th>Start</th><th>End</th><th>Duration</th>'
+      +'</tr></thead><tbody>';
+    allSessions.forEach(s=>{
+      const dur=s.end-s.start;
+      const ongoing=(now-s.end)<ACTIVE_THRESHOLD_MS;
+      const toolLabels=s.tools.map(t=>HB_TOOL_LABELS[t]||t).join(', ');
+      sh+='<tr>'
+        +'<td>'+s.user+'</td>'
+        +'<td style="font-size:11px;color:var(--grey)">'+toolLabels+'</td>'
+        +'<td>'+fmtDate(s.start)+'</td>'
+        +'<td>'+fmtTime(s.start)+'</td>'
+        +'<td>'+(ongoing?'<span class="session-ongoing">● Active</span>':fmtTime(s.end))+'</td>'
+        +'<td>'+(ongoing?'<span class="session-ongoing">'+fmtDuration(now-s.start)+'</span>':fmtDuration(dur))+'</td>'
+        +'</tr>';
+    });
+    sh+='</tbody></table>';
+    sessionWrap.innerHTML=sh;
+  }
+
+  refreshEl.textContent='Last refreshed: '+now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
 async function listBucketFiles_prefixed(prefix){
@@ -1134,11 +1315,41 @@ async function runBackup(){
       console.error('Backup failed for',f.name,e);
     }
   }
+  // ── Write version manifest text file ──
+  try{
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+    const timeStr=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    const lines=[
+      'VOR Tracker — Version Manifest',
+      'Generated: '+dateStr+' at '+timeStr,
+      '',
+      'RELEASED VERSIONS (from latest-versions.json)',
+      '='.repeat(52),
+    ];
+    TOOLS.forEach(t=>{
+      const rel=(trackerData[t.key]||{}).released||'—';
+      lines.push(t.name.padEnd(30,' ')+rel);
+    });
+    lines.push('');
+    lines.push('BACKUP CONTENTS');
+    lines.push('='.repeat(52));
+    lines.push('Total files backed up: '+done+(failed?' ('+failed+' failed)':''));
+    jsonFiles.forEach(f=>lines.push('  '+f.name));
+    const manifest=lines.join('\n');
+    const mHandle=await backupDir.getFileHandle('version-manifest.txt',{create:true});
+    const mWritable=await mHandle.createWritable();
+    await mWritable.write(manifest);
+    await mWritable.close();
+  }catch(e){
+    console.warn('Version manifest write failed:',e);
+  }
+
   statusEl.textContent='';
   if(failed){
     showToast('Backed up '+done+'/'+jsonFiles.length+' files to "'+folderName+'" ('+failed+' failed)','error');
   }else{
-    showToast('Backed up '+done+' file'+(done===1?'':'s')+' to "'+folderName+'"');
+    showToast('Backed up '+done+' file'+(done===1?'':'s')+' to "'+folderName+'" + version manifest');
   }
 }
 
