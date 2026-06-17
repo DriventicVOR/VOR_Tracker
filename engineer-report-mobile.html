@@ -366,6 +366,22 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 .emob-check-btn{flex:1;min-width:fit-content;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);transition:all .15s;text-align:center;user-select:none}.emob-check-btn:hover{border-color:var(--teal);color:var(--tx)}.emob-check-btn.on{background:rgba(0,241,193,.15);border-color:var(--teal);color:var(--teal)}.emob-req-card{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:12px;background:var(--bg);border-radius:8px;border:1.5px solid var(--bdr)}.emob-req-card .req-date{font-size:13px;color:var(--txm)}.emob-req-card .req-key{font-size:13px;font-weight:600;font-family:monospace;color:var(--offwhite)}
 #identity-eng-sel{background:#1a1a2e;color:#fff}
 #identity-eng-sel option{background:#1a1a2e;color:#fff}
+
+/* ── Photo capture ─────────────────────────── */
+.photo-section{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px}
+.photo-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-bottom:12px}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.photo-slot{border:1px dashed var(--bdr);border-radius:8px;overflow:hidden;background:var(--bg);position:relative;min-height:120px;display:flex;flex-direction:column}
+.photo-slot.has-photo{border-style:solid;border-color:var(--teal)}
+.photo-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
+.photo-thumb-placeholder{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:var(--bdr);font-size:32px;background:var(--bg2)}
+.photo-caption{font-size:11px;padding:4px 6px;border:none;border-top:1px solid var(--bdr);background:var(--bg);color:var(--tx);font-family:inherit;width:100%;box-sizing:border-box;outline:none}
+.photo-caption::placeholder{color:var(--txm)}
+.photo-actions{display:flex;gap:4px;padding:4px 6px;background:var(--bg2)}
+.photo-btn{font-size:10px;padding:3px 7px;border-radius:4px;border:1px solid var(--bdr);background:none;color:var(--txm);cursor:pointer;font-family:inherit}
+.photo-btn.primary{background:var(--teal);color:#000;border-color:var(--teal);font-weight:700}
+.photo-btn.danger{color:var(--red,#ff4757);border-color:var(--red,#ff4757)}
+.photo-slot-num{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.55);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px}
 </style>
 </head>
 <body>
@@ -376,7 +392,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.213</div>
+      <div class="h-ver">v3.214</div>
     </div>
   </div>
   <div class="h-right">
@@ -593,6 +609,12 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 
     <!-- Custom sections -->
     <div id="custom-sections-engineer"></div>
+
+    <!-- Photo capture -->
+    <div class="photo-section" id="photo-section" style="display:none">
+      <div class="photo-section-title">📷 Photos (max 4)</div>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
 
     <!-- Action bar -->
     <div class="abar" id="abar">
@@ -1353,7 +1375,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.213';
+const APP_VERSION='3.214';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2603,10 +2625,9 @@ async function loadRecord(){
   const rec=allRecords.find(r=>r.ref===ref);
   if(!rec){showToast('Record not found','error');return}
   currentRef=ref;
-  // Stamp the updatedAt we saw at load time so confirmSaveReport can
-  // detect if the server copy was changed while the engineer had it open.
   rec._loadedUpdatedAt=rec.updatedAt||'';
   logAction(TOOL_NAME,'report_opened',{ref});
+  initPhotoSlots(ref);
 
   populateInfoPanel(rec);
 
@@ -2917,6 +2938,203 @@ async function saveReport(){
 }
 
 
+
+// ── Photo capture ─────────────────────────────────────────────────────────
+const MAX_PHOTOS = 4;
+const PHOTO_MAX_W = 1200;
+const PHOTO_QUALITY = 0.75;
+// _photoSlots[0..3]: null | {state:'existing'|'pending'|'deleted', caption, blobUrl, file}
+let _photoSlots = [null,null,null,null];
+let _photoRef = null;
+
+function photoPath(ref, slot){
+  return 'photos/'+ref+'/photo-'+slot+'.jpg';
+}
+
+async function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>PHOTO_MAX_W){h=Math.round(h*PHOTO_MAX_W/w);w=PHOTO_MAX_W;}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{URL.revokeObjectURL(url);resolve(blob);},'image/jpeg',PHOTO_QUALITY);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Image load failed'));};
+    img.src=url;
+  });
+}
+
+async function fetchPhotoBlob(ref, slot){
+  const token=getToken();
+  const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+photoPath(ref,slot),{
+    headers:{'Authorization':'Bearer '+token,'apikey':token}
+  });
+  if(!r.ok)return null;
+  const blob=await r.blob();
+  return URL.createObjectURL(blob);
+}
+
+async function uploadPhoto(ref, slot, blob){
+  const token=getToken();
+  const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+photoPath(ref,slot),{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'apikey':token,'Content-Type':'image/jpeg','x-upsert':'true'},
+    body:blob
+  });
+  if(!r.ok){const t=await r.text();throw new Error('Upload failed ('+r.status+'): '+t.slice(0,60));}
+}
+
+async function deletePhotoFromStorage(ref, slot){
+  const token=getToken();
+  await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+photoPath(ref,slot),{
+    method:'DELETE',
+    headers:{'Authorization':'Bearer '+token,'apikey':token}
+  });
+}
+
+function renderPhotoGrid(){
+  const grid=document.getElementById('photo-grid');
+  if(!grid)return;
+  grid.innerHTML='';
+  for(let i=0;i<MAX_PHOTOS;i++){
+    const slot=_photoSlots[i];
+    const div=document.createElement('div');
+    div.className='photo-slot'+(slot&&slot.state!=='deleted'?' has-photo':'');
+    div.innerHTML='<span class="photo-slot-num">'+(i+1)+'</span>';
+
+    if(slot&&slot.state!=='deleted'&&slot.blobUrl){
+      div.innerHTML+='<img class="photo-thumb" src="'+slot.blobUrl+'" onclick="viewPhotoFull('+i+')">';
+    } else {
+      div.innerHTML+='<div class="photo-thumb-placeholder">📷</div>';
+    }
+
+    // Caption input (only if slot has a photo)
+    if(slot&&slot.state!=='deleted'){
+      div.innerHTML+='<input class="photo-caption" type="text" placeholder="Caption (optional)" '
+        +'value="'+(slot.caption||'').replace(/"/g,'&quot;')+'" '
+        +'oninput="_photoSlots['+i+'].caption=this.value">';
+    }
+
+    // Action buttons
+    const actDiv=document.createElement('div');
+    actDiv.className='photo-actions';
+    if(!slot||slot.state==='deleted'){
+      actDiv.innerHTML='<label class="photo-btn primary" style="cursor:pointer">'
+        +'📷 Add'
+        +'<input type="file" accept="image/*" capture="environment" style="display:none" '
+        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>';
+    } else {
+      actDiv.innerHTML='<label class="photo-btn" style="cursor:pointer">'
+        +'🔄 Replace'
+        +'<input type="file" accept="image/*" capture="environment" style="display:none" '
+        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>'
+        +'<button class="photo-btn danger" onclick="removePhoto('+i+')">🗑 Remove</button>';
+    }
+    div.appendChild(actDiv);
+    grid.appendChild(div);
+  }
+}
+
+async function handlePhotoSelect(slotIdx, file){
+  if(!file)return;
+  showToast('Compressing photo…','info');
+  try{
+    const blob=await compressImage(file);
+    const blobUrl=URL.createObjectURL(blob);
+    // Revoke any previous blob URL for this slot
+    if(_photoSlots[slotIdx]&&_photoSlots[slotIdx].blobUrl&&_photoSlots[slotIdx].state!=='existing'){
+      URL.revokeObjectURL(_photoSlots[slotIdx].blobUrl);
+    }
+    const prevCaption=_photoSlots[slotIdx]?_photoSlots[slotIdx].caption||'':'';
+    _photoSlots[slotIdx]={state:'pending',blob,blobUrl,caption:prevCaption};
+    renderPhotoGrid();
+    showToast('Photo ready — save report to upload','info');
+  }catch(e){
+    showToast('Photo error: '+e.message,'error');
+  }
+}
+
+function removePhoto(slotIdx){
+  const slot=_photoSlots[slotIdx];
+  if(!slot)return;
+  if(slot.blobUrl&&slot.state!=='existing') URL.revokeObjectURL(slot.blobUrl);
+  _photoSlots[slotIdx]={state:'deleted',wasExisting:slot.state==='existing'};
+  renderPhotoGrid();
+}
+
+function viewPhotoFull(slotIdx){
+  const slot=_photoSlots[slotIdx];
+  if(!slot||!slot.blobUrl)return;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
+  overlay.onclick=()=>document.body.removeChild(overlay);
+  const img=document.createElement('img');
+  img.src=slot.blobUrl;
+  img.style.cssText='max-width:100%;max-height:80vh;border-radius:8px;object-fit:contain';
+  const cap=document.createElement('div');
+  cap.textContent=slot.caption||'';
+  cap.style.cssText='color:#fff;font-size:13px;margin-top:10px;text-align:center';
+  const hint=document.createElement('div');
+  hint.textContent='Tap to close';
+  hint.style.cssText='color:rgba(255,255,255,.4);font-size:11px;margin-top:6px';
+  overlay.append(img,cap,hint);
+  document.body.appendChild(overlay);
+}
+
+async function initPhotoSlots(ref){
+  _photoRef=ref;
+  _photoSlots=[null,null,null,null];
+  const section=document.getElementById('photo-section');
+  if(section)section.style.display='';
+  // Load existing photos from record JSON
+  const rec=allRecords.find(r=>r.ref===ref);
+  const existing=(rec&&rec.photos)||[];
+  await Promise.all(existing.map(async p=>{
+    const idx=p.slot-1;
+    if(idx<0||idx>=MAX_PHOTOS)return;
+    try{
+      const blobUrl=await fetchPhotoBlob(ref,p.slot);
+      if(blobUrl) _photoSlots[idx]={state:'existing',blobUrl,caption:p.caption||''};
+    }catch(e){}
+  }));
+  renderPhotoGrid();
+}
+
+async function processPhotosOnSave(ref){
+  const photoMeta=[];
+  const errors=[];
+  for(let i=0;i<MAX_PHOTOS;i++){
+    const slot=_photoSlots[i];
+    if(!slot)continue;
+    if(slot.state==='pending'){
+      try{
+        await uploadPhoto(ref,i+1,slot.blob);
+        photoMeta.push({slot:i+1,caption:slot.caption||''});
+      }catch(e){
+        errors.push('Slot '+(i+1)+': '+e.message);
+      }
+    } else if(slot.state==='existing'){
+      photoMeta.push({slot:i+1,caption:slot.caption||''});
+    } else if(slot.state==='deleted'&&slot.wasExisting){
+      try{ await deletePhotoFromStorage(ref,i+1); }catch(e){}
+    }
+  }
+  if(errors.length) showToast('Photo upload issues: '+errors.join('; '),'error');
+  return photoMeta;
+}
+
+function clearPhotoSlots(){
+  _photoSlots.forEach(s=>{ if(s&&s.blobUrl&&s.state!=='existing') URL.revokeObjectURL(s.blobUrl); });
+  _photoSlots=[null,null,null,null];
+  _photoRef=null;
+  const section=document.getElementById('photo-section');
+  if(section)section.style.display='none';
+  renderPhotoGrid();
+}
 // ── Per-user shadow record store ──────────────────────────────────────────
 // After a successful main-file write, upsert the saved record into
 // usage-logs/shadows/<safeName>.json — a compact per-engineer store of the
@@ -2969,6 +3187,9 @@ async function confirmSaveReport(sendEmail){
   showToast(savedRef+' saved','success');
   // Read fresh, apply, write
   try{
+    // Upload/delete photos then embed metadata into the record
+    const _photoMeta=await processPhotosOnSave(savedRef);
+    _mergedRecord.photos=_photoMeta;
     const _fresh=await readRecords();
     const _fi=_fresh.findIndex(function(r){return r.ref===savedRef;});
     // Staleness check: if the server copy was updated after the engineer loaded
@@ -3691,6 +3912,7 @@ function cancelReport(){
   hideForm();
   document.getElementById('sr-select').value='';
   document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'));
+  clearPhotoSlots();
 }
 async function reloadData(){
   await loadConfig();_syncFaultTaxonomyFromConfig();
