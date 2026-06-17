@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.204</div>
+      <div class="h-ver">v3.206</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.204';
+const APP_VERSION='3.206';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -3150,12 +3150,11 @@ async function autoRefreshConfig(){
       allRecords=freshRecs.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
       populateSRSelect();
     }
-    // Heartbeat log
-    logHeartbeat(TOOL_NAME,{recordCount:allRecords.length});
   }catch(e){}
 }
 
-setInterval(autoRefreshConfig, 300000);
+setInterval(autoRefreshConfig, 30000)
+setInterval(function(){ logHeartbeat(TOOL_NAME,{recordCount:allRecords.length}); },300000);
 
 // ── Customer management ──────────────────────────────────────────
 async function loadCustomers(){
