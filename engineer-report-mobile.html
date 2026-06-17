@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.211</div>
+      <div class="h-ver">v3.213</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.211';
+const APP_VERSION='3.213';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1527,6 +1527,10 @@ function submitIdentity(){
   document.getElementById('identity-modal').style.display='none';
   updateIdentityDisplay();
   enforceAccess();
+  // Log connected now that identity is confirmed — the connectStorage()
+  // call earlier fired before the user had signed in, so getIdentity()
+  // returned '' and logAction was a no-op. This catches first-time sign-ins.
+  logAction(TOOL_NAME,'connected_signin',{recordCount:allRecords?allRecords.length:0});
 }
 
 
@@ -1547,6 +1551,13 @@ async function loadConfig(){
     if(!config.customSections)config.customSections=[];
     // Custom fields come only from default-config.json
     config.customFields=[...globalCustomFields];
+    // These global keys live only in default-config.json — always source from defCfg
+    // directly so they're never undefined even if absent from DEFAULT_CONFIG hardcoded values
+    if(defCfg){
+      config.otherUsers=defCfg.otherUsers||[];
+      config.engineerPins=defCfg.engineerPins||{};
+      config.userAccess=defCfg.userAccess||{};
+    }
   }catch(e){config=JSON.parse(JSON.stringify(DEFAULT_CONFIG));config.customFields=[];}
   applyConfig();
 }
