@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.202</div>
+      <div class="h-ver">v3.203</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.202';
+const APP_VERSION='3.203';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2575,6 +2575,9 @@ async function loadRecord(){
   const rec=allRecords.find(r=>r.ref===ref);
   if(!rec){showToast('Record not found','error');return}
   currentRef=ref;
+  // Stamp the updatedAt we saw at load time so confirmSaveReport can
+  // detect if the server copy was changed while the engineer had it open.
+  rec._loadedUpdatedAt=rec.updatedAt||'';
   logAction(TOOL_NAME,'report_opened',{ref});
 
   populateInfoPanel(rec);
@@ -2916,8 +2919,22 @@ async function confirmSaveReport(sendEmail){
   try{
     const _fresh=await readRecords();
     const _fi=_fresh.findIndex(function(r){return r.ref===savedRef;});
-    if(_fi>=0){_fresh[_fi]={..._fresh[_fi],..._mergedRecord};}
-    else{_fresh.push(_mergedRecord);}
+    // Staleness check: if the server copy was updated after the engineer loaded
+    // this record, warn before overwriting (last-write-wins with visibility).
+    if(_fi>=0){
+      const _serverUpdatedAt=_fresh[_fi].updatedAt||'';
+      const _localUpdatedAt=_mergedRecord._loadedUpdatedAt||'';
+      if(_serverUpdatedAt&&_localUpdatedAt&&_serverUpdatedAt>_localUpdatedAt){
+        const _who=_fresh[_fi].engineer||'someone';
+        if(!confirm('⚠ This record was updated by '+_who+' after you opened it ('+new Date(_serverUpdatedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'). Saving now will overwrite those changes. Continue?')){
+          showToast('Save cancelled — please reload the record','info');
+          return;
+        }
+      }
+      _fresh[_fi]={..._fresh[_fi],..._mergedRecord};
+    } else {
+      _fresh.push(_mergedRecord);
+    }
     await writeRecords(_fresh);
     allRecords=_fresh.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
     logAction(TOOL_NAME,sendEmail?'report_saved_and_emailed':'report_saved',{ref:savedRef});
@@ -3104,11 +3121,22 @@ function showToast(msg,type='success'){const t=document.getElementById('toast');
 // ── Auto-refresh config every 30s ────────────────────────────────
 async function autoRefreshConfig(){
   try{
-    const d=await readJSON(customerConfigFile());if(!d)return;
-    const changed=JSON.stringify(d.software||[])!==JSON.stringify(config.software||[])||
-      JSON.stringify(d.engineers||[])!==JSON.stringify(config.engineers||[])||
-      JSON.stringify(d.components||[])!==JSON.stringify(config.components||[]);
-    if(changed){config=Object.assign({},DEFAULT_CONFIG,d);if(!config.customFields)config.customFields=[];applyConfig();refreshCompOptions();if(currentRef){const rec=allRecords.find(r=>r.ref===currentRef);if(rec)renderCustomEngineerFields(rec.customFields||{});}showToast('Config updated','info');}
+    // Refresh config
+    const d=await readJSON(customerConfigFile());
+    if(d){
+      const changed=JSON.stringify(d.software||[])!==JSON.stringify(config.software||[])||
+        JSON.stringify(d.engineers||[])!==JSON.stringify(config.engineers||[])||
+        JSON.stringify(d.components||[])!==JSON.stringify(config.components||[]);
+      if(changed){config=Object.assign({},DEFAULT_CONFIG,d);if(!config.customFields)config.customFields=[];applyConfig();refreshCompOptions();if(currentRef){const rec=allRecords.find(r=>r.ref===currentRef);if(rec)renderCustomEngineerFields(rec.customFields||{});}showToast('Config updated','info');}
+    }
+    // Refresh records (without disturbing any currently open record)
+    const freshRecs=await readRecords();
+    if(Array.isArray(freshRecs)){
+      allRecords=freshRecs.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
+      populateSRSelect();
+    }
+    // Heartbeat log
+    logAction(TOOL_NAME,'heartbeat',{recordCount:allRecords.length});
   }catch(e){}
 }
 
