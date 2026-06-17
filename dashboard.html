@@ -325,6 +325,14 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .dash-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D4D73;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-family:inherit;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}.dash-toast.show{opacity:1}
 .map-tip{background:var(--navy2)!important;border:1px solid var(--bdr)!important;color:var(--offwhite)!important;font-size:12px!important;padding:4px 8px!important;border-radius:5px!important;box-shadow:0 2px 6px rgba(0,0,0,.4)!important;}
 .map-tip::before{display:none!important}
+/* ── Photo viewer ─────────────────────────────── */
+.photo-view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.photo-view-slot{border:1px solid var(--bdr2);border-radius:8px;overflow:hidden;background:var(--navy3);display:flex;flex-direction:column;cursor:pointer}
+.photo-view-slot:hover{border-color:var(--teal)}
+.photo-view-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.photo-view-caption{font-size:11px;color:var(--grey);padding:4px 8px;border-top:1px solid var(--bdr2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-view-empty{font-size:12px;color:var(--grey);padding:8px 0;font-style:italic}
+.photo-view-dl{font-size:10px;color:var(--teal);padding:2px 8px 5px;text-decoration:none;display:block;text-align:center}
 </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
@@ -337,7 +345,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.411</span></div>
+      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.412</span></div>
     </div>
     <div class="hright">
       <button class="btn btn-ghost btn-sm" onclick="openExportModal()" id="export-btn" style="display:none">&#8681; Export CSV</button>
@@ -3185,7 +3193,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='4.411';
+const APP_VERSION='4.412';
 const APP_TOOL_KEY='dashboard';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -6505,6 +6513,13 @@ function openDetail(recStr){
       +'</div></div>':''}
   `;
   document.getElementById('detail-modal').classList.add('open');
+  const _detPvSec=document.createElement('div');
+  _detPvSec.style.cssText='margin-top:16px;padding-top:14px;border-top:1px solid var(--bdr2)';
+  _detPvSec.innerHTML='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:4px">Photos</div>'
+    +'<div id="detail-photo-viewer"></div>';
+  const _detBody=document.getElementById('detail-body');
+  if(_detBody)_detBody.appendChild(_detPvSec);
+  loadPhotoViewer(rec.ref,'detail-photo-viewer',rec);
 }
 
 
@@ -6737,6 +6752,13 @@ function openTlModal(rec){
     +matches.length+' record'+(matches.length===1?'':'s')+' found for this vehicle</div>'
     +htlHtml+'<div style="margin-top:8px">'+vtlHtml+'</div>';
   document.getElementById('tl-modal-bk').classList.add('open');
+  const _tlPvSec=document.createElement('div');
+  _tlPvSec.style.cssText='margin-top:16px;padding-top:14px;border-top:1px solid var(--bdr2)';
+  _tlPvSec.innerHTML='<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:4px">Photos</div>'
+    +'<div id="tl-photo-viewer"></div>';
+  const _tlBody=document.getElementById('tl-body');
+  if(_tlBody)_tlBody.appendChild(_tlPvSec);
+  loadPhotoViewer(rec.ref,'tl-photo-viewer',rec);
   (function(){
     var _markers=Array.from(document.querySelectorAll('#tl-htl-bar .htl-marker'));
     var THRESHOLD=1.5;
@@ -6775,6 +6797,75 @@ function openTlModal(rec){
 
 function openDetailByIdx(i){const r=(window._tableRecs||[])[i];if(r)openDetail(JSON.stringify(r));}
 function openDetailByRef(ref){const r=allRecords.find(function(x){return x.ref===ref;});if(r)openDetail(JSON.stringify(r));}
+
+// ── Photo viewer (read-only) ──────────────────────────────────────────────
+function _photoPath(ref, slot){ return 'photos/'+ref+'/photo-'+slot+'.jpg'; }
+
+async function loadPhotoViewer(ref, containerId, rec){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  const photos=(rec&&rec.photos)||[];
+  if(!photos.length){
+    container.innerHTML='<div class="photo-view-empty">No photos attached to this record.</div>';
+    return;
+  }
+  container.innerHTML='<div class="photo-view-grid" id="pvg-'+containerId+'"></div>';
+  const grid=document.getElementById('pvg-'+containerId);
+  photos.forEach(async p=>{
+    const div=document.createElement('div');
+    div.className='photo-view-slot';
+    div.innerHTML='<div style="width:100%;aspect-ratio:4/3;background:var(--navy4);display:flex;align-items:center;justify-content:center;font-size:20px">⏳</div>';
+    grid.appendChild(div);
+    try{
+      const token=getToken();
+      const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+_photoPath(ref,p.slot),{
+        headers:{'Authorization':'Bearer '+token,'apikey':token}
+      });
+      if(!r.ok){div.innerHTML='<div style="width:100%;aspect-ratio:4/3;background:var(--navy4);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--red)">✕</div>';return;}
+      const blob=await r.blob();
+      const url=URL.createObjectURL(blob);
+      div.innerHTML='';
+      const img=document.createElement('img');
+      img.className='photo-view-thumb';
+      img.src=url;
+      img.onclick=(()=>{const u=url,cap=p.caption||'';return ()=>_viewPhotoOverlay(u,cap);})();
+      div.appendChild(img);
+      if(p.caption){
+        const capEl=document.createElement('div');
+        capEl.className='photo-view-caption';
+        capEl.title=p.caption;
+        capEl.textContent=p.caption;
+        div.appendChild(capEl);
+      }
+      const dl=document.createElement('a');
+      dl.className='photo-view-dl';
+      dl.href=url;
+      dl.download=ref+'-photo-'+p.slot+'.jpg';
+      dl.textContent='⬇ Download';
+      div.appendChild(dl);
+    }catch(e){
+      div.innerHTML='<div style="width:100%;aspect-ratio:4/3;background:var(--navy4);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--red)">Load failed</div>';
+    }
+  });
+}
+
+function _viewPhotoOverlay(url, caption){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;cursor:pointer';
+  overlay.onclick=()=>document.body.removeChild(overlay);
+  const img=document.createElement('img');
+  img.src=url;
+  img.style.cssText='max-width:100%;max-height:85vh;border-radius:8px;object-fit:contain';
+  const cap=document.createElement('div');
+  cap.textContent=caption;
+  cap.style.cssText='color:#fff;font-size:13px;margin-top:10px;text-align:center';
+  const hint=document.createElement('div');
+  hint.textContent='Click anywhere to close';
+  hint.style.cssText='color:rgba(255,255,255,.4);font-size:11px;margin-top:6px';
+  overlay.append(img,cap,hint);
+  document.body.appendChild(overlay);
+}
+
 function closeDetail(){document.getElementById('detail-modal').classList.remove('open');}
 document.addEventListener('DOMContentLoaded',function(){
   const _dm=document.getElementById('detail-modal');
