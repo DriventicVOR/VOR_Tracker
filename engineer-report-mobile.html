@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.203</div>
+      <div class="h-ver">v3.204</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.203';
+const APP_VERSION='3.204';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1413,7 +1413,8 @@ function clearIdentity(){localStorage.removeItem(IDENTITY_KEY);}
 // that many people write to concurrently. Logging is best-effort and
 // never blocks the UI or surfaces errors to the user.
 const TOOL_NAME='engineer-report-mobile';
-const USAGE_LOG_MAX_ENTRIES=500;
+const USAGE_LOG_MAX_ENTRIES=2000;
+const HEARTBEAT_LOG_MAX_ENTRIES=1000;
 async function logAction(tool, action, details){
   try{
     const name=getIdentity();
@@ -1427,6 +1428,20 @@ async function logAction(tool, action, details){
     if(log.length>USAGE_LOG_MAX_ENTRIES)log=log.slice(log.length-USAGE_LOG_MAX_ENTRIES);
     await writeJSON(path,log);
   }catch(e){console.warn('logAction failed:',e);}
+}
+async function logHeartbeat(tool, details){
+  try{
+    const name=getIdentity();
+    if(!name)return;
+    const safeName=name.replace(/[^A-Za-z0-9 _-]/g,'').trim();
+    if(!safeName)return;
+    const path='usage-logs/heartbeats/'+safeName+'.json';
+    let log=[];
+    try{ const existing=await readJSON(path); if(Array.isArray(existing))log=existing; }catch(e){}
+    log.push({tool,action:'heartbeat',details:details||null,timestamp:new Date().toISOString()});
+    if(log.length>HEARTBEAT_LOG_MAX_ENTRIES)log=log.slice(log.length-HEARTBEAT_LOG_MAX_ENTRIES);
+    await writeJSON(path,log);
+  }catch(e){console.warn('logHeartbeat failed:',e);}
 }
 
 function updateIdentityDisplay(){
@@ -3136,11 +3151,11 @@ async function autoRefreshConfig(){
       populateSRSelect();
     }
     // Heartbeat log
-    logAction(TOOL_NAME,'heartbeat',{recordCount:allRecords.length});
+    logHeartbeat(TOOL_NAME,{recordCount:allRecords.length});
   }catch(e){}
 }
 
-setInterval(autoRefreshConfig, 30000);
+setInterval(autoRefreshConfig, 300000);
 
 // ── Customer management ──────────────────────────────────────────
 async function loadCustomers(){
