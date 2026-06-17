@@ -376,7 +376,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.206</div>
+      <div class="h-ver">v3.211</div>
     </div>
   </div>
   <div class="h-right">
@@ -1353,7 +1353,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.206';
+const APP_VERSION='3.211';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1435,7 +1435,9 @@ async function logHeartbeat(tool, details){
     if(!name)return;
     const safeName=name.replace(/[^A-Za-z0-9 _-]/g,'').trim();
     if(!safeName)return;
-    const path='usage-logs/heartbeats/'+safeName+'.json';
+    // One file per user per tool — eliminates write collisions when a user
+    // has multiple tools open simultaneously (each tool owns its own file).
+    const path='usage-logs/heartbeats/'+safeName+'-'+tool+'.json';
     let log=[];
     try{ const existing=await readJSON(path); if(Array.isArray(existing))log=existing; }catch(e){}
     log.push({tool,action:'heartbeat',details:details||null,timestamp:new Date().toISOString()});
@@ -2903,6 +2905,30 @@ async function saveReport(){
   openEngPopup(_pendingRecord);
 }
 
+
+// ── Per-user shadow record store ──────────────────────────────────────────
+// After a successful main-file write, upsert the saved record into
+// usage-logs/shadows/<safeName>.json — a compact per-engineer store of the
+// last-saved version of every record they have worked on. Provides a
+// recovery source if the main records file is ever corrupted or a
+// concurrent write drops an entry. Only the record being saved is touched;
+// the rest of the shadow file is never rewritten speculatively.
+async function upsertShadowRecord(record){
+  try{
+    const name=getIdentity();
+    if(!name)return;
+    const safeName=name.replace(/[^A-Za-z0-9 _-]/g,'').trim();
+    if(!safeName)return;
+    const path='shadows/'+safeName+'.json';
+    let shadow=[];
+    try{ const existing=await readJSON(path); if(Array.isArray(existing))shadow=existing; }catch(e){}
+    const idx=shadow.findIndex(r=>r.ref===record.ref);
+    const entry={...record,_shadowSavedAt:new Date().toISOString()};
+    if(idx>=0) shadow[idx]=entry;
+    else shadow.push(entry);
+    await writeJSON(path,shadow);
+  }catch(e){console.warn('upsertShadowRecord failed:',e);}
+}
 async function confirmSaveReport(sendEmail){
   if(!_pendingRecord){return;}
   const idx=allRecords.findIndex(r=>r.ref===_pendingRecord.ref);
@@ -2952,6 +2978,7 @@ async function confirmSaveReport(sendEmail){
     }
     await writeRecords(_fresh);
     allRecords=_fresh.map(function(r){return Object.assign({},r,{_customer:activeCustomer?.prefix});});
+    upsertShadowRecord(_mergedRecord);
     logAction(TOOL_NAME,sendEmail?'report_saved_and_emailed':'report_saved',{ref:savedRef});
   }catch(e){
     showToast('Save failed: '+e.message,'error');

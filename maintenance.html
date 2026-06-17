@@ -88,6 +88,13 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 .heatmap-table th{color:var(--grey);font-weight:600;font-size:10px}
 .heatmap-table th:first-child,.heatmap-table td:first-child{position:sticky;left:0;background:var(--navy2);z-index:1;text-align:left;font-weight:600;color:var(--offwhite)}
 .heatmap-cell{font-family:'IBM Plex Mono',monospace;color:var(--offwhite)}
+.recovery-card{background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:16px 20px;margin-bottom:12px}
+.recovery-ref{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--teal)}
+.recovery-meta{font-size:11px;color:var(--grey);margin:4px 0 10px}
+.recovery-fields{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 16px;font-size:12px;margin-bottom:12px}
+.recovery-field-key{color:var(--grey);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.recovery-field-val{color:var(--offwhite);font-weight:600;word-break:break-word}
+.recovery-actions{display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -96,7 +103,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
   <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.13</span></div>
+      <div class="htitle">Version Maintenance <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v1.18</span></div>
 </header>
 
 <div class="wrap">
@@ -108,6 +115,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <button class="tab-btn active" data-tab="versions" onclick="switchMaintTab('versions')">Form Versions</button>
     <button class="tab-btn" data-tab="usage" onclick="switchMaintTab('usage')">Usage Logs</button>
     <button class="tab-btn" data-tab="heatmap" onclick="switchMaintTab('heatmap')">User Heat Map</button>
+    <button class="tab-btn" data-tab="recovery" onclick="switchMaintTab('recovery')">Record Recovery</button>
   </div>
 
   <div id="tab-versions" class="tab-pane">
@@ -176,6 +184,22 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <div id="heatmap-note" style="font-size:12px;color:var(--grey);margin:-6px 0 10px"></div>
     <div id="heatmap-wrap" class="heatmap-scroll"><div class="usage-empty">Loading…</div></div>
   </div>
+
+  <div id="tab-recovery" class="tab-pane" style="display:none">
+    <div class="hsub">Search engineer shadow files for a specific record reference, or browse all records saved by a particular engineer. You can then re-insert a shadow copy back into the live records file.</div>
+
+    <div class="toolbar">
+      <input id="recovery-ref-inp" class="ver-input" style="width:180px" placeholder="e.g. 00123 or WB-SR" oninput="this.value=this.value.toUpperCase()">
+      <button class="btn primary" onclick="recoverSearch()">&#128269; Search by Ref</button>
+      <span style="color:var(--grey);font-size:12px">or browse by engineer:</span>
+      <select id="recovery-user-sel" class="usage-sel" onchange="recoverBrowse(this.value)">
+        <option value="">Select engineer…</option>
+      </select>
+      <button class="btn" onclick="loadRecoveryUsers()">&#8635; Refresh</button>
+    </div>
+    <div id="recovery-status" style="font-size:12px;color:var(--grey);margin:-6px 0 10px"></div>
+    <div id="recovery-wrap"><div class="usage-empty">Search by ref or select an engineer to browse their shadow records.</div></div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -192,7 +216,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 </div>
 
 <script>
-// ── VOR Tracker — Version Maintenance v1.13 ─────────────────────────
+// ── VOR Tracker — Version Maintenance v1.18 ─────────────────────────
 const SB_URL='https://plekykkdvevqblvdayhm.supabase.co';
 const SB_BUCKET='vor-data';
 const VERSIONS_FILE='latest-versions.json';
@@ -509,14 +533,16 @@ async function fetchAllUsageEntries(forceRefresh){
     sel=document.getElementById('usage-user-sel');
     names=Array.from(sel.options).map(o=>o.value).filter(v=>v&&v!=='__all__');
   }
+  const _hbTools=['dashboard','engineer-report','engineer-report-mobile','manager-entry'];
   const results=await Promise.all(names.map(async n=>{
     try{
-      const [actions,heartbeats]=await Promise.all([
+      const hbFetches=_hbTools.map(t=>readJSON('usage-logs/heartbeats/'+n+'-'+t+'.json').catch(()=>null));
+      const [actions,...hbResults]=await Promise.all([
         readJSON('usage-logs/'+n+'.json').catch(()=>null),
-        readJSON('usage-logs/heartbeats/'+n+'.json').catch(()=>null),
+        ...hbFetches,
       ]);
       const a=Array.isArray(actions)?actions.map(e=>({...e,_user:n})):[];
-      const h=Array.isArray(heartbeats)?heartbeats.map(e=>({...e,_user:n})):[];
+      const h=hbResults.flatMap(log=>Array.isArray(log)?log.map(e=>({...e,_user:n})):[]);
       return [...a,...h];
     }catch(e){return [];}
   }));
@@ -759,6 +785,7 @@ function switchMaintTab(name){
   document.querySelectorAll('.tab-pane').forEach(el=>{el.style.display=(el.id==='tab-'+name)?'block':'none';});
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
   if(name==='heatmap')renderHeatmap();
+  if(name==='recovery')loadRecoveryUsers();
 }
 
 async function loadUsageUsers(){
@@ -783,6 +810,129 @@ async function loadUsageUsers(){
     +'<option value="__all__">— All Users (combined) —</option>'
     +names.map(n=>`<option value="${n}">${n}</option>`).join('');
   if(current&&(names.includes(current)||current==='__all__')){sel.value=current;loadUsageLog(current);}
+}
+
+
+// ── Record Recovery ───────────────────────────────────────────────────────
+
+async function loadRecoveryUsers(){
+  const sel=document.getElementById('recovery-user-sel');
+  sel.innerHTML='<option value="">Loading…</option>';
+  try{
+    const files=await listBucketFiles_prefixed('shadows');
+    const names=(files||[])
+      .filter(f=>f&&f.name&&f.name.toLowerCase().endsWith('.json'))
+      .map(f=>f.name.replace(/\.json$/i,''))
+      .sort((a,b)=>a.localeCompare(b));
+    sel.innerHTML='<option value="">Select engineer…</option>'
+      +names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  }catch(e){
+    sel.innerHTML='<option value="">Select engineer…</option>';
+    showToast('Failed to list shadow files: '+e.message,'error');
+  }
+}
+
+async function fetchShadow(name){
+  const data=await readJSON('shadows/'+name+'.json');
+  return Array.isArray(data)?data:[];
+}
+
+async function recoverSearch(){
+  const ref=(document.getElementById('recovery-ref-inp').value||'').trim().toUpperCase();
+  if(!ref){showToast('Enter a record ref to search','error');return;}
+  const wrap=document.getElementById('recovery-wrap');
+  const status=document.getElementById('recovery-status');
+  wrap.innerHTML='<div class="usage-empty">Searching…</div>';
+  status.textContent='';
+  // List all shadow files and search each for the ref
+  let files;
+  try{files=await listBucketFiles_prefixed('shadows');}
+  catch(e){wrap.innerHTML='<div class="usage-empty">Failed: '+e.message+'</div>';return;}
+  const names=(files||[])
+    .filter(f=>f&&f.name&&f.name.toLowerCase().endsWith('.json'))
+    .map(f=>f.name.replace(/\.json$/i,''));
+  const query=ref.toUpperCase();
+  const results=[];
+  await Promise.all(names.map(async name=>{
+    try{
+      const shadow=await fetchShadow(name);
+      const matches=shadow.filter(r=>(r.ref||'').toUpperCase().includes(query));
+      matches.forEach(rec=>results.push({engineer:name,record:rec}));
+    }catch(e){}
+  }));
+  if(!results.length){
+    wrap.innerHTML='<div class="usage-empty">No shadow records matching <strong>'+ref+'</strong>.</div>';
+    return;
+  }
+  results.sort((a,b)=>(b.record._shadowSavedAt||'').localeCompare(a.record._shadowSavedAt||''));
+  status.textContent=results.length+' shadow record'+(results.length===1?'':'s')+' matching "'+ref+'"';
+  wrap.innerHTML=results.map(r=>renderRecoveryCard(r.record,r.engineer)).join('');
+}
+
+async function recoverBrowse(name){
+  if(!name)return;
+  const wrap=document.getElementById('recovery-wrap');
+  const status=document.getElementById('recovery-status');
+  wrap.innerHTML='<div class="usage-empty">Loading shadow file for '+name+'…</div>';
+  status.textContent='';
+  let shadow;
+  try{shadow=await fetchShadow(name);}
+  catch(e){wrap.innerHTML='<div class="usage-empty">Failed: '+e.message+'</div>';return;}
+  if(!shadow.length){wrap.innerHTML='<div class="usage-empty">No shadow records found for '+name+'.</div>';return;}
+  const sorted=[...shadow].sort((a,b)=>(b._shadowSavedAt||'').localeCompare(a._shadowSavedAt||''));
+  status.textContent=sorted.length+' shadow record'+(sorted.length===1?'':'s')+' for '+name;
+  wrap.innerHTML=sorted.map(r=>renderRecoveryCard(r,name)).join('');
+}
+
+function renderRecoveryCard(record,engineer){
+  const SHOW_FIELDS=['ref','status','engineer','dateReported','dateRepair','registration','depot','faultDescription','repairDescription'];
+  const saved=record._shadowSavedAt?new Date(record._shadowSavedAt).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  const fields=SHOW_FIELDS.filter(k=>record[k]).map(k=>`
+    <div>
+      <div class="recovery-field-key">${k}</div>
+      <div class="recovery-field-val">${record[k]}</div>
+    </div>`).join('');
+  return `<div class="recovery-card">
+    <div class="recovery-ref">${record.ref||'Unknown ref'}</div>
+    <div class="recovery-meta">Shadow saved by ${engineer} at ${saved} &nbsp;·&nbsp; Status: ${record.status||'—'}</div>
+    <div class="recovery-fields">${fields}</div>
+    <div class="recovery-actions">
+      <button class="btn primary" onclick="recoverInsert('${(record.ref||'').replace(/'/g,"\'")}','${engineer.replace(/'/g,"\'")}')">&#9099; Re-insert into live records</button>
+      <button class="btn" onclick="recoverPreviewJSON('${(record.ref||'').replace(/'/g,"\'")}','${engineer.replace(/'/g,"\'")}')">&#128196; View full JSON</button>
+    </div>
+  </div>`;
+}
+
+async function recoverInsert(ref,engineer){
+  if(!confirm('Re-insert shadow copy of '+ref+' (saved by '+engineer+') into the live records file? This will overwrite any existing entry for this ref.'))return;
+  const status=document.getElementById('recovery-status');
+  try{
+    const shadow=await fetchShadow(engineer);
+    const rec=shadow.find(r=>r.ref===ref);
+    if(!rec){showToast('Shadow record not found','error');return;}
+    // Determine customer prefix from ref (e.g. WB-SR-00123 → WB)
+    const prefix=(ref.split('-')[0]||'WB').toUpperCase();
+    const recFile=prefix+'-records.json';
+    const live=await readJSON(recFile)||[];
+    const idx=live.findIndex(r=>r.ref===ref);
+    const restored={...rec,_recoveredAt:new Date().toISOString(),_recoveredFrom:engineer};
+    delete restored._shadowSavedAt;
+    if(idx>=0)live[idx]=restored;
+    else live.push(restored);
+    await writeJSON(recFile,live);
+    showToast(ref+' re-inserted into '+recFile,'success');
+    status.textContent='✓ '+ref+' restored to '+recFile+' at '+new Date().toLocaleTimeString('en-GB');
+  }catch(e){showToast('Recovery failed: '+e.message,'error');}
+}
+
+async function recoverPreviewJSON(ref,engineer){
+  try{
+    const shadow=await fetchShadow(engineer);
+    const rec=shadow.find(r=>r.ref===ref);
+    if(!rec){showToast('Shadow record not found','error');return;}
+    const win=window.open('','_blank','width=700,height=600');
+    win.document.write('<pre style="font-family:monospace;font-size:12px;padding:16px;background:#111;color:#e8edf4;white-space:pre-wrap">'+JSON.stringify(rec,null,2)+'</pre>');
+  }catch(e){showToast('Failed: '+e.message,'error');}
 }
 
 async function listBucketFiles_prefixed(prefix){
@@ -832,12 +982,14 @@ async function loadUsageLog(name){
     }
   } else {
     try{
-      const [actions,heartbeats]=await Promise.all([
+      const _hbTools=['dashboard','engineer-report','engineer-report-mobile','manager-entry'];
+      const hbFetches=_hbTools.map(t=>readJSON('usage-logs/heartbeats/'+name+'-'+t+'.json').catch(()=>null));
+      const [actions,...hbResults]=await Promise.all([
         readJSON('usage-logs/'+name+'.json').catch(()=>null),
-        readJSON('usage-logs/heartbeats/'+name+'.json').catch(()=>null),
+        ...hbFetches,
       ]);
       const a=Array.isArray(actions)?actions:[];
-      const h=Array.isArray(heartbeats)?heartbeats:[];
+      const h=hbResults.flatMap(log=>Array.isArray(log)?log:[]);
       entries=[...a,...h];
     }catch(e){
       wrap.innerHTML='<div class="usage-empty">Failed to load log: '+e.message+'</div>';
@@ -901,21 +1053,48 @@ function backupFolderName(d){
     +' --- '+_pad2(d.getHours())+'-'+_pad2(d.getMinutes())+'-'+_pad2(d.getSeconds());
 }
 
+async function listAllBucketFiles(){
+  // List root + all known subfolders. Supabase Storage has no recursive list
+  // API, so we enumerate each prefix we know contains files explicitly.
+  const PREFIXES=['','usage-logs','usage-logs/heartbeats','shadows'];
+  const token=getToken();
+  const allFiles=[];
+  for(const prefix of PREFIXES){
+    try{
+      const r=await fetch(SB_URL+'/storage/v1/object/list/'+SB_BUCKET,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+token,'apikey':token,'Content-Type':'application/json'},
+        body:JSON.stringify({prefix:prefix?prefix+'/':'',limit:1000,sortBy:{column:'name',order:'asc'}})
+      });
+      if(!r.ok)continue;
+      const items=await r.json();
+      (items||[]).forEach(f=>{
+        if(!f||!f.name)return;
+        // Supabase returns names relative to the prefix — prepend to get the full path
+        const fullName=(prefix?prefix+'/':'')+f.name;
+        if(fullName.toLowerCase().endsWith('.json'))allFiles.push({...f,name:fullName});
+      });
+    }catch(e){console.warn('listAllBucketFiles prefix failed:',prefix,e);}
+  }
+  // Deduplicate by name (root listing may overlap subfolder entries)
+  const seen=new Set();
+  return allFiles.filter(f=>seen.has(f.name)?false:seen.add(f.name));
+}
+
 async function runBackup(){
   const statusEl=document.getElementById('backup-status');
   const dir=await getBackupFolder(false);
   if(!dir)return;
 
   statusEl.textContent='Listing files in storage…';
-  let files;
+  let jsonFiles;
   try{
-    files=await listBucketFiles();
+    jsonFiles=await listAllBucketFiles();
   }catch(e){
     statusEl.textContent='';
     showToast('Failed to list files: '+e.message,'error');
     return;
   }
-  const jsonFiles=(files||[]).filter(f=>f && f.name && f.name.toLowerCase().endsWith('.json'));
   if(!jsonFiles.length){
     statusEl.textContent='';
     showToast('No JSON files found in storage','error');
@@ -937,7 +1116,14 @@ async function runBackup(){
     statusEl.textContent='Backing up '+f.name+'… ('+(done+failed+1)+'/'+jsonFiles.length+')';
     try{
       const data=await readJSON(f.name);
-      const fileHandle=await backupDir.getFileHandle(f.name,{create:true});
+      // Recreate subfolder structure inside the backup folder
+      const parts=f.name.split('/');
+      const fileName=parts.pop();
+      let targetDir=backupDir;
+      for(const part of parts){
+        targetDir=await targetDir.getDirectoryHandle(part,{create:true});
+      }
+      const fileHandle=await targetDir.getFileHandle(fileName,{create:true});
       const writable=await fileHandle.createWritable();
       await writable.write(JSON.stringify(data,null,2));
       await writable.close();
