@@ -392,7 +392,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.214</div>
+      <div class="h-ver">v3.215</div>
     </div>
   </div>
   <div class="h-right">
@@ -611,7 +611,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     <div id="custom-sections-engineer"></div>
 
     <!-- Photo capture -->
-    <div class="photo-section" id="photo-section" style="display:none">
+    <div class="photo-section fc off" id="photo-section">
       <div class="photo-section-title">📷 Photos (max 4)</div>
       <div class="photo-grid" id="photo-grid"></div>
     </div>
@@ -1375,7 +1375,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.214';
+const APP_VERSION='3.215';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2757,7 +2757,7 @@ function updateFaultLookup(){
 
 
 function enableForm(){
-  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts'].forEach(id=>document.getElementById(id)?.classList.remove('off'));
+  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts','photo-section'].forEach(id=>document.getElementById(id)?.classList.remove('off'));
   // Enable any custom section cards
   document.querySelectorAll('#custom-sections-engineer .fc').forEach(el=>el.classList.remove('off'));
   document.getElementById('abar').style.display='flex';
@@ -2775,7 +2775,8 @@ function hideForm(){
   ['ig-operator','ig-vehicle','ig-fault','ig-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
   const _ics=document.getElementById('ig-custom-sections');if(_ics)_ics.innerHTML='';
   const _igc=document.getElementById('ig-created');if(_igc)_igc.textContent='';
-  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts'].forEach(id=>document.getElementById(id)?.classList.add('off'));
+  ['card-att','card-attendance','card-diag','card-fault-codes','card-parts','photo-section'].forEach(id=>document.getElementById(id)?.classList.add('off'));
+  clearPhotoSlots();
   const _ivl=document.getElementById('interim-visits-list');if(_ivl){_ivl.innerHTML='';}_interimCount=0;
   const pol=document.getElementById('parts-ordered-list');if(pol)pol.innerHTML='';_partsCount=0;
   const _vcl=document.getElementById('visit-count-label');if(_vcl)_vcl.textContent='';
@@ -3088,8 +3089,6 @@ function viewPhotoFull(slotIdx){
 async function initPhotoSlots(ref){
   _photoRef=ref;
   _photoSlots=[null,null,null,null];
-  const section=document.getElementById('photo-section');
-  if(section)section.style.display='';
   // Load existing photos from record JSON
   const rec=allRecords.find(r=>r.ref===ref);
   const existing=(rec&&rec.photos)||[];
@@ -3131,8 +3130,6 @@ function clearPhotoSlots(){
   _photoSlots.forEach(s=>{ if(s&&s.blobUrl&&s.state!=='existing') URL.revokeObjectURL(s.blobUrl); });
   _photoSlots=[null,null,null,null];
   _photoRef=null;
-  const section=document.getElementById('photo-section');
-  if(section)section.style.display='none';
   renderPhotoGrid();
 }
 // ── Per-user shadow record store ──────────────────────────────────────────
