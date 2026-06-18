@@ -275,7 +275,13 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
   border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit}
 .tab-btn:hover{color:var(--offwhite)}
 .tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-btn.hidden{display:none}
 .tab-pane{display:none}.tab-pane.active{display:flex;flex-direction:column;gap:20px}
+.tab-group-nav{display:flex;gap:4px;padding:12px 0 0;margin-bottom:0}
+.tab-group-btn{padding:6px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;border:1px solid var(--bdr2);border-radius:6px 6px 0 0;border-bottom:none;background:var(--navy3);color:var(--grey);font-family:inherit;transition:all .15s;position:relative;top:1px}
+.tab-group-btn:hover{color:var(--offwhite);background:var(--navy4);border-color:rgba(0,241,193,.4)}
+.tab-group-btn.active{background:var(--navy2);color:var(--teal);border-color:var(--teal);border-bottom-color:var(--navy2);box-shadow:0 0 0 1px var(--teal)}
+.tab-group-label{font-size:9px;display:block;opacity:.7;font-weight:600;margin-bottom:1px;color:inherit}
 
 /* ── Slicer ── */
 .slicer{background:var(--navy2);border:1px solid var(--bdr);border-radius:4px;padding:12px 14px;min-width:160px;cursor:pointer;transition:border-color .15s,box-shadow .15s;user-select:none}
@@ -325,6 +331,9 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .dash-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1D4D73;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;font-family:inherit;z-index:99999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}.dash-toast.show{opacity:1}
 .map-tip{background:var(--navy2)!important;border:1px solid var(--bdr)!important;color:var(--offwhite)!important;font-size:12px!important;padding:4px 8px!important;border-radius:5px!important;box-shadow:0 2px 6px rgba(0,0,0,.4)!important;}
 .map-tip::before{display:none!important}
+.slicer-toggle-btn{font-size:9px;padding:2px 6px;border-radius:3px;border:1px solid var(--bdr2);background:none;color:var(--grey);cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .12s,color .12s,border-color .12s}
+.slicer-toggle-btn:hover{background:rgba(255,255,255,.07);color:var(--offwhite);border-color:rgba(255,255,255,.2)}
+.slicer-toggle-btn:active{background:var(--teal);color:#000;border-color:var(--teal)}
 /* ── Photo viewer ─────────────────────────────── */
 .photo-view-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
 .photo-view-slot{border:1px solid var(--bdr2);border-radius:8px;overflow:hidden;background:var(--navy3);display:flex;flex-direction:column;cursor:pointer}
@@ -345,7 +354,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.414</span></div>
+      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.429</span></div>
     </div>
     <div class="hright">
       <button class="btn btn-ghost btn-sm" onclick="openExportModal()" id="export-btn" style="display:none">&#8681; Export CSV</button>
@@ -384,23 +393,32 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 
 
   <!-- Tab nav -->
-  <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchDashTab('overview')">Overview</button>
-    <button class="tab-btn" onclick="switchDashTab('vordays')">Days VOR</button>
-    <button class="tab-btn" onclick="switchDashTab('vorclosed')">VORs Closed</button>
-    <button class="tab-btn" onclick="switchDashTab('mileage')">Mileage</button>
-    <button class="tab-btn" onclick="switchDashTab('age')">Age</button>
-    <button class="tab-btn" onclick="switchDashTab('usage')">Vehicle Usage</button>
-    <button class="tab-btn" onclick="switchDashTab('comp')">Components</button>
-    <button class="tab-btn" onclick="switchDashTab('fcrmap')">Failure Map</button>
-    <button class="tab-btn" onclick="switchDashTab('defects')">Defects</button>
-    <button class="tab-btn" onclick="switchDashTab('liability')">Liability</button>
-    <button class="tab-btn" onclick="switchDashTab('callout')">Call-Out Stats</button>
-    <button class="tab-btn" onclick="switchDashTab('uptime')">Uptime</button>
-    <button class="tab-btn" onclick="switchDashTab('currentlyor')">Currently VOR</button>
-    <button class="tab-btn" onclick="switchDashTab('map')">Map</button>
-    <button class="tab-btn" onclick="switchDashTab('parts')">Parts</button>
-    <button class="tab-btn" onclick="switchDashTab('repairtime')">Repair Time</button>
+  <div class="tab-bar-row">
+    <div class="tab-group-nav">
+      <button class="tab-group-btn active" id="tg-mgmt" onclick="switchTabGroup('mgmt')">Management</button>
+      <button class="tab-group-btn" id="tg-eng" onclick="switchTabGroup('eng')">Engineering</button>
+    </div>
+    <div class="tab-group-separator"></div>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-group="both" onclick="switchDashTab('overview')">Overview</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('vorclosed')">VORs Closed</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('vordays')">Days VOR</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('repairtime')">Repair Time</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('uptime')">Uptime</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('callout')">Call-Out Stats</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('liability')">Liability</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('map')">Map</button>
+      <button class="tab-btn" data-group="mgmt" onclick="switchDashTab('currentlyor')">Currently VOR</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('mileage')">Mileage</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('age')">Age</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('comp')">Components</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('parts')">Parts</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('fcrmap')">Failure Map</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('compfault')">Component Fault Map</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('failurechain')">Failure Chain</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('defects')">Defects</button>
+      <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('usage')">Vehicle Usage</button>
+    </div>
   </div>
 
   <!-- Overview tab -->
@@ -1490,6 +1508,45 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       </div>
     </div>
   </div><!-- /tab-fcrmap -->
+
+  <div class="tab-pane" id="tab-compfault">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;gap:12px;flex-shrink:0">
+        <div class="slicer" id="slicer-cf-customer"><div class="slicer-title">Customer</div><div class="slicer-items" id="slicer-cf-customer-items"></div></div>
+        <div class="slicer" id="slicer-cf-pt"><div class="slicer-title">Product Type</div><div class="slicer-items" id="slicer-cf-pt-items"></div></div>
+        <div class="slicer" id="slicer-cf-failure">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <div class="slicer-title" style="margin-bottom:0;flex:1">Reported Failure</div>
+            <button class="slicer-toggle-btn" onclick="cfFailureAll(this)">All</button>
+            <button class="slicer-toggle-btn" onclick="cfFailureNone(this)">None</button>
+          </div>
+          <div class="slicer-items" id="slicer-cf-failure-items"></div>
+        </div>
+        <div style="background:var(--navy2);border:1px solid var(--bdr2);border-radius:8px;padding:12px;min-width:160px">
+          <div class="slicer-title">Min. occurrences</div>
+          <input id="cf-threshold" type="range" min="1" max="20" value="1" style="width:100%;accent-color:var(--teal)" oninput="document.getElementById('cf-threshold-val').textContent=this.value;renderCompFaultMapTab()">
+          <div style="font-size:11px;color:var(--grey);margin-top:4px">Threshold: <span id="cf-threshold-val" style="color:var(--offwhite);font-weight:600">1</span></div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:0;overflow-x:auto">
+        <div id="cf-diagram" style="min-height:200px"></div>
+        <div id="cf-detail" style="margin-top:12px;font-size:12px;color:var(--grey);min-height:20px"></div>
+      </div>
+    </div>
+  </div><!-- /tab-compfault -->
+
+  <div class="tab-pane" id="tab-failurechain">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--grey);font-weight:600;white-space:nowrap">Failure mode:</div>
+      <select id="fc3-failure-sel" onchange="renderFailureChainTab()" style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;color:var(--offwhite);font-size:13px;font-family:inherit;flex:1;max-width:400px">
+        <option value="">— select a failure mode —</option>
+      </select>
+      <div style="font-size:11px;color:var(--grey)" id="fc3-summary"></div>
+    </div>
+    <div style="overflow-x:auto">
+      <div id="fc3-diagram" style="min-height:200px"></div>
+    </div>
+  </div><!-- /tab-failurechain -->
 
 </main>
 
@@ -3193,7 +3250,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='4.414';
+const APP_VERSION='4.429';
 const APP_TOOL_KEY='dashboard';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -4251,11 +4308,30 @@ async function updateOverviewUptime(recs){
     el.textContent=pct!==null?pct.toFixed(1)+'%':'—';
   }catch(e){el.textContent='—';}
 }
+let _activeTabGroup='mgmt';
+function switchTabGroup(group){
+  _activeTabGroup=group;
+  // Update group button styles
+  document.querySelectorAll('.tab-group-btn').forEach(b=>{
+    b.classList.toggle('active',b.id==='tg-'+group);
+  });
+  // Show/hide tab buttons: 'both' always visible, others filtered by group
+  document.querySelectorAll('.tab-btn[data-group]').forEach(b=>{
+    const bg=b.dataset.group;
+    b.classList.toggle('hidden',bg!=='both'&&bg!==group);
+  });
+  // If current tab doesn't belong to this group, switch to overview
+  const engTabs=new Set(['age','fcrmap','compfault','failurechain','usage','comp','defects','mileage','parts']);
+  const mgmtTabs=new Set(['overview','vorclosed','vordays','repairtime','uptime','callout','liability','map','currentlyor']);
+  const inGroup=group==='eng'?engTabs.has(_dashTab)||_dashTab==='overview':mgmtTabs.has(_dashTab)||_dashTab==='overview';
+  if(!inGroup) switchDashTab('overview');
+}
+
 function switchDashTab(tab){
   _dashTab = tab;
   logAction(TOOL_NAME,'viewed_tab',{tab:tab});
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active', (i===0&&tab==='overview')||(i===1&&tab==='vordays')||(i===2&&tab==='vorclosed')||(i===3&&tab==='mileage')||(i===4&&tab==='age')||(i===5&&tab==='usage')||(i===6&&tab==='comp')||(i===7&&tab==='fcrmap')||(i===8&&tab==='defects')||(i===9&&tab==='liability')||(i===10&&tab==='callout')||(i===11&&tab==='uptime')||(i===12&&tab==='currentlyor')||(i===13&&tab==='map')||(i===14&&tab==='parts')||(i===15&&tab==='repairtime'));
+    b.classList.toggle('active', !b.classList.contains('hidden') && b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+tab+"'"));
   });
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
   document.getElementById('tab-vordays').classList.toggle('active', tab==='vordays');
@@ -4265,6 +4341,10 @@ function switchDashTab(tab){
   document.getElementById('tab-comp').classList.toggle('active', tab==='comp');
   document.getElementById('tab-fcrmap').classList.toggle('active',tab==='fcrmap');
   if(tab==='fcrmap')renderFCRMapTab();
+  document.getElementById('tab-compfault').classList.toggle('active',tab==='compfault');
+  if(tab==='compfault')renderCompFaultMapTab();
+  document.getElementById('tab-failurechain').classList.toggle('active',tab==='failurechain');
+  if(tab==='failurechain')renderFailureChainTab();
   document.getElementById('tab-defects').classList.toggle('active', tab==='defects');
   document.getElementById('tab-liability').classList.toggle('active', tab==='liability');
   document.getElementById('tab-callout').classList.toggle('active', tab==='callout');
@@ -4391,6 +4471,344 @@ function renderFCRMapTab(){
     });
   });
 }
+
+// ── Component Fault Map ───────────────────────────────────────────────────
+let _cfCusts=new Set(), _cfPTs=new Set(), _cfFailures=null;
+
+function renderCompFaultMapTab(){
+  if(_dashTab!=='compfault')return;
+  const allR=getFiltered();
+  const custs=[...new Set(allR.map(r=>r._customerName||r._customer).filter(Boolean))].sort();
+  const ptsAll=[...new Set(allR.map(r=>r.productType||'(none)'))].sort();
+  const failuresAll=[...new Set(allR.map(r=>(r.failure||r.defect||'').trim()).filter(Boolean))].sort();
+  if(!_cfCusts.size)_cfCusts=new Set(custs);
+  if(!_cfPTs.size)_cfPTs=new Set(ptsAll);
+  if(_cfFailures===null)_cfFailures=new Set(failuresAll);
+  renderSlicer('slicer-cf-customer-items',custs,_cfCusts,'cfCust');
+  renderSlicer('slicer-cf-pt-items',ptsAll,_cfPTs,'cfPT');
+  renderSlicer('slicer-cf-failure-items',failuresAll,_cfFailures,'cfFailure');
+  const threshold=parseInt(document.getElementById('cf-threshold')?.value||1);
+
+  const filtered=allR.filter(r=>{
+    const cn=r._customerName||r._customer||'';
+    if(_cfCusts.size<custs.length&&!_cfCusts.has(cn))return false;
+    if(_cfPTs.size<ptsAll.length&&!_cfPTs.has(r.productType||'(none)'))return false;
+    const rf=(r.failure||r.defect||'').trim();
+    if(_cfFailures.size<failuresAll.length&&!_cfFailures.has(rf))return false;
+    return (r.faultCodes||[]).some(fc=>fc&&fc.trim())&&(r.components||[]).length>0;
+  });
+
+  const pairCounts={};
+  filtered.forEach(r=>{
+    const codes=(r.faultCodes||[]).map(fc=>String(fc||'').trim()).filter(Boolean);
+    (r.components||[]).forEach(co=>{
+      const comp=typeof co==='string'?co.trim():(co&&co.name?co.name.trim():'');
+      if(!comp)return;
+      codes.forEach(fc=>{
+        const key=comp+'|||'+fc;
+        pairCounts[key]=(pairCounts[key]||0)+1;
+      });
+    });
+  });
+
+  const pairs=Object.entries(pairCounts).filter(([,v])=>v>=threshold).map(([k,v])=>{const[comp,fc]=k.split('|||');return{comp,fc,count:v};});
+  const container=document.getElementById('cf-diagram');
+  const detailEl=document.getElementById('cf-detail');
+  if(!container)return;
+
+  if(!pairs.length){
+    container.innerHTML='<p style="color:var(--grey);font-size:13px;padding:20px 0">No data — no records found with both components and fault codes matching this threshold.</p>';
+    if(detailEl)detailEl.textContent='';
+    return;
+  }
+
+  const components=[...new Set(pairs.map(p=>p.comp))].sort((a,b)=>{
+    return pairs.filter(p=>p.comp===b).reduce((s,p)=>s+p.count,0)-pairs.filter(p=>p.comp===a).reduce((s,p)=>s+p.count,0);
+  });
+  const faultCodes=[...new Set(pairs.map(p=>p.fc))].sort();
+
+  const ROW_H=16,LABEL_W=220,LINE_W=260,PAD_T=6,HDR_H=20,PAD_B=10;
+  const nC=components.length,nF=faultCodes.length;
+  const usableH=Math.max(nC,nF)*ROW_H;
+  const svgW=LABEL_W*2+LINE_W,svgH=usableH+PAD_T+HDR_H+PAD_B;
+  const maxCount=Math.max(...pairs.map(p=>p.count));
+  const lx=LABEL_W,rx=LABEL_W+LINE_W,nodeTop=PAD_T+HDR_H;
+  const cy_=i=>nodeTop+(nC<=1?usableH/2:i*usableH/(nC-1));
+  const fy_=i=>nodeTop+(nF<=1?usableH/2:i*usableH/(nF-1));
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+  let svgLines='';
+  pairs.forEach(p=>{
+    const ci=components.indexOf(p.comp),fi=faultCodes.indexOf(p.fc);
+    const t=(1+(p.count/maxCount)*5).toFixed(1);
+    const op=(0.12+(p.count/maxCount)*0.68).toFixed(2);
+    const cx1=lx+LINE_W*0.38,cx2=lx+LINE_W*0.62;
+    svgLines+=`<path d="M${lx},${fy_(fi)} C${cx1},${fy_(fi)} ${cx2},${cy_(ci)} ${rx},${cy_(ci)}" stroke="#00f1c1" stroke-width="${t}" fill="none" opacity="${op}" class="cf-line" data-comp="${esc(p.comp)}" data-fc="${esc(p.fc)}" data-count="${p.count}"/>`;
+  });
+
+  let compNodes='',fcNodes='';
+  components.forEach((comp,i)=>{
+    const tot=pairs.filter(p=>p.comp===comp).reduce((s,p)=>s+p.count,0);
+    const lbl=comp.length>30?comp.slice(0,28)+'…':comp;
+    compNodes+=`<g class="cf-node" data-comp="${esc(comp)}" data-side="comp"><circle cx="${rx}" cy="${cy_(i)}" fill="#f59e0b" r="4"/><text x="${rx+10}" y="${cy_(i)}" text-anchor="start" dominant-baseline="middle" font-size="10" fill="#8896a8" font-family="inherit"><title>${esc(comp)} (${tot})</title>${esc(lbl)}</text></g>`;
+  });
+  faultCodes.forEach((fc,i)=>{
+    const tot=pairs.filter(p=>p.fc===fc).reduce((s,p)=>s+p.count,0);
+    const lbl=fc.length>30?fc.slice(0,28)+'…':fc;
+    fcNodes+=`<g class="cf-node" data-fc="${esc(fc)}" data-side="fc"><circle cx="${lx}" cy="${fy_(i)}" fill="#00f1c1" r="4"/><text x="${lx-10}" y="${fy_(i)}" text-anchor="end" dominant-baseline="middle" font-size="10" fill="#8896a8" font-family="inherit"><title>${esc(fc)} (${tot})</title>${esc(lbl)}</text></g>`;
+  });
+
+  container.innerHTML=`<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible;display:block;min-width:${svgW}px">
+<style>.cf-line{transition:opacity .12s,stroke-width .12s}.cf-line.dim{opacity:.03!important}.cf-line.hi{opacity:1!important;stroke:#00f1c1}.cf-node{cursor:pointer}.cf-node.active circle{filter:drop-shadow(0 0 4px #00f1c190)}</style>
+<text x="${lx}" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5568" font-family="inherit" letter-spacing=".06em">FAULT CODES</text>
+<text x="${rx}" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5568" font-family="inherit" letter-spacing=".06em">COMPONENTS FITTED</text>
+<g>${svgLines}</g><g>${fcNodes}</g><g>${compNodes}</g></svg>`;
+
+  container.querySelectorAll('.cf-node').forEach(node=>{
+    node.addEventListener('mouseenter',()=>{
+      const side=node.dataset.side,val=side==='comp'?node.dataset.comp:node.dataset.fc;
+      container.querySelectorAll('.cf-line').forEach(l=>{
+        const match=side==='comp'?l.dataset.comp===val:l.dataset.fc===val;
+        l.classList.toggle('dim',!match);l.classList.toggle('hi',match);
+      });
+      node.classList.add('active');
+      if(detailEl){
+        const related=pairs.filter(p=>side==='comp'?p.comp===val:p.fc===val).sort((a,b)=>b.count-a.count);
+        detailEl.innerHTML='<span style="color:var(--offwhite);font-weight:600">'+(side==='comp'?'Component: ':'Fault code: ')+val+'</span> — '
+          +related.map(p=>'<span style="color:var(--teal)">'+(side==='comp'?p.fc:p.comp)+'</span> ('+p.count+'×)').join(' · ');
+      }
+    });
+    node.addEventListener('mouseleave',()=>{
+      container.querySelectorAll('.cf-line').forEach(l=>{l.classList.remove('dim','hi');});
+      node.classList.remove('active');
+      if(detailEl)detailEl.textContent='Hover a node to highlight its connections · '+filtered.length+' records · '+pairs.length+' relationships';
+    });
+  });
+  if(detailEl)detailEl.textContent='Hover a node to highlight its connections · '+filtered.length+' records · '+pairs.length+' relationships';
+}
+
+function cfCust(v){_cfCusts.has(v)?_cfCusts.delete(v):_cfCusts.add(v);renderCompFaultMapTab();}
+function cfPT(v){_cfPTs.has(v)?_cfPTs.delete(v):_cfPTs.add(v);renderCompFaultMapTab();}
+function _slicerBtnFlash(btn){
+  // Brief teal pulse — CSS :active handles the immediate visual; this adds
+  // a short programmatic highlight for actions that complete quickly
+  btn.style.background='var(--teal)';
+  btn.style.color='#000';
+  btn.style.borderColor='var(--teal)';
+  setTimeout(()=>{btn.style.background='';btn.style.color='';btn.style.borderColor='';},300);
+}
+function cfFailureAll(btn){
+  const allR=getFiltered();
+  const all=[...new Set(allR.map(r=>(r.failure||r.defect||'').trim()).filter(Boolean))];
+  _cfFailures=new Set(all);
+  if(btn)_slicerBtnFlash(btn);
+  renderCompFaultMapTab();
+}
+function cfFailureNone(btn){
+  _cfFailures=new Set();
+  if(btn)_slicerBtnFlash(btn);
+  renderCompFaultMapTab();
+}
+
+
+// ── Failure Chain Tab ─────────────────────────────────────────────────────
+// 3-column Sankey: Selected Failure → Components Fitted → Fault Codes
+// Only records matching the selected failure mode are used.
+function renderFailureChainTab(){
+  if(_dashTab!=='failurechain')return;
+  const allR=getFiltered();
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+  // Populate dropdown
+  const sel=document.getElementById('fc3-failure-sel');
+  const currentVal=sel?sel.value:'';
+  const allFailures=[...new Set(allR.map(r=>(r.failure||r.defect||'').trim()).filter(Boolean))].sort();
+  if(sel){
+    sel.innerHTML='<option value="">— select a failure mode —</option>'
+      +allFailures.map(f=>`<option value="${esc(f)}"${f===currentVal?' selected':''}>${esc(f)}</option>`).join('');
+  }
+
+  const container=document.getElementById('fc3-diagram');
+  const summary=document.getElementById('fc3-summary');
+  if(!container)return;
+
+  const selectedFailure=sel?sel.value:'';
+  if(!selectedFailure){
+    container.innerHTML='<p style="color:var(--grey);font-size:13px;padding:20px 0">Select a failure mode from the dropdown to explore its component and fault code chain.</p>';
+    if(summary)summary.textContent='';
+    return;
+  }
+
+  const filtered=allR.filter(r=>{
+    const rf=(r.failure||r.defect||'').trim();
+    return rf===selectedFailure
+      &&(r.components||[]).length>0
+      &&(r.faultCodes||[]).some(fc=>fc&&fc.trim());
+  });
+
+  if(!filtered.length){
+    container.innerHTML='<p style="color:var(--grey);font-size:13px;padding:20px 0">No records found for this failure mode with both components and fault codes.</p>';
+    if(summary)summary.textContent='';
+    return;
+  }
+
+  // Build failure→component counts
+  const lmCounts={};
+  filtered.forEach(r=>{
+    (r.components||[]).forEach(co=>{
+      const comp=typeof co==='string'?co.trim():(co&&co.name?co.name.trim():'');
+      if(!comp)return;
+      lmCounts[comp]=(lmCounts[comp]||0)+1;
+    });
+  });
+
+  // Build per-component fault code lists (preserving duplicates per component)
+  // compFcMap[comp] = {fc: count} — each component owns its own fault code entries
+  const compFcMap={};
+  filtered.forEach(r=>{
+    const codes=(r.faultCodes||[]).map(fc=>String(fc||'').trim()).filter(Boolean);
+    (r.components||[]).forEach(co=>{
+      const comp=typeof co==='string'?co.trim():(co&&co.name?co.name.trim():'');
+      if(!comp)return;
+      if(!compFcMap[comp])compFcMap[comp]={};
+      codes.forEach(fc=>{compFcMap[comp][fc]=(compFcMap[comp][fc]||0)+1;});
+    });
+  });
+
+  const components=Object.keys(lmCounts).sort((a,b)=>lmCounts[b]-lmCounts[a]);
+
+  // Calculate layout: each component gets a band sized by its fault code count (min 1 row)
+  const ROW_H=18,LABEL_BELOW=14,PAD_T=8,HDR_H=22,PAD_B=12,COMP_VPAD=8;
+  // Total vertical rows = sum of fault codes per component + padding between components
+  const bandSizes=components.map(comp=>Math.max(1,Object.keys(compFcMap[comp]||{}).length));
+  const totalRows=bandSizes.reduce((s,n)=>s+n,0)+(components.length-1); // gaps between bands
+  const usableH=totalRows*ROW_H;
+  const svgH=usableH+PAD_T+HDR_H+PAD_B+LABEL_BELOW*components.length;
+
+  // Work out y positions for each component band
+  const bandTops=[];
+  let yOffset=PAD_T+HDR_H;
+  components.forEach((comp,ci)=>{
+    bandTops.push(yOffset);
+    yOffset+=bandSizes[ci]*ROW_H+LABEL_BELOW+(ci<components.length-1?COMP_VPAD:0);
+  });
+
+  // Component node Y = vertical center of its band (based on fault code slots)
+  const compY=components.map((comp,ci)=>{
+    const n=bandSizes[ci];
+    return bandTops[ci]+(n-1)*ROW_H/2;
+  });
+
+  // Fault code node Y within each band
+  const fcY=(ci,fi,total)=>{
+    return bandTops[ci]+(total<=1?0:fi*(total-1)*ROW_H/(total-1));
+  };
+
+  // Failure node Y = vertical center of entire diagram
+  const totalH=yOffset-COMP_VPAD;
+  const ly=(PAD_T+HDR_H+totalH)/2;
+
+  const L_W=190,GAP1=180,M_W=20,GAP2=180,R_W=10;
+  const lx=L_W,mx=L_W+GAP1,rx=mx+M_W+GAP2;
+  const svgW=rx+R_W+180;
+  const maxLM=Math.max(...Object.values(lmCounts),1);
+
+  // Left→Middle lines (teal)
+  let lmLines='';
+  components.forEach((comp,ci)=>{
+    const cnt=lmCounts[comp]||0;
+    const t=(1+(cnt/maxLM)*4).toFixed(1);
+    const op=(0.15+(cnt/maxLM)*0.65).toFixed(2);
+    const cx1=lx+GAP1*0.45,cx2=lx+GAP1*0.55;
+    lmLines+=`<path d="M${lx},${ly} C${cx1},${ly} ${cx2},${compY[ci]} ${mx},${compY[ci]}" stroke="#00f1c1" stroke-width="${t}" fill="none" opacity="${op}" class="fc3-lm" data-comp="${esc(comp)}"/>`;
+  });
+
+  // Middle→Right lines (amber) — per component, to its own fault codes
+  let mrLines='';
+  components.forEach((comp,ci)=>{
+    const fcs=Object.entries(compFcMap[comp]||{}).sort((a,b)=>b[1]-a[1]);
+    const nFc=fcs.length;
+    const maxFc=Math.max(...fcs.map(([,v])=>v),1);
+    fcs.forEach(([fc,cnt],fi)=>{
+      const t=(0.8+(cnt/maxFc)*3.5).toFixed(1);
+      const op=(0.18+(cnt/maxFc)*0.62).toFixed(2);
+      const cy=compY[ci];
+      const ry=bandTops[ci]+(nFc<=1?0:fi*(bandSizes[ci]-1)*ROW_H/(nFc-1));
+      const cx1=mx+GAP2*0.4,cx2=mx+GAP2*0.6;
+      mrLines+=`<path d="M${mx},${cy} C${cx1},${cy} ${cx2},${ry} ${rx},${ry}" stroke="#f59e0b" stroke-width="${t}" fill="none" opacity="${op}" class="fc3-mr" data-comp="${esc(comp)}" data-fc="${esc(fc)}"/>`;
+    });
+  });
+
+  // Left node (failure)
+  const flbl=selectedFailure.length>24?selectedFailure.slice(0,22)+'…':selectedFailure;
+  const leftNode=`<g class="fc3-node" data-role="failure"><circle cx="${lx}" cy="${ly}" fill="#00f1c1" r="5"/><text x="${lx-12}" y="${ly}" text-anchor="end" dominant-baseline="middle" font-size="10" fill="#e8edf4" font-weight="600" font-family="inherit"><title>${esc(selectedFailure)}</title>${esc(flbl)}</text></g>`;
+
+  // Middle nodes — label BELOW the node to avoid line overlap
+  let compNodes='';
+  components.forEach((comp,ci)=>{
+    const tot=lmCounts[comp]||0;
+    const lbl=comp.length>20?comp.slice(0,18)+'…':comp;
+    const y=compY[ci];
+    compNodes+=`<g class="fc3-node" data-role="comp" data-comp="${esc(comp)}">`
+      +`<circle cx="${mx}" cy="${y}" fill="#f59e0b" r="4"/>`
+      +`<text x="${mx}" y="${y+10}" text-anchor="middle" dominant-baseline="hanging" font-size="9" fill="#8896a8" font-family="inherit"><title>${esc(comp)} (${tot})</title>${esc(lbl)}</text>`
+      +`</g>`;
+  });
+
+  // Right nodes — per-component fault codes
+  let fcNodes='';
+  components.forEach((comp,ci)=>{
+    const fcs=Object.entries(compFcMap[comp]||{}).sort((a,b)=>b[1]-a[1]);
+    const nFc=fcs.length;
+    fcs.forEach(([fc,cnt],fi)=>{
+      const ry=bandTops[ci]+(nFc<=1?0:fi*(bandSizes[ci]-1)*ROW_H/(nFc-1));
+      const lbl=fc.length>22?fc.slice(0,20)+'…':fc;
+      fcNodes+=`<g class="fc3-node" data-role="fc" data-comp="${esc(comp)}" data-fc="${esc(fc)}">`
+        +`<circle cx="${rx}" cy="${ry}" fill="#a78bfa" r="3"/>`
+        +`<text x="${rx+8}" y="${ry}" text-anchor="start" dominant-baseline="middle" font-size="9" fill="#8896a8" font-family="inherit"><title>${esc(fc)} (${cnt})</title>${esc(lbl)} <tspan fill="#4a5568">(${cnt})</tspan></text>`
+        +`</g>`;
+    });
+  });
+
+  const totalFcEntries=bandSizes.reduce((s,n)=>s+n,0);
+  if(summary)summary.textContent=filtered.length+' records · '+components.length+' components · '+totalFcEntries+' fault code entries';
+
+  container.innerHTML=`<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible;display:block;min-width:${svgW}px">
+<style>
+  .fc3-lm,.fc3-mr{transition:opacity .12s,stroke-width .12s}
+  .fc3-lm.dim,.fc3-mr.dim{opacity:.03!important}
+  .fc3-lm.hi{opacity:1!important;stroke:#00f1c1}
+  .fc3-mr.hi{opacity:1!important;stroke:#f59e0b}
+  .fc3-node{cursor:pointer}
+  .fc3-node.active circle{filter:drop-shadow(0 0 5px rgba(255,255,255,.5))}
+</style>
+<text x="${lx}" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5568" font-family="inherit" letter-spacing=".06em">FAILURE MODE</text>
+<text x="${mx}" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5568" font-family="inherit" letter-spacing=".06em">COMPONENTS FITTED</text>
+<text x="${rx}" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#4a5568" font-family="inherit" letter-spacing=".06em">FAULT CODES</text>
+<g>${lmLines}</g><g>${mrLines}</g><g>${leftNode}</g><g>${compNodes}</g><g>${fcNodes}</g></svg>`;
+
+  // Hover
+  container.querySelectorAll('.fc3-node').forEach(node=>{
+    node.addEventListener('mouseenter',()=>{
+      const role=node.dataset.role,comp=node.dataset.comp,fc=node.dataset.fc;
+      container.querySelectorAll('.fc3-lm,.fc3-mr').forEach(l=>{
+        let match=false;
+        if(role==='failure')match=true;
+        else if(role==='comp')match=l.dataset.comp===comp;
+        else if(role==='fc')match=l.classList.contains('fc3-mr')&&l.dataset.comp===comp&&l.dataset.fc===fc;
+        l.classList.toggle('dim',!match);l.classList.toggle('hi',match);
+      });
+      node.classList.add('active');
+    });
+    node.addEventListener('mouseleave',()=>{
+      container.querySelectorAll('.fc3-lm,.fc3-mr').forEach(l=>{l.classList.remove('dim','hi');});
+      node.classList.remove('active');
+    });
+  });
+}
+
+
+
 
 // ── VORs Closed Tab ──────────────────────────────────────────────────
 function switchVCMode(m){_vcCumulative=(m==='cum');
@@ -5324,6 +5742,7 @@ function toggleSlicerItem(key, value){
              compCust:_compCusts,compPT:_compPTs,compSub:_compSubs,
              defCust:_defCusts,defPT:_defPTs,defSub:_defSubs,
              fcrCust:_fcrCusts,fcrPT:_fcrPTs,fcrSub:_fcrSubs,fcrLiab:_fcrLiabs,
+             cfCust:_cfCusts,cfPT:_cfPTs,cfFailure:_cfFailures,
              vcCust:_vcCusts,vcPT:_vcPTs,vcSub:_vcSubs,vcLiab:_vcLiabs,
              liabCust:_liabCusts,liabPT:_liabPTs,liabSub:_liabSubs,liabLiab:_liabLiabs,
              vorLiab:_vorLiabs,milLiab:_milLiabs,ageLiab:_ageLiabs,
@@ -5351,6 +5770,7 @@ function toggleSlicerItem(key, value){
     else if(tab==='rt')renderRepairTimeTab();
   } else if(key.startsWith('rt'))renderRepairTimeTab();
   else if(key.startsWith('fcr'))renderFCRMapTab();
+  else if(key.startsWith('cf'))renderCompFaultMapTab();
   else if(key.startsWith('vc'))renderVorClosedTab();
   else if(key.endsWith('Liab')){
     const tab=key.replace('Liab','');
@@ -5959,6 +6379,8 @@ function updateDashboard(resetSlicers=true){
   else if(_dashTab==='usage')renderUsageTab();
   else if(_dashTab==='comp')renderCompTab();
   else if(_dashTab==='fcrmap')renderFCRMapTab();
+  else if(_dashTab==='compfault')renderCompFaultMapTab();
+  else if(_dashTab==='failurechain')renderFailureChainTab();
   else if(_dashTab==='defects')renderDefectsTab();
   else if(_dashTab==='liability')renderLiabilityTab();
   else if(_dashTab==='callout')renderCalloutTab();
