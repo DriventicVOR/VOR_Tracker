@@ -274,6 +274,9 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .tab-btn:hover{color:var(--offwhite)}
 .tab-btn.active{color:var(--teal);border-bottom-color:var(--teal)}
 .tab-btn.hidden{display:none}
+.pp-period-btn{padding:4px 12px;font-size:11px;font-weight:600;border:1px solid var(--bdr2);border-radius:4px;background:none;color:var(--grey);cursor:pointer;font-family:inherit;transition:all .12s}
+.pp-period-btn:hover{color:var(--offwhite);border-color:rgba(255,255,255,.2)}
+.pp-period-btn.active{background:var(--teal2);border-color:var(--teal);color:var(--teal)}
 .tab-pane{display:none}.tab-pane.active{display:flex;flex-direction:column;gap:20px}
 .tab-group-btn{padding:0 18px;height:40px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;border:none;border-right:1px solid var(--bdr2);background:var(--navy3);color:var(--grey);font-family:inherit;transition:all .15s;white-space:nowrap}
 .tab-group-btn:hover{color:var(--offwhite);background:var(--navy4)}
@@ -351,7 +354,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.434</span></div>
+      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.437</span></div>
     </div>
     <div class="hright">
       <button class="btn btn-ghost btn-sm" onclick="openExportModal()" id="export-btn" style="display:none">&#8681; Export CSV</button>
@@ -1281,7 +1284,21 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     </div>
     <div style="flex:1;min-width:0">
       <div id="pp-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px"></div>
-      <div id="pp-chart-wrap" style="margin-bottom:20px;display:none"><canvas id="chart-partsperf"></canvas></div>
+      <div id="pp-chart-wrap" style="margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <div style="font-size:11px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:.06em">Group by</div>
+          <div id="pp-period-btns" style="display:flex;gap:4px">
+            <button class="pp-period-btn active" data-period="week" onclick="setPPPeriod(this,'week')">Week</button>
+            <button class="pp-period-btn" data-period="month" onclick="setPPPeriod(this,'month')">Month</button>
+            <button class="pp-period-btn" data-period="quarter" onclick="setPPPeriod(this,'quarter')">Quarter</button>
+            <button class="pp-period-btn" data-period="year" onclick="setPPPeriod(this,'year')">Year</button>
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--offwhite);margin-bottom:6px">Avg Lead Time (days)</div>
+        <div style="position:relative;height:220px;margin-bottom:20px"><canvas id="chart-partsperf-avg"></canvas></div>
+        <div style="font-size:11px;font-weight:600;color:var(--offwhite);margin-bottom:6px">Orders per Period</div>
+        <div style="position:relative;height:160px"><canvas id="chart-partsperf-cnt"></canvas></div>
+      </div>
       <div id="pp-table-wrap" style="overflow-x:auto"></div>
     </div>
   </div>
@@ -3258,7 +3275,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='4.434';
+const APP_VERSION='4.437';
 const APP_TOOL_KEY='dashboard';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -4822,7 +4839,7 @@ function renderFailureChainTab(){
 
 // ── Parts Performance Tab ────────────────────────────────────────────────
 // Shows working days between date ordered and date received per part order.
-let _ppCusts=null, _ppSubtypes=null;
+let _ppCusts=null, _ppSubtypes=null, _ppPeriod='week', _ppBreakdownBy=null;
 
 function renderPartsPerfTab(){
   if(_dashTab!=='partsperf')return;
@@ -4851,6 +4868,16 @@ function renderPartsPerfTab(){
   if(_ppSubtypes===null)_ppSubtypes=new Set(subtypes);
   renderSlicer('slicer-pp-customer-items',custs,_ppCusts,'ppCust');
   renderSlicer('slicer-pp-subtype-items',subtypes,_ppSubtypes,'ppSubtype');
+  // Wire slicer card clicks to toggle breakdown — clicking the card border
+  // (not the items) activates that dimension as the chart split axis,
+  // matching the behaviour of the Days VOR tab slicers.
+  [['slicer-pp-customer-items','ppCust'],['slicer-pp-subtype-items','ppSubtype']].forEach(([id,key])=>{
+    const card=document.getElementById(id)?.closest('.slicer');
+    if(card)card.onclick=e=>{
+      if(e.target.closest('.slicer-item'))return;
+      setPPBreakdown(key);
+    };
+  });
 
   // Apply slicers
   const filtered=orders.filter(o=>{
@@ -4867,6 +4894,8 @@ function renderPartsPerfTab(){
   if(!filtered.length){
     statsEl.innerHTML='';
     tableEl.innerHTML='<p style="color:var(--grey);font-size:13px;padding:20px 0">No part orders with both order and received dates found.</p>';
+    if(window._ppAvgChart){window._ppAvgChart.destroy();window._ppAvgChart=null;}
+    if(window._ppCntChart){window._ppCntChart.destroy();window._ppCntChart=null;}
     return;
   }
 
@@ -4892,6 +4921,97 @@ function renderPartsPerfTab(){
     sc('Slowest',max+'d','working days','var(--red)')+
     sc('Within 5 days',pct5+'%',within5+' of '+filtered.length+' orders',pct5>=80?'var(--green,#00c06b)':pct5>=50?'var(--amber)':'var(--red)');
 
+  // ── Lead time charts ──────────────────────────────────────────────────
+  (function(){
+    const CHART_COLORS=['#00f1c1','#f59e0b','#ef4444','#3b82f6','#a855f7','#ec4899','#10b981','#f97316','#06b6d4','#84cc16'];
+    const periodKey=o=>{
+      const d=new Date(o.dateOrdered);
+      if(_ppPeriod==='week'){const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));return mon.toISOString().slice(0,10);}
+      if(_ppPeriod==='month') return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+      if(_ppPeriod==='quarter') return d.getFullYear()+'-Q'+Math.ceil((d.getMonth()+1)/3);
+      return String(d.getFullYear());
+    };
+    const periodLabel=k=>{
+      if(_ppPeriod==='week') return 'W/c '+k;
+      if(_ppPeriod==='month'){const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('en-GB',{month:'short',year:'2-digit'});}
+      return k;
+    };
+
+    // Get all periods from filtered data
+    const allPeriodKeys=[...new Set(filtered.map(o=>periodKey(o)))].sort();
+    const labels=allPeriodKeys.map(periodLabel);
+
+    // Build datasets: one per breakdown group, or one overall
+    let groups;
+    if(_ppBreakdownBy==='ppCust'){
+      const vals=[...new Set(filtered.map(o=>o.customer).filter(Boolean))].sort();
+      groups=vals.map((v,i)=>({label:v,orders:filtered.filter(o=>o.customer===v),color:CHART_COLORS[i%CHART_COLORS.length]}));
+    } else if(_ppBreakdownBy==='ppSubtype'){
+      const vals=[...new Set(filtered.map(o=>{const r=allR.find(r=>r.ref===o.ref);return r?r.productSubType||'(none)':'(none)';}))].sort();
+      groups=vals.map((v,i)=>({label:v,orders:filtered.filter(o=>{const r=allR.find(r=>r.ref===o.ref);return (r?r.productSubType||'(none)':'(none)')===v;}),color:CHART_COLORS[i%CHART_COLORS.length]}));
+    } else {
+      groups=[{label:'Avg lead time',orders:filtered,color:'#00f1c1'}];
+    }
+
+    const avgDatasets=groups.map((g,i)=>({
+      label:g.label,
+      data:allPeriodKeys.map(k=>{
+        const arr=g.orders.filter(o=>periodKey(o)===k).map(o=>o.days);
+        return arr.length?+(arr.reduce((s,v)=>s+v,0)/arr.length).toFixed(2):null;
+      }),
+      borderColor:g.color,
+      backgroundColor:g.color+'18',
+      borderWidth:2,pointRadius:3,pointBackgroundColor:g.color,tension:.3,
+      fill:groups.length===1,spanGaps:true
+    }));
+
+    const cntDatasets=groups.map((g,i)=>({
+      label:g.label,
+      data:allPeriodKeys.map(k=>g.orders.filter(o=>periodKey(o)===k).length),
+      borderColor:g.color,
+      backgroundColor:g.color+'55',
+      borderWidth:1.5,pointRadius:2,pointBackgroundColor:g.color,tension:.3,spanGaps:true
+    }));
+
+    const commonOpts={
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:groups.length>1,position:'top',labels:{color:'#8896a8',font:{size:10},boxWidth:10,padding:10,usePointStyle:true,pointStyle:'circle'}},
+        tooltip:{backgroundColor:'#1a2234',borderColor:'rgba(255,255,255,.07)',borderWidth:1,titleColor:'#e8edf4',bodyColor:'#8896a8'}
+      },
+      scales:{
+        x:{ticks:{color:'#4a5568',font:{size:10},maxRotation:45},grid:{color:'rgba(255,255,255,.04)'}},
+        y:{ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true}
+      }
+    };
+
+    const avgCvs=document.getElementById('chart-partsperf-avg');
+    if(avgCvs){
+      if(window._ppAvgChart){window._ppAvgChart.destroy();window._ppAvgChart=null;}
+      window._ppAvgChart=new Chart(avgCvs.getContext('2d'),{
+        type:'line',data:{labels,datasets:avgDatasets},
+        options:{...commonOpts,plugins:{...commonOpts.plugins,
+          tooltip:{...commonOpts.plugins.tooltip,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw!==null?ctx.raw+'d':'—'}`}}},
+          scales:{...commonOpts.scales,y:{...commonOpts.scales.y,
+            ticks:{...commonOpts.scales.y.ticks,callback:v=>v+'d'},
+            title:{display:true,text:'Avg lead time (days)',color:'#8896a8',font:{size:10}}}}}
+      });
+    }
+
+    const cntCvs=document.getElementById('chart-partsperf-cnt');
+    if(cntCvs){
+      if(window._ppCntChart){window._ppCntChart.destroy();window._ppCntChart=null;}
+      window._ppCntChart=new Chart(cntCvs.getContext('2d'),{
+        type:'line',data:{labels,datasets:cntDatasets},
+        options:{...commonOpts,plugins:{...commonOpts.plugins,
+          tooltip:{...commonOpts.plugins.tooltip,callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw} orders`}}},
+          scales:{...commonOpts.scales,y:{...commonOpts.scales.y,
+            title:{display:true,text:'Orders',color:'#8896a8',font:{size:10}}}}}
+      });
+    }
+  })();
+
   // Table — sorted slowest first
   const sorted=[...filtered].sort((a,b)=>b.days-a.days);
   const dayCol=d=>d<=5?'var(--green,#00c06b)':d<=10?'var(--amber)':'var(--red)';
@@ -4915,6 +5035,15 @@ function renderPartsPerfTab(){
 }
 function ppCust(v){_ppCusts.has(v)?_ppCusts.delete(v):_ppCusts.add(v);renderPartsPerfTab();}
 function ppSubtype(v){_ppSubtypes.has(v)?_ppSubtypes.delete(v):_ppSubtypes.add(v);renderPartsPerfTab();}
+function setPPPeriod(btn,period){
+  _ppPeriod=period;
+  document.querySelectorAll('.pp-period-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  renderPartsPerfTab();
+}
+function setPPBreakdown(key){
+  _ppBreakdownBy=(_ppBreakdownBy===key)?null:key;
+  renderPartsPerfTab();
+}
 
 
 
@@ -5824,7 +5953,7 @@ function renderSlicer(containerId, items, selectedSet, key){
   // Highlight slicer container border if it's the active graph group
   const slicerCard = wrap.closest('.slicer');
   if(slicerCard){
-    if(_vorGraphGroup===key){
+    if(_vorGraphGroup===key||_ppBreakdownBy===key){
       slicerCard.style.borderColor='var(--teal)';
       slicerCard.style.boxShadow='0 0 0 1px var(--teal)';
     } else {
