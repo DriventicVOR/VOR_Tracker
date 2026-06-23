@@ -392,7 +392,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.216</div>
+      <div class="h-ver">v3.221</div>
     </div>
   </div>
   <div class="h-right">
@@ -509,7 +509,21 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
           <label>Actually VOR</label>
           <select id="e-actually-vor"><option value="">Select…</option><option value="Y">Y</option><option value="N">N</option></select>
         </div>
-        <div id="combined-visits-list"></div>
+        <!-- Interim visits section -->
+        <div id="interim-visits-section" style="display:none">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin:12px 0 6px">Interim Visits</div>
+          <div id="interim-visits-list"></div>
+        </div>
+        <!-- Parts ordered section -->
+        <div id="parts-ordered-section" style="display:none">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin:12px 0 6px">Parts Ordered</div>
+          <div id="parts-ordered-list"></div>
+        </div>
+        <!-- Datalogger section -->
+        <div id="datalogger-section" style="display:none">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin:12px 0 6px">Datalogger</div>
+          <div id="datalogger-list"></div>
+        </div>
         <div style="margin-top:8px">
           <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewInterimVisit()">+ Add interim visit</button>
           <button type="button" class="btn ghost sm" style="margin:4px 0" onclick="addNewPartsOrdered()">+ Parts ordered</button>
@@ -1375,7 +1389,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.216';
+const APP_VERSION='3.221';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2378,18 +2392,35 @@ function _syncCombinedFromDOM(){
 
 function renderCombinedList(){
   _syncCombinedFromDOM();
-  var list=document.getElementById('combined-visits-list');
-  if(!list)return;
-  var sorted=_combinedItems.slice().sort(function(a,b){
-    var da=a.date||'9999'; var db=b.date||'9999';
-    return da.localeCompare(db);
+  var interimList=document.getElementById('interim-visits-list');
+  var partsList=document.getElementById('parts-ordered-list');
+  var dataloggerList=document.getElementById('datalogger-list');
+  if(!interimList||!partsList||!dataloggerList)return;
+
+  interimList.innerHTML='';
+  partsList.innerHTML='';
+  dataloggerList.innerHTML='';
+
+  _combinedItems.forEach(function(item){
+    if(item.type==='interim')         _renderInterimCard(interimList,item);
+    else if(item.type==='parts')      _renderPartsCard(partsList,item);
+    else if(item.type==='emob')       _renderEmobCard(partsList,item);
+    else if(item.type==='datalogger') _renderDataloggerCard(dataloggerList,item);
   });
-  list.innerHTML='';
-  sorted.forEach(function(item){
-    if(item.type==='interim')     _renderInterimCard(list,item);
-    else if(item.type==='parts')  _renderPartsCard(list,item);
-    else if(item.type==='emob')   _renderEmobCard(list,item);
-    else if(item.type==='datalogger') _renderDataloggerCard(list,item);
+
+  var interimSec=document.getElementById('interim-visits-section');
+  var partsSec=document.getElementById('parts-ordered-section');
+  var dataloggerSec=document.getElementById('datalogger-section');
+  if(interimSec)interimSec.style.display=interimList.children.length?'':'none';
+  if(partsSec)partsSec.style.display=partsList.children.length?'':'none';
+  if(dataloggerSec)dataloggerSec.style.display=dataloggerList.children.length?'':'none';
+}
+
+function _sortCombinedByDate(){
+  _combinedItems.sort(function(a,b){
+    var da=a.date||a.dateOrdered||'9999';
+    var db=b.date||b.dateOrdered||'9999';
+    return da.localeCompare(db);
   });
 }
 
@@ -2435,10 +2466,10 @@ function _renderPartsCard(list,item){
     +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:3px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-    +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" list="pl-datalist" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
     +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
     +'</div>';
   list.appendChild(div);
 }
@@ -2646,7 +2677,7 @@ async function loadRecord(){
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
-  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
     sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
@@ -3802,7 +3833,17 @@ async function _sendPartsRequestEmail(){
     const desc=_desc?(_desc.description||'').trim():'';
     return (qty?qty+' x ':'')+pn+(desc?' - '+desc:'');
   });
-  unrequested.forEach(function(p){p.requested=true;});
+  var _today=new Date().toISOString().slice(0,10);
+  unrequested.forEach(function(p){
+    p.requested=true;
+    // Auto-fill dateOrdered with today if not already set
+    if(!p.dateOrdered&&!p.date){
+      p.dateOrdered=_today;
+      p.date=_today;
+      var _el=document.getElementById('po-date-ordered-'+p.idx);
+      if(_el)_el.value=_today;
+    }
+  });
   renderCombinedList();
   // Write requested:true back to the saved record directly
   if(currentRef){
@@ -3814,6 +3855,7 @@ async function _sendPartsRequestEmail(){
         _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(item){
           if(_fresh[_ri].partsOrdered[_pi]){
             _fresh[_ri].partsOrdered[_pi].requested=item.requested;
+            if(item.dateOrdered)_fresh[_ri].partsOrdered[_pi].dateOrdered=item.dateOrdered;
             if(_fresh[_ri].partsOrdered[_pi].dateExpected!==undefined)delete _fresh[_ri].partsOrdered[_pi].dateExpected;
           }
           _pi++;
@@ -3886,13 +3928,24 @@ async function requestParts(){
   });
   const body=lines.join('\n');
   // Mark as requested
-  unrequested.forEach(function(p){p.requested=true;});
+  var _today=new Date().toISOString().slice(0,10);
+  unrequested.forEach(function(p){
+    p.requested=true;
+    // Auto-fill dateOrdered with today if not already set
+    if(!p.dateOrdered&&!p.date){
+      p.dateOrdered=_today;
+      p.date=_today;
+      var _el=document.getElementById('po-date-ordered-'+p.idx);
+      if(_el)_el.value=_today;
+    }
+  });
   // Sync requested state into _pendingRecord so the save writes the correct value
   if(window._pendingRecord&&window._pendingRecord.partsOrdered){
     var _pi=0;
     _combinedItems.filter(function(x){return x.type==='parts';}).forEach(function(item){
       if(_pendingRecord.partsOrdered[_pi]){
         _pendingRecord.partsOrdered[_pi].requested=item.requested;
+        if(item.dateOrdered)_pendingRecord.partsOrdered[_pi].dateOrdered=item.dateOrdered;
       }
       _pi++;
     });
