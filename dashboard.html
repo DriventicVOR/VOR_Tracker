@@ -277,6 +277,11 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .pp-period-btn{padding:4px 12px;font-size:11px;font-weight:600;border:1px solid var(--bdr2);border-radius:4px;background:none;color:var(--grey);cursor:pointer;font-family:inherit;transition:all .12s}
 .pp-period-btn:hover{color:var(--offwhite);border-color:rgba(255,255,255,.2)}
 .pp-period-btn.active{background:var(--teal2);border-color:var(--teal);color:var(--teal)}
+.fr-mode-btn{padding:6px 16px;font-size:11px;font-weight:700;border:1px solid var(--bdr2);background:var(--navy3);color:var(--grey);cursor:pointer;font-family:inherit;transition:all .12s;text-transform:uppercase;letter-spacing:.05em}
+.fr-mode-btn:first-child{border-radius:5px 0 0 5px}
+.fr-mode-btn:last-child{border-radius:0 5px 5px 0;border-left:none}
+.fr-mode-btn:hover{color:var(--offwhite);background:var(--navy4)}
+.fr-mode-btn.active{background:var(--teal2);border-color:var(--teal);color:var(--teal)}
 .tab-pane{display:none}.tab-pane.active{display:flex;flex-direction:column;gap:20px}
 .tab-group-btn{padding:0 18px;height:40px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;border:none;border-right:1px solid var(--bdr2);background:var(--navy3);color:var(--grey);font-family:inherit;transition:all .15s;white-space:nowrap}
 .tab-group-btn:hover{color:var(--offwhite);background:var(--navy4)}
@@ -288,6 +293,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .slicer-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
   color:var(--grey);margin-bottom:8px}
 .slicer-items{display:flex;flex-direction:column;gap:3px}
+.slicer-items-h{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}
 .slicer-item{padding:5px 10px;border-radius:3px;cursor:pointer;font-size:12px;font-weight:500;
   color:var(--grey);transition:all .12s;user-select:none;white-space:nowrap}
 .slicer-item:hover{background:var(--navy3);color:var(--offwhite)}
@@ -354,7 +360,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.438</span></div>
+      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.462</span></div>
     </div>
     <div class="hright">
       <button class="btn btn-ghost btn-sm" onclick="openExportModal()" id="export-btn" style="display:none">&#8681; Export CSV</button>
@@ -416,6 +422,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('failurechain')">Failure Chain</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('defects')">Defects</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('usage')">Vehicle Usage</button>
+    <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('failurerate')">Failure Rate</button>
   </div>
 
   <!-- Overview tab -->
@@ -1305,6 +1312,81 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 </div>
 
   
+<div id="tab-failurerate" class="tab-pane">
+  <!-- Controls row -->
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:20px">
+    <!-- Mode toggle -->
+    <div style="display:flex;gap:0">
+      <button class="fr-mode-btn active" id="fr-mode-global" onclick="setFRMode('global',this)">Call Out Rate</button>
+      <button class="fr-mode-btn" id="fr-mode-comp" onclick="setFRMode('comp',this)">By Component</button>
+    </div>
+    <!-- Product subtype dropdown -->
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey)">Product Subtype</span>
+      <select id="fr-subtype-sel" onchange="renderFailureRateTab()" style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:5px;padding:4px 10px;color:var(--offwhite);font-size:12px;font-family:inherit;min-width:180px">
+        <option value="">All</option>
+      </select>
+    </div>
+    <!-- Mileage / Age view toggle -->
+    <div style="display:flex;gap:0">
+      <button class="fr-mode-btn active" id="fr-view-mil" onclick="setFRView('mil',this)">Mileage</button>
+      <button class="fr-mode-btn" id="fr-view-age" onclick="setFRView('age',this)">Age</button>
+    </div>
+    <!-- Mileage unit (shown in mileage view) -->
+    <div id="fr-mil-unit-wrap" style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey)">Per</span>
+      <select id="fr-mil-unit" onchange="renderFailureRateTab()" style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:5px;padding:4px 8px;color:var(--offwhite);font-size:12px;font-family:inherit">
+        <option value="1000">1,000 miles</option>
+        <option value="5000">5,000 miles</option>
+        <option value="10000" selected>10,000 miles</option>
+        <option value="25000">25,000 miles</option>
+        <option value="50000">50,000 miles</option>
+        <option value="100000">100,000 miles</option>
+      </select>
+    </div>
+    <!-- Age unit (shown in age view) -->
+    <div id="fr-age-unit-wrap" style="display:none;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey)">Per</span>
+      <select id="fr-age-unit" onchange="renderFailureRateTab()" style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:5px;padding:4px 8px;color:var(--offwhite);font-size:12px;font-family:inherit">
+        <option value="30">Month</option>
+        <option value="91">Quarter</option>
+        <option value="365" selected>Year</option>
+      </select>
+    </div>
+    <!-- Group by (call out rate mode) -->
+    <div id="fr-group-wrap" style="display:flex;align-items:center;gap:6px">
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey)">Group by</span>
+      <select id="fr-group-sel" onchange="renderFailureRateTab()" style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:5px;padding:4px 8px;color:var(--offwhite);font-size:12px;font-family:inherit">
+        <option value="">None</option>
+        <option value="operator">Operator</option>
+        <option value="customer">Customer</option>
+        <option value="region">Region</option>
+        <option value="productType">Product Type</option>
+        <option value="productSubType">Product Sub-type</option>
+        <option value="failure">Failure Type</option>
+      </select>
+    </div>
+  </div>
+  <!-- Stats + table -->
+  <div style="display:flex;gap:24px;align-items:stretch;flex-wrap:wrap;margin-bottom:20px">
+    <div style="flex:0 0 auto;max-width:100%">
+      <div id="fr-stats" style="display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px"></div>
+    </div>
+    <div id="fr-chart-wrap" style="flex:1;min-width:300px;display:none;flex-direction:column">
+      <div id="fr-chart-label" style="font-size:11px;font-weight:600;color:var(--offwhite);margin-bottom:8px">Rate by Product Subtype</div>
+      <div style="position:relative;flex:1;min-height:200px" id="fr-canvas-wrap"><canvas id="chart-failurerate"></canvas></div>
+      <div style="margin-top:12px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--grey);margin-bottom:6px">Filter Subtypes</div>
+        <div id="slicer-fr-subtype-items" class="slicer-items-h"></div>
+      </div>
+    </div>
+  </div>
+  <div id="fr-comp-chart-wrap" style="display:none;margin-bottom:20px">
+    <div id="fr-comp-chart-label" style="font-size:11px;font-weight:600;color:var(--offwhite);margin-bottom:8px"></div>
+    <div style="position:relative;height:320px"><canvas id="chart-fr-comp"></canvas></div>
+  </div>
+  <div id="fr-table-wrap" style="overflow-x:auto"></div>
+</div>
 <div id="tab-parts" class="tab-pane">
   <div style="padding:20px 0">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
@@ -3275,7 +3357,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='4.438';
+const APP_VERSION='4.462';
 const APP_TOOL_KEY='dashboard';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -4346,7 +4428,7 @@ function switchTabGroup(group){
     b.classList.toggle('hidden',bg!=='both'&&bg!==group);
   });
   // If current tab doesn't belong to this group, switch to overview
-  const engTabs=new Set(['age','fcrmap','compfault','failurechain','usage','comp','defects','mileage','parts']);
+  const engTabs=new Set(['age','fcrmap','compfault','failurechain','usage','comp','defects','mileage','parts','failurerate']);
   const mgmtTabs=new Set(['overview','vorclosed','vordays','repairtime','uptime','callout','liability','map','currentlyor','partsperf']);
   const inGroup=group==='eng'?engTabs.has(_dashTab)||_dashTab==='overview':mgmtTabs.has(_dashTab)||_dashTab==='overview';
   if(!inGroup) switchDashTab('overview');
@@ -4370,6 +4452,8 @@ function switchDashTab(tab){
   if(tab==='compfault')renderCompFaultMapTab();
   document.getElementById('tab-failurechain').classList.toggle('active',tab==='failurechain');
   if(tab==='failurechain')renderFailureChainTab();
+  document.getElementById('tab-failurerate').classList.toggle('active',tab==='failurerate');
+  if(tab==='failurerate')renderFailureRateTab();
   document.getElementById('tab-defects').classList.toggle('active', tab==='defects');
   document.getElementById('tab-liability').classList.toggle('active', tab==='liability');
   document.getElementById('tab-callout').classList.toggle('active', tab==='callout');
@@ -5043,6 +5127,343 @@ function setPPPeriod(btn,period){
 function setPPBreakdown(key){
   _ppBreakdownBy=(_ppBreakdownBy===key)?null:key;
   renderPartsPerfTab();
+}
+
+
+// ── Failure Rate Tab ──────────────────────────────────────────────────────
+let _frMode='global',_frView='mil',_frSubtypes=null;
+
+function setFRMode(mode,btn){
+  _frMode=mode;
+  document.querySelectorAll('.fr-mode-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  renderFailureRateTab();
+}
+function setFRView(view,btn){
+  _frView=view;
+  document.getElementById('fr-view-mil')?.classList.toggle('active',view==='mil');
+  document.getElementById('fr-view-age')?.classList.toggle('active',view==='age');
+  const mw=document.getElementById('fr-mil-unit-wrap');
+  const aw=document.getElementById('fr-age-unit-wrap');
+  if(mw)mw.style.display=view==='mil'?'flex':'none';
+  if(aw)aw.style.display=view==='age'?'flex':'none';
+  renderFailureRateTab();
+}
+function renderFailureRateTab(){
+  if(_dashTab!=='failurerate')return;
+  const allR=getFiltered();
+  // Compute _ageDays for each record (days from vehicle entry-to-service to date reported)
+  allR.forEach(r=>{
+    if(r.dateService&&r.dateReported){
+      const diff=(new Date(r.dateReported)-new Date(r.dateService))/(1000*60*60*24);
+      r._ageDays=diff>=0?Math.round(diff):null;
+    } else { r._ageDays=null; }
+  });
+  const milUnit=parseInt(document.getElementById('fr-mil-unit')?.value||10000);
+  const ageDays=parseInt(document.getElementById('fr-age-unit')?.value||365);
+  const ageLabel=ageDays===30?'month':ageDays===91?'quarter':'year';
+  const milLabel=Number(milUnit).toLocaleString()+' miles';
+
+  // Product subtype dropdown
+  const sel=document.getElementById('fr-subtype-sel');
+  const subtypes=[...new Set(allR.map(r=>r.productSubType||'').filter(Boolean))].sort();
+  if(sel){
+    const cur=sel.value;
+    sel.innerHTML='<option value="">All</option>'+subtypes.map(s=>`<option value="${s}"${s===cur?' selected':''}>${s}</option>`).join('');
+  }
+  const selectedSubtype=sel?sel.value:'';
+  const groupSel=document.getElementById('fr-group-sel')?.value||'';
+
+  // Show/hide group dropdown — only relevant in call-out-rate mode
+  const groupWrap=document.getElementById('fr-group-wrap');
+  if(groupWrap)groupWrap.style.display=_frMode==='global'?'':'none';
+
+  // Fleet = all records matching selected subtype
+  const fleet=selectedSubtype?allR.filter(r=>(r.productSubType||'')===selectedSubtype):allR;
+  const totalFleetMil=fleet.filter(r=>parseFloat(r.mileage)>0).reduce((s,r)=>s+parseFloat(r.mileage),0);
+  const totalFleetAge=fleet.filter(r=>r._ageDays>0).reduce((s,r)=>s+r._ageDays,0);
+
+  const statsEl=document.getElementById('fr-stats');
+  const tableEl=document.getElementById('fr-table-wrap');
+  if(!statsEl||!tableEl)return;
+
+  const sc=(label,val,sub,col)=>`<div style="background:var(--navy3);border:1px solid var(--bdr2);border-radius:8px;padding:14px 16px">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:6px">${label}</div>
+    <div style="font-size:22px;font-weight:700;color:${col||'var(--offwhite)'};">${val}</div>
+    ${sub?`<div style="font-size:11px;color:var(--grey);margin-top:3px">${sub}</div>`:''}
+  </div>`;
+  const rate=(n,d,u)=>d>0?((n/d)*u).toFixed(3):'—';
+  const rateCol=v=>v==='—'?'var(--grey)':parseFloat(v)<0.5?'var(--green,#00c06b)':parseFloat(v)<2?'var(--amber,#f59e0b)':'var(--red)';
+  const getGroup=r=>{
+    if(!groupSel)return 'All';
+    if(groupSel==='customer')return r._customerName||r._customer||'Unknown';
+    return r[groupSel]||'Unknown';
+  };
+
+  if(_frMode==='global'){
+    // CAT 1 liability records = records where liabLabel(voithFault) === 'CAT 1'
+    const failures=fleet.filter(r=>liabLabel(r.voithFault)==='CAT 1');
+    const failures2=fleet.filter(r=>liabLabel(r.voithFault)==='CAT 2');
+    const failures3=fleet.filter(r=>liabLabel(r.voithFault)==='CAT 3');
+
+    // Shared fleet denominator: latest record per vehicle across ALL fleet records.
+    // All categories use the same denominator so rates are comparable and additive.
+    const latestPerVehicle=recs=>{
+      const vMap={};
+      recs.forEach(r=>{
+        const vid=(r.vehicle||r.fleetNumber||'').trim().toUpperCase()||('_ref_'+r.ref);
+        const dt=new Date(r.dateReported||r.dateCreated||0).getTime();
+        if(!vMap[vid]||dt>vMap[vid]._latestDt) vMap[vid]={...r,_latestDt:dt};
+      });
+      return Object.values(vMap);
+    };
+    const fleetLatest=latestPerVehicle(fleet);
+    const sharedMil=fleetLatest.filter(r=>parseFloat(r.mileage)>0).reduce((s,r)=>s+parseFloat(r.mileage),0);
+    const sharedAge=fleetLatest.filter(r=>r._ageDays>0).reduce((s,r)=>s+r._ageDays,0);
+    // catMil / catAge now return the shared fleet denominator (same for all categories)
+    const catMil=_f=>sharedMil;
+    const catAge=_f=>sharedAge;
+
+    // Helper: build a row of cards for one category using latest-per-vehicle denominators
+    const catRow=(label,f,col)=>{
+      const n=f.length;
+      const cMil=catMil(f);
+      const cAge=catAge(f);
+      if(_frView==='mil'){
+        const r1=rate(n,cMil,milUnit);
+        const mpf=n>0&&cMil>0?Math.round(cMil/n).toLocaleString()+'mi':'—';
+        return `<div style="display:contents">
+          ${sc('Call-outs',n,label+' liability records',col)}
+          ${sc(`Per ${milLabel}`,r1,`${Math.round(cMil).toLocaleString()} mi fleet total`,col)}
+          ${sc('Miles per call-out',mpf,'fleet miles per '+label+' event',col)}
+        </div>`;
+      } else {
+        const r1=rate(n,cAge,ageDays);
+        const ypf=n>0&&cAge>0?((cAge/365)/n).toFixed(2)+'yr':'—';
+        return `<div style="display:contents">
+          ${sc('Call-outs',n,label+' liability records',col)}
+          ${sc(`Per ${ageLabel}`,r1,`${Math.round(cAge/365)} yr-equiv fleet total`,col)}
+          ${sc('Years per call-out',ypf,'fleet-years per '+label+' event',col)}
+        </div>`;
+      }
+    };
+    const allFailures=[...failures,...failures2,...failures3];
+    const divLabel=(label,col)=>`<div style="grid-column:1/-1;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${col};margin:8px 0 4px">${label}</div>`;
+    const separator=`<div style="grid-column:1/-1;border-top:1px solid var(--bdr2);margin:12px 0 4px"></div>`;
+
+    if(!groupSel){
+      statsEl.innerHTML=
+        divLabel('All Categories','var(--offwhite)')
+        +catRow('All',allFailures,'var(--offwhite)')
+        +separator
+        +divLabel('CAT 1','var(--teal)')
+        +catRow('CAT 1',failures,'var(--teal)')
+        +divLabel('CAT 2','var(--amber,#f59e0b)')
+        +catRow('CAT 2',failures2,'var(--amber,#f59e0b)')
+        +divLabel('CAT 3','var(--grey)')
+        +catRow('CAT 3',failures3,'var(--grey)');
+      tableEl.innerHTML='';
+      const _ccw=document.getElementById('fr-comp-chart-wrap');
+      if(_ccw)_ccw.style.display='none';
+
+      // ── Subtype bar chart ──────────────────────────────────────────────
+      const chartWrap=document.getElementById('fr-chart-wrap');
+      const chartLbl=document.getElementById('fr-chart-label');
+      if(chartWrap){
+        const subtypesAll=[...new Set(allR.map(r=>r.productSubType||'(none)'))].sort();
+        // Per-subtype denominators for the chart (latest per vehicle within each subtype)
+        const subtypeMil=st=>{
+          const stRecs=allR.filter(r=>(r.productSubType||'(none)')===st);
+          const lv=latestPerVehicle(stRecs);
+          return lv.filter(r=>parseFloat(r.mileage)>0).reduce((s,r)=>s+parseFloat(r.mileage),0);
+        };
+        const subtypeAge=st=>{
+          const stRecs=allR.filter(r=>(r.productSubType||'(none)')===st);
+          const lv=latestPerVehicle(stRecs);
+          return lv.filter(r=>r._ageDays>0).reduce((s,r)=>s+r._ageDays,0);
+        };
+        // Slicer init and render
+        if(_frSubtypes===null)_frSubtypes=new Set(subtypesAll);
+        else _frSubtypes=new Set([...subtypesAll].filter(s=>_frSubtypes.has(s)));
+        if(!_frSubtypes.size)_frSubtypes=new Set(subtypesAll);
+        const slEl=document.getElementById('slicer-fr-subtype-items');
+        if(slEl)slEl.innerHTML=subtypesAll.map(v=>`<div class="slicer-item${_frSubtypes.has(v)?' active':''}" onclick="toggleSlicerItem('frSubtype','${v.replace(/'/g,"\\'")}') ">${v}</div>`).join('');
+        const subtypes=subtypesAll.filter(st=>_frSubtypes.has(st));
+        const chartFailures=allR.filter(r=>liabLabel(r.voithFault)==='CAT 1');
+        const chartFailures2=allR.filter(r=>liabLabel(r.voithFault)==='CAT 2');
+        const chartFailures3=allR.filter(r=>liabLabel(r.voithFault)==='CAT 3');
+        const catGroups=[
+          {cat:'CAT 1',recs:chartFailures,col:'#00f1c1'},
+          {cat:'CAT 2',recs:chartFailures2,col:'#f59e0b'},
+          {cat:'CAT 3',recs:chartFailures3,col:'#8896a8'},
+        ];
+        const datasets=catGroups.map(g=>({
+          label:g.cat,
+          backgroundColor:g.col+'88',
+          borderColor:g.col,
+          borderWidth:1.5,
+          borderRadius:3,
+          data:subtypes.map(st=>{
+            const sf=g.recs.filter(r=>(r.productSubType||'(none)')===st);
+            if(!sf.length)return null;
+            const denom=_frView==='mil'?subtypeMil(st):subtypeAge(st);
+            const unit=_frView==='mil'?milUnit:ageDays;
+            return denom>0?+((sf.length/denom)*unit).toFixed(3):null;
+          }),
+        }));
+        const yLabel=_frView==='mil'?`Call-outs per ${milLabel}`:`Call-outs per ${ageLabel}`;
+        if(chartLbl)chartLbl.textContent=yLabel+' — by Product Subtype';
+        chartWrap.style.display='';
+        const cvs=document.getElementById('chart-failurerate');
+        if(cvs){
+          if(window._frChart){window._frChart.destroy();window._frChart=null;}
+          // Size canvas container to match stats height before creating chart
+          const statsH=document.getElementById('fr-stats')?.offsetHeight||0;
+          const lblH=document.getElementById('fr-chart-label')?.offsetHeight||0;
+          const slH=document.getElementById('slicer-fr-subtype-items')?.parentElement?.offsetHeight||0;
+          const cvsWrap=document.getElementById('fr-canvas-wrap');
+          if(cvsWrap&&statsH>0)cvsWrap.style.height=Math.max(200,statsH-lblH-slH-24)+'px';
+          window._frChart=new Chart(cvs.getContext('2d'),{
+            type:'bar',
+            data:{labels:subtypes,datasets},
+            options:{
+              responsive:true,maintainAspectRatio:false,
+              interaction:{mode:'index',intersect:false},
+              plugins:{
+                legend:{display:true,position:'top',labels:{color:'#8896a8',font:{size:10},boxWidth:10,padding:10,usePointStyle:true,pointStyle:'circle'}},
+                tooltip:{backgroundColor:'#1a2234',borderColor:'rgba(255,255,255,.07)',borderWidth:1,titleColor:'#e8edf4',bodyColor:'#8896a8',
+                  callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.raw!==null?ctx.raw:'—'}`}}
+              },
+              scales:{
+                x:{ticks:{color:'#4a5568',font:{size:10},maxRotation:35},grid:{color:'rgba(255,255,255,.04)'}},
+                y:{ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},beginAtZero:true,
+                   title:{display:true,text:yLabel,color:'#8896a8',font:{size:10}}}
+              }
+            }
+          });
+        }
+      }
+    } else {
+      // Group breakdown table
+      const _cw=document.getElementById('fr-chart-wrap');
+      if(_cw){_cw.style.display='none';if(window._frChart){window._frChart.destroy();window._frChart=null;}}
+      const _ccw2=document.getElementById('fr-comp-chart-wrap');
+      if(_ccw2)_ccw2.style.display='none';
+      statsEl.innerHTML=
+        sc('Fleet records',fleet.length,'total records in selection')+
+        sc('CAT 1 call-outs',failures.length,'CAT 1 liability records');
+
+      const groups={};
+      failures.forEach(r=>{const g=getGroup(r);if(!groups[g])groups[g]={n:0,mil:0,age:0};groups[g].n++;});
+      fleet.forEach(r=>{
+        const g=getGroup(r);
+        if(!groups[g])return;
+        if(parseFloat(r.mileage)>0)groups[g].mil+=parseFloat(r.mileage);
+        if(r._ageDays>0)groups[g].age+=r._ageDays;
+      });
+      const rows=Object.entries(groups).sort((a,b)=>b[1].n-a[1].n);
+
+      const groupLabel={'operator':'Operator','customer':'Customer','region':'Region',
+        'productType':'Product Type','productSubType':'Product Sub-type','failure':'Failure Type'}[groupSel]||groupSel;
+
+      let html=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>`+
+        [groupLabel,'Call-outs',...(_frView==='mil'?[`Per ${milLabel}`]:[`Per ${ageLabel}`,'Years per failure'])].map((h,i)=>
+          `<th style="padding:8px 10px;text-align:${i===0?'left':'center'};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);border-bottom:1px solid var(--bdr2);white-space:nowrap">${h}</th>`
+        ).join('')+'</tr></thead><tbody>';
+      rows.forEach(([g,v])=>{
+        const mr=rate(v.n,v.mil,milUnit),ar=rate(v.n,v.age,ageDays);
+        html+=`<tr style="border-bottom:1px solid var(--bdr)">
+          <td style="padding:7px 10px;color:var(--offwhite);font-weight:500">${g}</td>
+          <td style="padding:7px 10px;color:var(--teal);font-weight:700;text-align:center">${v.n}</td>
+          ${_frView==='mil'
+            ?`<td style="padding:7px 10px;font-weight:700;text-align:center;color:${rateCol(mr)}">${mr}</td>`
+            :`<td style="padding:7px 10px;font-weight:700;text-align:center;color:${rateCol(ar)}">${ar}</td>
+              <td style="padding:7px 10px;color:var(--grey);text-align:center">${v.n>0&&v.age>0?((v.age/365)/v.n).toFixed(2)+'yr':'—'}</td>`}
+        </tr>`;
+      });
+      html+='</tbody></table>';
+      tableEl.innerHTML=html;
+    }
+
+  } else {
+    // By Component
+    const _cw2=document.getElementById('fr-chart-wrap');
+    if(_cw2)_cw2.style.display='none';
+    statsEl.innerHTML=
+      sc('Fleet records',fleet.length,'total records in selection')+
+      sc('Total fleet mileage',totalFleetMil>0?Math.round(totalFleetMil).toLocaleString()+'mi':'—','denominator')+
+      sc('Total fleet-age',totalFleetAge>0?Math.round(totalFleetAge/365)+'yr-equiv':'—','denominator');
+
+    const allComps=[...new Set(fleet.flatMap(r=>(r.components||[]).map(co=>typeof co==='string'?co.trim():(co&&co.name?co.name.trim():'')).filter(Boolean)))].sort();
+    if(!allComps.length){
+      tableEl.innerHTML='<p style="color:var(--grey);font-size:13px;padding:20px 0">No components found in the selected fleet records.</p>';
+      return;
+    }
+    const rows=allComps.map(comp=>{
+      const n=fleet.filter(r=>(r.components||[]).some(co=>(typeof co==='string'?co.trim():(co&&co.name?co.name.trim():''))===comp)).length;
+      const mr=rate(n,totalFleetMil,milUnit);
+      const milesPerFailure=n>0&&totalFleetMil>0?(totalFleetMil/n).toFixed(0):'—';
+      return{comp,n,milRate:mr,milesPerFailure,ageRate:rate(n,totalFleetAge,ageDays)};
+    }).sort((a,b)=>b.n-a.n);
+
+    let html=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>`+
+      ['Component','Appearances',...(_frView==='mil'?[`Per ${milLabel}`,'Miles per failure']:[`Per ${ageLabel}`,'Years per failure'])].map((h,i)=>
+        `<th style="padding:8px 10px;text-align:${i===0?'left':'center'};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--grey);border-bottom:1px solid var(--bdr2);white-space:nowrap">${h}</th>`
+      ).join('')+'</tr></thead><tbody>';
+    rows.forEach(r=>{
+      html+=`<tr style="border-bottom:1px solid var(--bdr)">
+        <td style="padding:7px 10px;color:var(--offwhite);font-weight:500">${r.comp}</td>
+        <td style="padding:7px 10px;color:var(--teal);font-weight:700;text-align:center">${r.n}</td>
+        ${_frView==='mil'
+          ?`<td style="padding:7px 10px;font-weight:700;text-align:center;color:${rateCol(r.milRate)}">${r.milRate}</td><td style="padding:7px 10px;color:var(--grey);text-align:center">${r.milesPerFailure==='—'?'—':Number(r.milesPerFailure).toLocaleString()+'mi'}</td>`
+          :`<td style="padding:7px 10px;font-weight:700;text-align:center;color:${rateCol(r.ageRate)}">${r.ageRate}</td><td style="padding:7px 10px;color:var(--grey);text-align:center">${r.n>0&&totalFleetAge>0?((totalFleetAge/365)/r.n).toFixed(2)+'yr':'—'}</td>`}
+      </tr>`;
+    });
+    html+='</tbody></table>';
+    tableEl.innerHTML=html;
+
+    // ── Component failure rate chart ──────────────────────────────────────
+    const compChartWrap=document.getElementById('fr-comp-chart-wrap');
+    const compChartLbl=document.getElementById('fr-comp-chart-label');
+    if(compChartWrap&&rows.length){
+      const yLabel=_frView==='mil'?`Failures per ${milLabel}`:`Failures per ${ageLabel}`;
+      if(compChartLbl)compChartLbl.textContent=yLabel;
+      compChartWrap.style.display='';
+      const cvs=document.getElementById('chart-fr-comp');
+      if(cvs){
+        if(window._frCompChart){window._frCompChart.destroy();window._frCompChart=null;}
+        window._frCompChart=new Chart(cvs.getContext('2d'),{
+          type:'bar',
+          data:{
+            labels:rows.map(r=>r.comp.length>22?r.comp.slice(0,20)+'…':r.comp),
+            datasets:[{
+              label:yLabel,
+              data:rows.map(r=>_frView==='mil'?parseFloat(r.milRate)||0:parseFloat(r.ageRate)||0),
+              backgroundColor:'#00f1c188',
+              borderColor:'#00f1c1',
+              borderWidth:1.5,
+              borderRadius:3,
+            }]
+          },
+          options:{
+            responsive:true,maintainAspectRatio:false,
+            plugins:{
+              legend:{display:false},
+              tooltip:{backgroundColor:'#1a2234',borderColor:'rgba(255,255,255,.07)',borderWidth:1,
+                titleColor:'#e8edf4',bodyColor:'#8896a8',
+                callbacks:{label:ctx=>` ${ctx.raw} per ${_frView==='mil'?milLabel:ageLabel}`}}
+            },
+            scales:{
+              x:{ticks:{color:'#4a5568',font:{size:10},maxRotation:40},grid:{color:'rgba(255,255,255,.04)'}},
+              y:{ticks:{color:'#4a5568',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},
+                 beginAtZero:true,title:{display:true,text:yLabel,color:'#8896a8',font:{size:10}}}
+            }
+          }
+        });
+      }
+    } else if(compChartWrap){
+      compChartWrap.style.display='none';
+    }
+  }
 }
 
 
@@ -5980,7 +6401,8 @@ function toggleSlicerItem(key, value){
              defCust:_defCusts,defPT:_defPTs,defSub:_defSubs,
              fcrCust:_fcrCusts,fcrPT:_fcrPTs,fcrSub:_fcrSubs,fcrLiab:_fcrLiabs,
              cfCust:_cfCusts,cfPT:_cfPTs,cfFailure:_cfFailures,
-             ppCust:_ppCusts,ppSubtype:_ppSubtypes,
+             ppCust:_ppCusts,ppSubtype:_ppSubtypes,frSubtype:_frSubtypes,
+
              vcCust:_vcCusts,vcPT:_vcPTs,vcSub:_vcSubs,vcLiab:_vcLiabs,
              liabCust:_liabCusts,liabPT:_liabPTs,liabSub:_liabSubs,liabLiab:_liabLiabs,
              vorLiab:_vorLiabs,milLiab:_milLiabs,ageLiab:_ageLiabs,
@@ -6010,6 +6432,8 @@ function toggleSlicerItem(key, value){
   else if(key.startsWith('fcr'))renderFCRMapTab();
   else if(key.startsWith('cf'))renderCompFaultMapTab();
   else if(key.startsWith('pp'))renderPartsPerfTab();
+  else if(key==='frSubtype')renderFailureRateTab();
+
   else if(key.startsWith('vc'))renderVorClosedTab();
   else if(key.endsWith('Liab')){
     const tab=key.replace('Liab','');
@@ -6621,6 +7045,7 @@ function updateDashboard(resetSlicers=true){
   else if(_dashTab==='compfault')renderCompFaultMapTab();
   else if(_dashTab==='partsperf')renderPartsPerfTab();
   else if(_dashTab==='failurechain')renderFailureChainTab();
+  else if(_dashTab==='failurerate')renderFailureRateTab();
   else if(_dashTab==='defects')renderDefectsTab();
   else if(_dashTab==='liability')renderLiabilityTab();
   else if(_dashTab==='callout')renderCalloutTab();
