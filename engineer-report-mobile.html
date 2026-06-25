@@ -401,7 +401,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.230</span>
+        Engineer Report<span class="h-ver">v3.231</span>
       </div>
     </div>
     <div class="h-right">
@@ -1402,7 +1402,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.230';
+const APP_VERSION='3.231';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1681,17 +1681,17 @@ function compRowHTML(val,idx,partNum,symptom,rootCause){
   return`<div class="comp-row" id="comp-row-${idx}" style="border:1px solid var(--bdr);border-radius:6px;padding:10px;margin-bottom:8px;background:var(--surf2)">
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
       <select style="flex:1;min-width:120px;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-${idx}" onchange="updateCompPNRequired(${idx})"><option value="">None</option>${opts}</select>
-      <input type="text" id="e-comp-pn-${idx}" value="${partNum||''}" placeholder="Part number *" list="pl-datalist" style="flex:1;min-width:100px;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx)">
+      <input type="text" id="e-comp-pn-${idx}" value="${partNum||''}" placeholder="Part number *" list="pl-datalist" oninput="highlightMandatory()" style="flex:1;min-width:100px;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx)">
       ${rmBtn}
     </div>
     <div style="display:flex;gap:8px">
       <div style="flex:1">
         <div style="font-size:11px;color:var(--txm);margin-bottom:3px;font-weight:600">Symptom</div>
-        <select style="width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-sym-${idx}"><option value="">Select…</option>${symptomOpts}</select>
+        <select style="width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-sym-${idx}" onchange="highlightMandatory()"><option value="">Select…</option>${symptomOpts}</select>
       </div>
       <div style="flex:1">
         <div style="font-size:11px;color:var(--txm);margin-bottom:3px;font-weight:600">Root Cause</div>
-        <select style="width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-rc-${idx}"><option value="">Select…</option>${rcOpts}</select>
+        <select style="width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:5px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);appearance:none" id="e-comp-rc-${idx}" onchange="highlightMandatory()"><option value="">Select…</option>${rcOpts}</select>
       </div>
     </div>
   </div>`;
@@ -1720,7 +1720,7 @@ function updateCompPNRequired(idx){
   const inp=document.getElementById('e-comp-pn-'+idx);
   if(!inp)return;
   inp.required=!!sel.value;
-  inp.style.borderColor=sel.value?'var(--bdr)':'var(--bdr)';
+  highlightMandatory();
 }
 
 function addCompRow(){
@@ -1728,6 +1728,7 @@ function addCompRow(){
   const idx=window._compCount||0;
   list.insertAdjacentHTML('beforeend',compRowHTML('',idx,'','',''));
   window._compCount=idx+1;
+  setTimeout(highlightMandatory,0);
 }
 
 
@@ -3897,6 +3898,24 @@ function highlightMandatory(){
       clear(drEl);
     }
   });
+
+  // Components: when a component is selected, part number, symptom and root cause become mandatory
+  const _compCount=window._compCount||0;
+  for(let ci=0;ci<_compCount;ci++){
+    const compSel=document.getElementById('e-comp-'+ci);
+    const pnEl=document.getElementById('e-comp-pn-'+ci);
+    const symEl=document.getElementById('e-comp-sym-'+ci);
+    const rcEl=document.getElementById('e-comp-rc-'+ci);
+    if(!compSel)continue;
+    const hasComp=!!compSel.value;
+    if(hasComp){
+      mark(pnEl,!pnEl?.value?.trim());
+      mark(symEl,!symEl?.value?.trim());
+      mark(rcEl,!rcEl?.value?.trim());
+    } else {
+      clear(pnEl);clear(symEl);clear(rcEl);
+    }
+  }
 
   // Dataloggers: date fitted always mandatory; date removed mandatory in strict mode
   _combinedItems.filter(x=>x.type==='datalogger').forEach(x=>{
