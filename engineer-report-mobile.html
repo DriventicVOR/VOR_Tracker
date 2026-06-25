@@ -59,7 +59,7 @@ header{
 .h-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .h-logo img{height:22px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1)}
 .h-title{font-size:18px;font-weight:600;opacity:.9;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.h-ver{font-size:11px;font-family:'IBM Plex Mono',monospace;opacity:.5;margin-left:6px;line-height:1.2;display:inline}
+.h-ver{font-size:14px;font-family:'IBM Plex Mono',monospace;opacity:.5;margin-left:8px;line-height:1.2;display:inline}
 .h-right{display:flex;align-items:center;gap:5px;overflow:hidden;flex-shrink:1;min-width:0}
 .hstat{font-size:10px;font-family:'IBM Plex Mono',monospace;
   background:none;border-radius:0;
@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.241</span>
+        Engineer Report<span class="h-ver">v3.242</span>
       </div>
     </div>
     <div class="h-right">
@@ -1423,7 +1423,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.241';
+const APP_VERSION='3.242';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
