@@ -17,7 +17,7 @@
   --red:#c0392b;--red-l:#fdf0ee;--red-b:#e8a8a0;
   --amb:#b87020;--amb-l:#fef8ee;--amb-b:#f0d060;
   --pur:#5a3d8a;--pur-l:#f0eaf8;--pur-b:#c8aae8;
-  --nav-h:56px;
+  --nav-h:84px;
   --bar-h:72px;
   --teal:#00F1C1;
 }
@@ -28,20 +28,27 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tx)
 /* ── Header ─────────────────────────────────────── */
 header{
   background:var(--blu);color:var(--teal);
-  padding:0 16px;display:flex;align-items:center;
-  justify-content:space-between;height:var(--nav-h);
+  padding:0;display:flex;flex-direction:column;
   position:fixed;top:0;left:0;right:0;z-index:200;
   box-shadow:0 2px 8px rgba(0,0,0,.3);
 }
+.hrow1{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;flex-shrink:0}
+.hrow2{display:flex;align-items:center;gap:0;padding:0;
+  border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;
+  background:rgba(0,0,0,.12)}
+.hrow2>*{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;
+  padding:6px 8px;border-right:1px solid rgba(255,255,255,.08)}
+.hrow2>*:last-child{border-right:none}
 .h-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .h-logo img{height:22px;filter:invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(1)}
-.h-title{font-size:12px;font-weight:600;opacity:.9;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.h-ver{font-size:10px;font-family:'IBM Plex Mono',monospace;opacity:.5}
+.h-title{font-size:18px;font-weight:600;opacity:.9;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h-ver{font-size:11px;font-family:'IBM Plex Mono',monospace;opacity:.5;margin-left:6px;line-height:1.2;display:inline}
 .h-right{display:flex;align-items:center;gap:5px;overflow:hidden;flex-shrink:1;min-width:0}
 .hstat{font-size:10px;font-family:'IBM Plex Mono',monospace;
-  padding:3px 6px;background:rgba(255,255,255,.12);
-  border-radius:4px;max-width:90px;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap;opacity:.85}
+  background:none;border-radius:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.85;
+  text-align:center;width:100%}
 .hbtn{padding:6px 10px;background:rgba(0,241,193,.12);
   border:1px solid rgba(0,241,193,.35);color:var(--teal);
   border-radius:6px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;
@@ -390,22 +397,26 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 
 <!-- Header -->
 <header>
-  <div class="h-left">
-    
-    <div>
-      <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.226</div>
+  <!-- Row 1: title + action buttons -->
+  <div class="hrow1">
+    <div class="h-left">
+      <div class="h-title" style="display:flex;align-items:baseline;gap:0">
+        Engineer Report<span class="h-ver">v3.229</span>
+      </div>
+    </div>
+    <div class="h-right">
+      <button class="hbtn sec" id="reload-btn" onclick="safeReloadData()" style="display:none">&#8635;</button>
+      <button class="hbtn" onclick="connectStorage()">&#9654;</button>
+      <button class="hbtn sec" onclick="clearStoredKey()" title="Clear stored API key">&#128274;</button>
     </div>
   </div>
-  <div class="h-right">
+  <!-- Row 2: connected status + user badge + customer selector -->
+  <div class="hrow2">
     <div class="hstat" id="hstat">Not connected</div>
     <div class="hstat" id="identity-badge" onclick="switchUser()" style="display:none;cursor:pointer;color:var(--teal);border:1px solid rgba(0,241,193,.3);background:rgba(0,241,193,.12)" title="Tap to switch user"><span id="identity-name"></span></div>
     <div id="customer-sel-wrap">
-      <select id="customer-sel" onchange="switchCustomer()"></select>
+      <select id="customer-sel" onchange="switchCustomer()" style="width:100%;background:none;border:none;color:var(--teal);font-size:11px;font-family:inherit;text-align:center"></select>
     </div>
-        <button class="hbtn sec" id="reload-btn" onclick="safeReloadData()" style="display:none">&#8635;</button>
-    <button class="hbtn" onclick="connectStorage()">&#9654;</button>
-    <button class="hbtn sec" onclick="clearStoredKey()" title="Clear stored API key">&#128274;</button>
   </div>
 </header>
 
@@ -1391,7 +1402,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.226';
+const APP_VERSION='3.229';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
