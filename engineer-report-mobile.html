@@ -142,6 +142,8 @@ header{
 .fc{background:var(--surf);border:1px solid var(--bdr);
   border-radius:10px;margin-bottom:12px;overflow:hidden}
 .fc.off{opacity:.5;pointer-events:none}
+input.err,select.err,textarea.err{border-color:#dc2626!important;box-shadow:0 0 0 2px rgba(220,38,38,.2)!important}
+.mandatory-field{border-color:rgba(220,38,38,.35)!important}
 .fch{padding:14px 16px;display:flex;align-items:center;gap:10px;
   background:#f8fafc;border-bottom:1px solid var(--bdr)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0}
@@ -392,7 +394,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     
     <div>
       <div class="h-title">Engineer Report</div>
-      <div class="h-ver">v3.221</div>
+      <div class="h-ver">v3.226</div>
     </div>
   </div>
   <div class="h-right">
@@ -502,7 +504,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <div class="fcb">
         <div class="fg">
           <label>Date First Attended <span style="color:var(--red);margin-left:2px">*</span></label>
-          <input type="date" id="e-date-att" oninput="updateVisitCount()" required>
+          <input type="date" id="e-date-att" oninput="updateVisitCount();highlightMandatory()" required>
         </div>
         <button type="button" id="e-unavail-att" onclick="this.classList.toggle('on');updateVisitCount()" class="emob-check-btn" style="width:100%;margin:8px 0">Vehicle Unavailable on Attendance</button>
         <div class="fg">
@@ -532,7 +534,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div class="sdiv"></div>
         <div class="fg">
           <label>Vehicle Repair Date</label>
-          <input type="date" id="e-date-repair" oninput="updateVisitCount();syncRectifiedOptions()" required>
+          <input type="date" id="e-date-repair" oninput="updateVisitCount();syncRectifiedOptions();highlightMandatory()" required>
         </div>
       </div>
     </div>
@@ -543,33 +545,33 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <div class="fcb">
         <div class="fg">
           <label>Defect Rectified <span class="req">*</span></label>
-          <select id="e-rectified"><option value="">Select…</option><option>Y</option><option>N</option><option>ONGOING</option></select>
+          <select id="e-rectified" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option><option>ONGOING</option></select>
         </div>
         <div class="fg">
           <label>Inverter Serial Number <span class="req">*</span></label>
-          <input type="text" id="e-inverter" placeholder="Serial number" required>
+          <input type="text" id="e-inverter" oninput="highlightMandatory()" placeholder="Serial number" required>
         </div>
         <div class="fg">
           <label>Warranty <span class="req">*</span></label>
-          <select id="e-warranty"><option value="">Select…</option><option>Y</option><option>N</option></select>
+          <select id="e-warranty" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option></select>
         </div>
         <div class="fg">
           <label>Liability <span class="req">*</span></label>
-          <select id="e-voith" required><option value="">Select…</option></select>
+          <select id="e-voith" onchange="highlightMandatory()"><option value="">Select…</option></select>
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Diagnosis and Comments <span style="color:var(--red)">*</span></label>
-          <textarea id="e-diagnosis" rows="3" placeholder="Describe diagnosis…" style="width:100%"></textarea>
+          <textarea id="e-diagnosis" oninput="highlightMandatory()" rows="3" placeholder="Describe diagnosis…" style="width:100%"></textarea>
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Fault Category</label>
-          <select id="e-fault-category" style="width:100%" onchange="onFaultCategoryChange()">
+          <select id="e-fault-category" style="width:100%" onchange="onFaultCategoryChange();highlightMandatory()">
             <option value="">Select…</option>
           </select>
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Fault Detail</label>
-          <select id="e-fault-detail" style="width:100%" disabled>
+          <select id="e-fault-detail" style="width:100%" onchange="highlightMandatory()" disabled>
             <option value="">Select…</option>
           </select>
         </div>
@@ -611,11 +613,11 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         </div>
         <div class="fg">
           <label>Initial Software Version</label>
-          <select id="e-sw-init"><option value="">Select…</option></select>
+          <select id="e-sw-init" onchange="highlightMandatory()"><option value="">Select…</option></select>
         </div>
         <div class="fg">
           <label>Final Software Version</label>
-          <select id="e-sw-fin"><option value="">Select…</option></select>
+          <select id="e-sw-fin" onchange="highlightMandatory()"><option value="">Select…</option></select>
         </div>
         <div id="custom-inject-parts-engineer" style="display:contents"></div>
       </div>
@@ -1389,7 +1391,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.221';
+const APP_VERSION='3.226';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2390,7 +2392,7 @@ function _syncCombinedFromDOM(){
   });
 }
 
-function renderCombinedList(){
+function renderCombinedList(){setTimeout(highlightMandatory,0);
   _syncCombinedFromDOM();
   var interimList=document.getElementById('interim-visits-list');
   var partsList=document.getElementById('parts-ordered-list');
@@ -2466,10 +2468,10 @@ function _renderPartsCard(list,item){
     +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:3px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" value="'+(item.partNumber||'')+'" placeholder="Part number…" list="pl-datalist" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
-    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" oninput="highlightMandatory()" value="'+(item.partNumber||'')+'" placeholder="Part number…" list="pl-datalist" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
+    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" oninput="highlightMandatory()" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" oninput="highlightMandatory()" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
     +'</div>';
   list.appendChild(div);
 }
@@ -2568,8 +2570,8 @@ function _renderDataloggerCard(list,item){
   div.style.cssText='margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr)';
   div.innerHTML=
     '<div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Datalogger</div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" oninput="highlightMandatory()" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" oninput="highlightMandatory()" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
     +'<button type="button" onclick="removeDatalogger('+i+')" style="font-size:11px;padding:4px 12px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;width:100%">Remove</button>';
   list.appendChild(div);
 }
@@ -2677,7 +2679,7 @@ async function loadRecord(){
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
-  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();highlightMandatory();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
     sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
@@ -3063,20 +3065,30 @@ function renderPhotoGrid(){
         +'oninput="_photoSlots['+i+'].caption=this.value">';
     }
 
-    // Action buttons
+    // Action buttons — camera (capture=environment) and gallery (no capture)
     const actDiv=document.createElement('div');
     actDiv.className='photo-actions';
     if(!slot||slot.state==='deleted'){
-      actDiv.innerHTML='<label class="photo-btn primary" style="cursor:pointer">'
-        +'📷 Add'
-        +'<input type="file" accept="image/*" capture="environment" style="display:none" '
-        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>';
-    } else {
-      actDiv.innerHTML='<label class="photo-btn" style="cursor:pointer">'
-        +'🔄 Replace'
+      actDiv.innerHTML=
+        '<label class="photo-btn primary" style="cursor:pointer" title="Take photo">'
+        +'📷'
         +'<input type="file" accept="image/*" capture="environment" style="display:none" '
         +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>'
-        +'<button class="photo-btn danger" onclick="removePhoto('+i+')">🗑 Remove</button>';
+        +'<label class="photo-btn" style="cursor:pointer" title="Choose from gallery">'
+        +'🖼 Gallery'
+        +'<input type="file" accept="image/*" style="display:none" '
+        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>';
+    } else {
+      actDiv.innerHTML=
+        '<label class="photo-btn" style="cursor:pointer" title="Retake with camera">'
+        +'📷'
+        +'<input type="file" accept="image/*" capture="environment" style="display:none" '
+        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>'
+        +'<label class="photo-btn" style="cursor:pointer" title="Replace from gallery">'
+        +'🖼'
+        +'<input type="file" accept="image/*" style="display:none" '
+        +'onchange="handlePhotoSelect('+i+',this.files[0])"></label>'
+        +'<button class="photo-btn danger" onclick="removePhoto('+i+')">🗑</button>';
     }
     div.appendChild(actDiv);
     grid.appendChild(div);
@@ -3814,6 +3826,80 @@ function fillSel(id,arr,ph){
   sorted.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o)});
   if(cur)el.value=cur;
 }
+function highlightMandatory(){
+  const alwaysReq=['e-engineer','e-region','e-date-att'];
+  const strictReq=['e-rectified','e-inverter','e-warranty','e-voith',
+    'e-diagnosis','e-sw-init','e-sw-fin','e-fault-category','e-fault-detail'];
+  const strict=!!(document.getElementById('e-date-repair')?.value?.trim());
+
+  // Helper: mark a field mandatory (mark=true) or clear (mark=false)
+  const mark=(el,isEmpty)=>{
+    if(!el)return;
+    el.classList.add('mandatory-field');
+    el.classList.toggle('err',isEmpty);
+  };
+  const clear=el=>{if(el){el.classList.remove('err','mandatory-field');}};
+
+  // Clear all strict & dynamic fields first
+  strictReq.forEach(id=>clear(document.getElementById(id)));
+  document.querySelectorAll('[data-cfreq="1"]').forEach(clear);
+
+  // Always-required: Engineer, Region, Date of Attendance
+  alwaysReq.forEach(id=>{
+    const el=document.getElementById(id);
+    mark(el,!el?.value?.trim());
+  });
+
+  // Strict-required: only when repair date is filled
+  if(strict){
+    strictReq.forEach(id=>{
+      const el=document.getElementById(id);
+      mark(el,!el?.value?.trim());
+    });
+    document.querySelectorAll('[data-cfreq="1"]').forEach(el=>mark(el,!el.value?.trim()));
+  }
+
+  // ── Dynamic items ──────────────────────────────────────────────────────
+
+  // Interim visits: date is mandatory
+  _combinedItems.filter(x=>x.type==='interim').forEach(x=>{
+    const dateEl=document.getElementById('interim-date-'+x.idx);
+    mark(dateEl,!dateEl?.value?.trim());
+  });
+
+  // Parts: part number mandatory; quantity mandatory when part number filled;
+  //        date received mandatory when repair date filled
+  _combinedItems.filter(x=>x.type==='parts').forEach(x=>{
+    const pnEl=document.getElementById('po-part-number-'+x.idx);
+    const qEl=document.getElementById('po-quantity-'+x.idx);
+    const drEl=document.getElementById('po-date-received-'+x.idx);
+    const hasPn=pnEl?.value?.trim();
+    mark(pnEl,!hasPn);
+    if(hasPn){
+      mark(qEl,!qEl?.value?.trim());
+    } else {
+      clear(qEl);
+    }
+    if(strict&&hasPn){
+      mark(drEl,!drEl?.value?.trim());
+    } else {
+      clear(drEl);
+    }
+  });
+
+  // Dataloggers: date fitted always mandatory; date removed mandatory in strict mode
+  _combinedItems.filter(x=>x.type==='datalogger').forEach(x=>{
+    const fitEl=document.getElementById('dl-date-fitted-'+x.idx);
+    const remEl=document.getElementById('dl-date-removed-'+x.idx);
+    mark(fitEl,!fitEl?.value?.trim());
+    if(strict){
+      mark(remEl,!remEl?.value?.trim());
+    } else {
+      clear(remEl);
+    }
+  });
+}
+
 function gv(id){return document.getElementById(id)?.value?.trim()||'';}
 async function _sendPartsRequestEmail(){
   const recipients=(config.partsMailingList||[]).filter(Boolean);
