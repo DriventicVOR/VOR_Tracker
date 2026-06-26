@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.257</span>
+        Engineer Report<span class="h-ver">v3.258</span>
       </div>
     </div>
     <div class="h-right">
@@ -858,7 +858,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     <button onclick="wiToggleFullscreen()" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:13px">&#10005; Exit</button>
   </div>
   <div id="wi-fs-canvas-wrap" style="flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:16px">
-    <canvas id="wi-fs-canvas" style="max-width:100%"></canvas>
+    <canvas id="wi-fs-canvas"></canvas>
   </div>
 </div>
 
@@ -1464,7 +1464,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.257';
+const APP_VERSION='3.258';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -5241,7 +5241,8 @@ async function wiRenderPage(){
     var fsCanvas=document.getElementById('wi-fs-canvas');
     if(fsCanvas&&fsWrap){
       var baseW2=page.getViewport({scale:1}).width;
-      var fsBase=Math.min(2,(fsWrap.clientWidth-40)/baseW2);
+      // Base scale fits page to screen width at zoom=1; zoom >1 lets canvas exceed screen (wrapper scrolls)
+      var fsBase=(fsWrap.clientWidth-40)/baseW2;
       var fsVp=page.getViewport({scale:fsBase*_wiZoom});
       fsCanvas.width=fsVp.width;fsCanvas.height=fsVp.height;
       await page.render({canvasContext:fsCanvas.getContext('2d'),viewport:fsVp}).promise;
