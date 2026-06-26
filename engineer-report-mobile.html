@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.242</span>
+        Engineer Report<span class="h-ver">v3.243</span>
       </div>
     </div>
     <div class="h-right">
@@ -1423,7 +1423,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.242';
+const APP_VERSION='3.243';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1972,8 +1972,11 @@ async function checkWarranty(){
   const dis=match.dateInService;
   if(!dis){badge.innerHTML='<span style="color:var(--txm)">No date in service recorded.</span>';return;}
   const inSvc=new Date(dis);
-  const today=new Date();today.setHours(0,0,0,0);
-  const years=(today-inSvc)/(1000*60*60*24*365.25);
+  // Use dateReported from the current SR record rather than today
+  const _repRaw=(_pendingRecord&&_pendingRecord.dateReported)||(allRecords&&allRecords[_ri]&&allRecords[_ri].dateReported)||'';
+  const refDate=_repRaw?new Date(_repRaw):(new Date());
+  refDate.setHours(0,0,0,0);
+  const years=(refDate-inSvc)/(1000*60*60*24*365.25);
   const inWarranty=years<=2;
   const colour=inWarranty?'#16a34a':'#dc2626';
   const bgColour=inWarranty?'#dcfce7':'#fee2e2';
@@ -1983,7 +1986,7 @@ async function checkWarranty(){
   badge.innerHTML='<div style="display:flex;flex-direction:column;gap:4px">'
     +'<span style="font-size:13px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid '
     +borderColour+';background:'+bgColour+';color:'+colour+';display:inline-block">'+label+'</span>'
-    +'<span style="font-size:11px;color:var(--txm)">'+yrStr+' (since '+dis+')</span>'
+    +'<span style="font-size:11px;color:var(--txm)">'+yrStr+' in service · reported '+(_repRaw?_repRaw:'today')+'</span>'
     +'</div>';
 }
 
