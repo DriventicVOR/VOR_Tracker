@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.256</span>
+        Engineer Report<span class="h-ver">v3.257</span>
       </div>
     </div>
     <div class="h-right">
@@ -852,6 +852,9 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
     <button onclick="wiChangePage(-1)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#8249;</button>
     <span id="wi-fs-page-info" style="font-size:12px;color:#8896a8;white-space:nowrap"></span>
     <button onclick="wiChangePage(1)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#8250;</button>
+    <button onclick="wiZoom(-0.25)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#8722;</button>
+    <span id="wi-fs-zoom" style="font-size:11px;color:#8896a8;white-space:nowrap;min-width:36px;text-align:center">100%</span>
+    <button onclick="wiZoom(0.25)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#43;</button>
     <button onclick="wiToggleFullscreen()" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:13px">&#10005; Exit</button>
   </div>
   <div id="wi-fs-canvas-wrap" style="flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:16px">
@@ -1461,7 +1464,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.256';
+const APP_VERSION='3.257';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -5105,7 +5108,7 @@ function tsbView(id){
 function tsbViewClose(){var m=document.getElementById('tsb-view-modal');if(m)m.style.display='none';}
 
 // ── Work Instructions Tab ─────────────────────────────────────────────────
-var _wiDocs=null,_wiSubtypes=null,_wiOpenId=null,_wiPdfDoc=null,_wiPage=1,_wiFullscreen=false;
+var _wiDocs=null,_wiSubtypes=null,_wiOpenId=null,_wiPdfDoc=null,_wiPage=1,_wiFullscreen=false,_wiZoom=1.0;
 
 async function renderWorkInstructionsTab(){
   // Show loading state immediately (synchronous)
@@ -5189,7 +5192,7 @@ async function _loadPdfJs(){
 }
 async function wiOpenDoc(id){
   if(_wiOpenId===id)return;
-  _wiOpenId=id;_wiPage=1;_wiPdfDoc=null;
+  _wiOpenId=id;_wiPage=1;_wiPdfDoc=null;_wiZoom=1.0;
   filterWorkInstructions();
   var doc=(_wiDocs||[]).find(function(d){return d.id===id;});
   if(!doc)return;
@@ -5238,14 +5241,23 @@ async function wiRenderPage(){
     var fsCanvas=document.getElementById('wi-fs-canvas');
     if(fsCanvas&&fsWrap){
       var baseW2=page.getViewport({scale:1}).width;
-      var fsScale=Math.min(2,(fsWrap.clientWidth-40)/baseW2);
-      var fsVp=page.getViewport({scale:fsScale});
+      var fsBase=Math.min(2,(fsWrap.clientWidth-40)/baseW2);
+      var fsVp=page.getViewport({scale:fsBase*_wiZoom});
       fsCanvas.width=fsVp.width;fsCanvas.height=fsVp.height;
       await page.render({canvasContext:fsCanvas.getContext('2d'),viewport:fsVp}).promise;
+      // Update zoom display
+      var zEl=document.getElementById('wi-fs-zoom');
+      if(zEl)zEl.textContent=Math.round(_wiZoom*100)+'%';
     }
   }
 }
 function wiChangePage(dir){_wiPage+=dir;wiRenderPage();}
+function wiZoom(delta){
+  _wiZoom=Math.max(0.5,Math.min(4,_wiZoom+delta));
+  var zEl=document.getElementById('wi-fs-zoom');
+  if(zEl)zEl.textContent=Math.round(_wiZoom*100)+'%';
+  wiRenderPage();
+}
 function wiToggleFullscreen(){
   _wiFullscreen=!_wiFullscreen;
   var fs=document.getElementById('wi-fullscreen');
