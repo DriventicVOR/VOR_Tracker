@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.243</span>
+        Engineer Report<span class="h-ver">v3.256</span>
       </div>
     </div>
     <div class="h-right">
@@ -822,7 +822,42 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       </div>
     </div>
   </div>
+  <!-- Work Instructions tab -->
+  <div class="tab-view" id="eng-tab-wi">
+    <div style="margin-bottom:10px">
+      <input type="text" id="wi-search-inp" placeholder="Search title or description…" oninput="filterWorkInstructions()"
+        style="width:100%;padding:9px 12px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--tx);box-sizing:border-box;margin-bottom:8px">
+      <div id="wi-subtype-pills" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <div id="wi-card-list"></div>
+    <!-- Inline PDF viewer -->
+    <div id="wi-viewer" style="margin-top:12px;display:none;flex-direction:column">
+      <div id="wi-viewer-toolbar" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr);margin-bottom:8px">
+        <span id="wi-pdf-title" style="font-size:12px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tx)"></span>
+        <button onclick="wiChangePage(-1)" style="padding:4px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--surf);color:var(--tx);cursor:pointer;font-size:14px">&#8249;</button>
+        <span id="wi-page-info" style="font-size:11px;color:var(--txm);white-space:nowrap"></span>
+        <button onclick="wiChangePage(1)" style="padding:4px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--surf);color:var(--tx);cursor:pointer;font-size:14px">&#8250;</button>
+        <button onclick="wiToggleFullscreen()" style="padding:4px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--surf);color:var(--tx);cursor:pointer;font-size:12px">&#x26F6;</button>
+      </div>
+      <div id="wi-canvas-wrap" style="overflow:auto;text-align:center">
+        <canvas id="wi-canvas" style="max-width:100%;box-shadow:0 2px 8px rgba(0,0,0,.15)"></canvas>
+      </div>
+    </div>
+  </div>
 </div><!-- /page -->
+<!-- Work Instructions Fullscreen Overlay -->
+<div id="wi-fullscreen" style="display:none;position:fixed;inset:0;z-index:2000;background:#1a1a2e;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#111827;border-bottom:1px solid rgba(255,255,255,.1);flex-shrink:0">
+    <span id="wi-fs-title" style="font-size:13px;font-weight:600;color:#e8edf4;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button onclick="wiChangePage(-1)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#8249;</button>
+    <span id="wi-fs-page-info" style="font-size:12px;color:#8896a8;white-space:nowrap"></span>
+    <button onclick="wiChangePage(1)" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:16px">&#8250;</button>
+    <button onclick="wiToggleFullscreen()" style="padding:5px 12px;border:1px solid rgba(255,255,255,.2);border-radius:4px;background:rgba(255,255,255,.08);color:#e8edf4;cursor:pointer;font-size:13px">&#10005; Exit</button>
+  </div>
+  <div id="wi-fs-canvas-wrap" style="flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:16px">
+    <canvas id="wi-fs-canvas" style="max-width:100%"></canvas>
+  </div>
+</div>
 
 <!-- Bottom navigation -->
 <nav class="bottom-nav">
@@ -843,6 +878,9 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   </button>
   <button class="bnav-btn" id="bnav-fault-lookup" onclick="switchEngTab('fault-lookup')">
     <span class="ico">&#128270;</span>Faults
+  </button>
+  <button class="bnav-btn" id="bnav-wi" onclick="switchEngTab('wi')">
+    <span class="ico">&#128196;</span>Docs
   </button>
 </nav>
 
@@ -1423,7 +1461,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.243';
+const APP_VERSION='3.256';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -4125,13 +4163,16 @@ async function reloadData(){
 
 // ── Vehicle Search tab ────────────────────────────────────────────
 function switchEngTab(tab){
-  ['report','search','tools','tsb','emob','fault-lookup'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'block':'none';});
+  ['report','search','tools','tsb','emob','fault-lookup','wi'].forEach(function(t){var el=document.getElementById('eng-tab-'+t);if(el)el.style.display=tab===t?'block':'none';});
   var pageEl=document.querySelector('.page');if(pageEl)pageEl.scrollTop=0;
-  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools',tsb:'bnav-tsb',emob:'bnav-emob','fault-lookup':'bnav-fault-lookup'};
+  var bm={report:'bnav-report',search:'bnav-search',tools:'bnav-tools',tsb:'bnav-tsb',emob:'bnav-emob','fault-lookup':'bnav-fault-lookup',wi:'bnav-wi'};
   Object.keys(bm).forEach(function(t){var b=document.getElementById(bm[t]);if(b)b.classList.toggle('active',tab===t);});
   if(tab==='tools')toolsInit();
   if(tab==='tsb')tsbInit();
   if(tab==='emob')updateEmobCanVisibility(window._currentProductType,window._currentProductSubType);
+  if(tab==='wi'){
+renderWorkInstructionsTab();
+  }
 }
 
 function clearVehicleSearch(){
@@ -4343,6 +4384,7 @@ switchEngTab = function(tab) {
   // Tool Status tab init
   if (tab === 'tools') toolsInit();
   if (tab === 'tsb') tsbInit();
+  if (tab === 'wi') renderWorkInstructionsTab();
 }
 
 // openEngPopup: mobile override — accepts record object, builds preview bottom sheet
@@ -5061,6 +5103,162 @@ function tsbView(id){
   var m=document.getElementById('tsb-view-modal');if(m)m.style.display='flex';
 }
 function tsbViewClose(){var m=document.getElementById('tsb-view-modal');if(m)m.style.display='none';}
+
+// ── Work Instructions Tab ─────────────────────────────────────────────────
+var _wiDocs=null,_wiSubtypes=null,_wiOpenId=null,_wiPdfDoc=null,_wiPage=1,_wiFullscreen=false;
+
+async function renderWorkInstructionsTab(){
+  // Show loading state immediately (synchronous)
+  var listEl=document.getElementById('wi-card-list');
+  if(listEl)listEl.innerHTML='<div style="color:var(--txm);font-size:13px;padding:12px">Loading documents…</div>';
+
+  try{
+    // PDF.js loaded lazily on first use
+
+    var prefix=(typeof activeCustomer!=='undefined'&&activeCustomer?.prefix)||'WB';
+    var raw=await readJSON(prefix+'-work-instructions.json');
+    _wiDocs=Array.isArray(raw)?raw:[];
+
+    var allST=[...new Set((_wiDocs||[]).flatMap(function(d){return d.subtypes||[];}))].sort();
+    if(_wiSubtypes===null)_wiSubtypes=new Set(allST);
+    _wiRenderPills(allST);
+    filterWorkInstructions();
+  }catch(e){
+    console.error('renderWorkInstructionsTab error:',e);
+    if(listEl)listEl.innerHTML='<div style="color:var(--red);font-size:13px;padding:12px">Error loading documents: '+e.message+'</div>';
+  }
+}
+function _wiRenderPills(allST){
+  var pillsEl=document.getElementById('wi-subtype-pills');
+  if(!pillsEl)return;
+  var html='';
+  allST.forEach(function(s){
+    var on=_wiSubtypes.has(s);
+    html+='<span class="wi-st-chip" data-v="'+s+'" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:12px;cursor:pointer;user-select:none;'
+      +'border:1px solid '+(on?'var(--teal)':'var(--bdr)')+';'
+      +'background:'+(on?'rgba(0,241,193,.12)':'var(--surf)')+';'
+      +'color:'+(on?'var(--teal)':'var(--txm)')+'">'
+      +s+'</span>';
+  });
+  if(allST.length) html+='<span id="wi-all-btn" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--surf);color:var(--txm);cursor:pointer;user-select:none">All</span>';
+  pillsEl.innerHTML=html;
+  pillsEl.onclick=function(e){
+    var ch=e.target.closest('.wi-st-chip');
+    if(ch){wiToggleST(ch.dataset.v);return;}
+    if(e.target.id==='wi-all-btn')wiAllST();
+  };
+}
+function wiToggleST(st){if(_wiSubtypes.has(st))_wiSubtypes.delete(st);else _wiSubtypes.add(st);renderWorkInstructionsTab();}
+function wiAllST(){_wiSubtypes=new Set([...new Set((_wiDocs||[]).flatMap(function(d){return d.subtypes||[];}))]);renderWorkInstructionsTab();}
+
+function filterWorkInstructions(){
+  if(!_wiDocs)return;
+  var q=(document.getElementById('wi-search-inp')?document.getElementById('wi-search-inp').value:'').toLowerCase().trim();
+  var filtered=_wiDocs.filter(function(d){
+    var ms=!q||(d.title||'').toLowerCase().indexOf(q)>=0||(d.description||'').toLowerCase().indexOf(q)>=0;
+    var mt=!_wiSubtypes||_wiSubtypes.size===0||(d.subtypes||[]).some(function(s){return _wiSubtypes.has(s);});
+    return ms&&mt;
+  });
+  var listEl=document.getElementById('wi-card-list');if(!listEl)return;
+  if(!filtered.length){listEl.innerHTML='<div style="color:var(--txm);font-size:12px;padding:12px">No matching documents.</div>';return;}
+  var html='';
+  filtered.forEach(function(d){
+    var sel=d.id===_wiOpenId;
+    html+='<div class="wi-doc-card" data-docid="'+d.id+'" style="padding:10px 12px;border-radius:7px;margin-bottom:8px;cursor:pointer;'
+      +'border:1px solid '+(sel?'var(--green)':'var(--bdr)')+';'
+      +'background:'+(sel?'rgba(16,185,129,.08)':'var(--surf)')+'">'
+      +'<div style="font-weight:600;font-size:13px;margin-bottom:3px">'+(d.title||'(untitled)')+'</div>'
+      +(d.description?'<div style="font-size:11px;color:var(--txm);margin-bottom:5px">'+(d.description)+'</div>':'')
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px">'+(d.subtypes||[]).map(function(s){
+        return '<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;background:var(--teal2);color:var(--teal);border:1px solid var(--teal)">'+s+'</span>';
+      }).join('')+'</div></div>';
+  });
+  listEl.innerHTML=html;
+  listEl.onclick=function(e){var card=e.target.closest('.wi-doc-card');if(card)wiOpenDoc(card.dataset.docid);};
+}
+
+async function _loadPdfJs(){
+  if(typeof pdfjsLib!=='undefined')return;
+  await new Promise(function(resolve,reject){
+    var s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=function(){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';resolve();};
+    s.onerror=reject;
+    document.head.appendChild(s);
+  });
+}
+async function wiOpenDoc(id){
+  if(_wiOpenId===id)return;
+  _wiOpenId=id;_wiPage=1;_wiPdfDoc=null;
+  filterWorkInstructions();
+  var doc=(_wiDocs||[]).find(function(d){return d.id===id;});
+  if(!doc)return;
+  var toolbar=document.getElementById('wi-viewer-toolbar');
+  var placeholder=document.getElementById('wi-placeholder');
+  var canvas=document.getElementById('wi-canvas');
+  var titleEl=document.getElementById('wi-pdf-title');
+  if(placeholder)placeholder.style.display='none';
+  if(canvas)canvas.style.display='none';
+  if(toolbar)toolbar.style.display='flex';
+  var viewer=document.getElementById('wi-viewer');if(viewer)viewer.style.display='block';
+  if(titleEl)titleEl.textContent=doc.title||doc.filename||'Document';
+  try{
+    // Fetch PDF using token-based auth (no supabase client in this form)
+    // Use authenticated path (no 'public' segment) with token
+    var pdfUrl=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+doc.path;
+    var token=getToken();
+    var resp=await fetch(pdfUrl,{headers:{'Authorization':'Bearer '+token,'apikey':token}});
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    var buf=await resp.arrayBuffer();
+    await _loadPdfJs();
+    _wiPdfDoc=await pdfjsLib.getDocument({data:buf}).promise;
+    wiRenderPage();
+  }catch(err){
+    if(placeholder){placeholder.textContent='Failed to load: '+err.message;placeholder.style.display='';}
+  }
+}
+async function wiRenderPage(){
+  if(!_wiPdfDoc)return;
+  _wiPage=Math.max(1,Math.min(_wiPage,_wiPdfDoc.numPages));
+  var page=await _wiPdfDoc.getPage(_wiPage);
+  var ps='Page '+_wiPage+' / '+_wiPdfDoc.numPages;
+  var infoEl=document.getElementById('wi-page-info');if(infoEl)infoEl.textContent=ps;
+  var fsInfoEl=document.getElementById('wi-fs-page-info');if(fsInfoEl)fsInfoEl.textContent=ps;
+  var wrap=document.getElementById('wi-canvas-wrap');
+  var canvas=document.getElementById('wi-canvas');
+  if(canvas&&wrap){
+    var baseW=page.getViewport({scale:1}).width;
+    var scale=Math.min(2,((wrap.clientWidth||window.innerWidth)-16)/baseW);
+    var vp=page.getViewport({scale:scale});
+    canvas.width=vp.width;canvas.height=vp.height;canvas.style.display='block';
+    await page.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+  }
+  if(_wiFullscreen){
+    var fsWrap=document.getElementById('wi-fs-canvas-wrap');
+    var fsCanvas=document.getElementById('wi-fs-canvas');
+    if(fsCanvas&&fsWrap){
+      var baseW2=page.getViewport({scale:1}).width;
+      var fsScale=Math.min(2,(fsWrap.clientWidth-40)/baseW2);
+      var fsVp=page.getViewport({scale:fsScale});
+      fsCanvas.width=fsVp.width;fsCanvas.height=fsVp.height;
+      await page.render({canvasContext:fsCanvas.getContext('2d'),viewport:fsVp}).promise;
+    }
+  }
+}
+function wiChangePage(dir){_wiPage+=dir;wiRenderPage();}
+function wiToggleFullscreen(){
+  _wiFullscreen=!_wiFullscreen;
+  var fs=document.getElementById('wi-fullscreen');
+  if(!fs)return;
+  fs.style.display=_wiFullscreen?'flex':'none';
+  if(_wiFullscreen){
+    var doc=(_wiDocs||[]).find(function(d){return d.id===_wiOpenId;});
+    var t=document.getElementById('wi-fs-title');
+    if(t&&doc)t.textContent=doc.title||doc.filename||'';
+    wiRenderPage();
+  }
+}
+
 </script>
 
 <!-- Datalogger Status modal -->
