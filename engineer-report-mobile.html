@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.259</span>
+        Engineer Report<span class="h-ver">v3.263</span>
       </div>
     </div>
     <div class="h-right">
@@ -1464,7 +1464,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.259';
+const APP_VERSION='3.263';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1664,7 +1664,7 @@ async function loadConfig(){
     const data=await readJSON(customerConfigFile());
     if(data){
       const {customFields:_cf,...rest}=data;
-      const _gk=Object.keys(rest).filter(k=>Array.isArray(rest[k])&&!["emailFields","emailRecipients","customSections"].includes(k));
+      const _gk=Object.keys(rest).filter(k=>Array.isArray(rest[k])&&!["emailFields","emailRecipients","customSections","srListVehicleFields"].includes(k));
       const merged=Object.assign({},DEFAULT_CONFIG,rest);
       // Global list keys always come from default-config.json, never customer override
       _gk.forEach(k=>{ merged[k]=DEFAULT_CONFIG[k]||[]; });
@@ -2207,7 +2207,14 @@ function populateEmobSRSelect(){
   var cur=sel.value;
   var open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate'&&r.status!=='Closed').sort(function(a,b){return (b.srNumber||0)-(a.srNumber||0);});
   sel.innerHTML='<option value="">— Select —</option>';
-  open.forEach(function(r){var o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===cur)o.selected=true;sel.appendChild(o);});
+  var _srFields=config.srListVehicleFields||[config.srListVehicleField||'vehicle'];
+  var _fieldLabel=function(r,f){
+    if(f==='fleetNumber')return r.fleetNumber||r.vehicle||'—';
+    if(f==='registration')return r.registration||r.vehicle||'—';
+    return r.vehicle||'—';
+  };
+  var _srFieldVal=function(r){return _srFields.map(function(f){return _fieldLabel(r,f);}).join('-');};
+  open.forEach(function(r){var o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+_srFieldVal(r)+'  ('+r.operator+')';if(r.ref===cur)o.selected=true;sel.appendChild(o);});
 }
 
 function emobSRChanged(){
@@ -2664,7 +2671,14 @@ function populateSRSelect(){
   const prev=currentRef;
   const open=[...allRecords].filter(r=>!r.dateRepair&&r.status!=='Cancelled'&&r.status!=='Duplicate'&&r.status!=='Closed').sort((a,b)=>(b.srNumber||0)-(a.srNumber||0));
   sel.innerHTML='<option value="">— Select a service request —</option>';
-  open.forEach(r=>{const o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+r.vehicle+'  ('+r.operator+')';if(r.ref===prev)o.selected=true;sel.appendChild(o)});
+  const _srFields=config.srListVehicleFields||[config.srListVehicleField||'vehicle'];
+  const _fieldLabel=function(r,f){
+    if(f==='fleetNumber')return r.fleetNumber||r.vehicle||'—';
+    if(f==='registration')return r.registration||r.vehicle||'—';
+    return r.vehicle||'—';
+  };
+  const _srFieldVal=function(r){return _srFields.map(function(f){return _fieldLabel(r,f);}).join('-');};
+  open.forEach(r=>{const o=document.createElement('option');o.value=r.ref;o.textContent=r.ref+'  —  '+_srFieldVal(r)+'  ('+r.operator+')';if(r.ref===prev)o.selected=true;sel.appendChild(o)});
   document.getElementById('lcount').textContent=open.length+' open'+(allRecords.length?' of '+allRecords.length+' total':'');
   populateEmobSRSelect();
   emobSRChanged();
