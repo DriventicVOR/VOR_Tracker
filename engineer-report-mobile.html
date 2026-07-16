@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.264</span>
+        Engineer Report<span class="h-ver">v3.265</span>
       </div>
     </div>
     <div class="h-right">
@@ -1465,7 +1465,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.264';
+const APP_VERSION='3.265';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2412,7 +2412,7 @@ async function saveEmobRequest(){
   var subject='eMob Support Request - '+reqKey+' - '+val(rec.vehicle)+' ('+val(rec.operator)+')';
   var emobRecipients=(config.emobMailingList||[]).filter(Boolean);
   if(!emobRecipients.length){showToast('No eMob mailing list configured — email not sent','error');}
-  else{window.location.href='mailto:'+emobRecipients.join(',')
+  else{window.location.href='mailto:'+emobRecipients.join(';')
     +'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);}
 
   // ── Clear form ────────────────────────────────────────────────
@@ -3529,7 +3529,7 @@ async function sendReportEmail(rec){
 
   const bodyRaw=lines.join('\n');
   const body=encodeURIComponent(bodyRaw.length>1800?bodyRaw.slice(0,1800)+'\n[...truncated for email client]':bodyRaw);
-  const mailto='mailto:'+recipients.join(',')+'?subject='+subject+'&body='+body;
+  const mailto='mailto:'+recipients.join(';')+'?subject='+subject+'&body='+body;
   // Store mailto for use after async context (user gesture is lost after await)
   window._pendingMailto=mailto;
   showToast('Opening email client...','success');
@@ -4080,7 +4080,7 @@ async function _sendPartsRequestEmail(){
   } else {
     body=lines.join('\n');
   }
-  window.location.href='mailto:'+recipients.join(',')
+  window.location.href='mailto:'+recipients.join(';')
     +'?subject='+encodeURIComponent(subject)
     +'&body='+encodeURIComponent(body);
 }
@@ -4161,7 +4161,7 @@ async function requestParts(){
     }catch(e){showToast('Could not save requested state: '+e.message,'error');}
   }
   // Open email
-  window.location.href='mailto:'+recipients.join(',')
+  window.location.href='mailto:'+recipients.join(';')
     +'?subject='+encodeURIComponent('')
     +'&body='+encodeURIComponent(body);
 }
