@@ -422,7 +422,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.265</span>
+        Engineer Report<span class="h-ver">v3.270</span>
       </div>
     </div>
     <div class="h-right">
@@ -666,7 +666,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 
     <!-- Action bar -->
     <div class="abar" id="abar">
-      <button type="button" class="btn primary" onclick="saveReport()">&#10003; Save Report</button>
+      <button type="button" class="btn primary" onclick="saveReport()">&#128269; Review Report</button>
       <button type="button" class="btn ghost" onclick="cancelReport()">Cancel</button>
     </div>
 
@@ -1465,7 +1465,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.265';
+const APP_VERSION='3.270';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2688,6 +2688,30 @@ function populateSRSelect(){
 // ── Load record ────────────────────────────────────────────────────
 function irow(label,val,full){return`<div class="iitem${full?' full':''}"><label>${label}</label><span>${val||'—'}</span></div>`}
 
+async function loadInfoPanelPhotos(ref){
+  var wrap=document.getElementById('ig-photos');
+  var grid=document.getElementById('ig-photos-grid');
+  if(!wrap||!grid)return;
+  wrap.style.display='none';grid.innerHTML='';
+  // Use photo metadata stored on the record if available
+  var rec=(allRecords||[]).find(function(r){return r.ref===ref;});
+  var photoMeta=(rec&&rec.photos)||[];
+  if(!photoMeta.length)return;
+  var token=getToken();
+  photoMeta.forEach(function(p){
+    var url=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+photoPath(ref,p.slot);
+    var img=document.createElement('img');
+    img.alt='Photo '+p.slot+(p.caption?' - '+p.caption:'');
+    img.title=(p.caption||('Photo '+p.slot))+' — click to view full size';
+    img.style.cssText='width:120px;height:90px;object-fit:cover;border-radius:6px;border:1px solid var(--bdr);cursor:pointer;display:block';
+    img.onclick=function(){window.open(url,'_blank');};
+    fetch(url,{headers:{'Authorization':'Bearer '+token,'apikey':token}})
+      .then(function(r){return r.ok?r.blob():Promise.reject(r.status);})
+      .then(function(b){img.src=URL.createObjectURL(b);grid.appendChild(img);wrap.style.display='';})
+      .catch(function(){});
+  });
+}
+
 function populateInfoPanel(rec){
   document.getElementById('iref').textContent=rec.ref;
   const badge=document.getElementById('ibadge');
@@ -2749,6 +2773,7 @@ function populateInfoPanel(rec){
   document.getElementById('ibody').classList.remove('collapsed');
   document.getElementById('itoggle').textContent='▼ Collapse';
   document.getElementById('ipanel').classList.add('vis');
+  loadInfoPanelPhotos(rec.ref);
 }
 
 async function loadRecord(){
@@ -3898,10 +3923,40 @@ function openEngPopup(rec){
   `;
 
   document.getElementById('eng-popup-body').innerHTML = body;
-  // Show email button only if repair date is set
   const emailBtn=document.getElementById('save-email-btn');
   if(emailBtn)emailBtn.style.display=rec.dateRepair?'':'none';
   document.getElementById('eng-popup').style.display='flex';
+  loadEngPopupPhotos(rec);
+}
+
+async function loadEngPopupPhotos(rec){
+  var photos=(rec.photos||[]);
+  if(!photos.length)return;
+  var body=document.getElementById('eng-popup-body');
+  if(!body)return;
+  var section=document.createElement('div');
+  section.className='popup-section';
+  section.innerHTML='<div class="popup-section-title">Photos</div>'
+    +'<div id="eng-popup-photos" style="display:flex;flex-wrap:wrap;gap:8px;padding:4px 0"></div>';
+  body.appendChild(section);
+  var grid=section.querySelector('#eng-popup-photos');
+  var token=getToken();
+  photos.forEach(function(p){
+    var url=SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+photoPath(rec.ref,p.slot);
+    var img=document.createElement('img');
+    img.alt='Photo '+p.slot+(p.caption?' — '+p.caption:'');
+    img.title=(p.caption||('Photo '+p.slot));
+    img.style.cssText='width:100px;height:75px;object-fit:cover;border-radius:6px;border:1px solid var(--bdr);cursor:pointer;display:block';
+    fetch(url,{headers:{'Authorization':'Bearer '+token,'apikey':token}})
+      .then(function(r){return r.ok?r.blob():Promise.reject(r.status);})
+      .then(function(b){
+        var blobUrl=URL.createObjectURL(b);
+        img.src=blobUrl;
+        img.onclick=function(){window.open(blobUrl,'_blank');};
+      })
+      .catch(function(){});
+    grid.appendChild(img);
+  });
 }
 
 function closeEngPopup(){
@@ -4474,6 +4529,14 @@ openEngPopup = function(rec, viewOnly) {
   }
 
   const bodyHTML = `
+    ${!_viewOnly?`
+    <div style='display:flex;flex-direction:column;gap:10px;margin-bottom:16px'>
+      <button class='btn primary' onclick='confirmSaveReport(false)'>&#10003; Confirm &amp; Save</button>
+      ${rec.dateRepair?"<button class='btn primary' style='background:var(--green)' onclick='saveAndEmail()'>&#9993; Save &amp; Email</button>":''}
+      <button class='btn ghost' onclick='closeEngPopup()'>&#10005; Cancel</button>
+    </div>
+    <hr style='border:none;border-top:1px solid var(--bdr);margin:4px 0 16px'>
+    <p style='font-size:13px;color:var(--txm);margin-bottom:16px'>Review the details below then tap Confirm to save.</p>`:''}
     ${mSecTitle('operator','--grn')}
     <div class='igrid' style='margin-bottom:16px'>
       ${pi('Operator', rec.operator)}
@@ -4540,14 +4603,7 @@ openEngPopup = function(rec, viewOnly) {
       pi('Part '+(i+1), [(p.partNumber?'Part Number: '+p.partNumber:''),(p.quantity?'Quantity: '+p.quantity:''),(p.requested?'✓ Requested':'⚠ Not Requested'),(p.dateOrdered?'Ordered: '+p.dateOrdered:''),(p.dateReceived?'Received: '+p.dateReceived:'')].filter(Boolean).join(' · '))
     ).join('')}</div>`:''}
     ${allCustomSecs.map(sec=>customNamedSectionM(sec,'engineer')).join('')}
-    ${!_viewOnly?`
-    <hr style='border:none;border-top:1px solid var(--bdr);margin:4px 0 16px'>
-    <p style='font-size:13px;color:var(--txm);margin-bottom:16px'>Review the details above then tap Confirm to save.</p>
-    <div style='display:flex;flex-direction:column;gap:10px'>
-      <button class='btn primary' onclick='confirmSaveReport(false)'>&#10003; Confirm &amp; Save</button>
-      ${rec.dateRepair?"<button class='btn primary' style='background:var(--green)' onclick='saveAndEmail()'>&#9993; Save &amp; Email</button>":''}
-      <button class='btn ghost' onclick='closeEngPopup()'>Cancel</button>
-    </div>`:'<div style="padding-top:16px"><button class=\'btn ghost\' style=\'width:100%\' onclick=\'closeEngPopup()\'>&#x2715; Close</button></div>'}
+
   `;
   if (bodyEl) bodyEl.innerHTML = bodyHTML;
   if (bk) bk.style.display = 'flex';
