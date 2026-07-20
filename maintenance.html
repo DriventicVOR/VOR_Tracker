@@ -75,6 +75,8 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
 .usage-details{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey)}
 .usage-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--grey);white-space:nowrap}
 .usage-empty{font-size:13px;color:var(--grey);padding:20px;text-align:center}
+.act-filter{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:600}
+.act-filter.active{background:var(--teal);color:var(--navy);border-color:var(--teal)}
 .tabbar{display:flex;gap:4px;margin:18px 0 18px;border-bottom:1px solid var(--bdr)}
 .tab-btn{padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;color:var(--grey);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .tab-btn:hover{color:var(--offwhite)}
@@ -129,6 +131,7 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <button class="tab-btn" data-tab="heatmap" onclick="switchMaintTab('heatmap')">User Heat Map</button>
     <button class="tab-btn" data-tab="active" onclick="switchMaintTab('active')">Active Users</button>
     <button class="tab-btn" data-tab="recovery" onclick="switchMaintTab('recovery')">Record Recovery</button>
+    <button class="tab-btn" data-tab="activity" onclick="switchMaintTab('activity')">SR Activity</button>
   </div>
 
   <div id="tab-versions" class="tab-pane">
@@ -228,6 +231,18 @@ header{background:var(--navy2);border-bottom:1px solid var(--bdr);padding:8px 32
     <div id="recovery-status" style="font-size:12px;color:var(--grey);margin:-6px 0 10px"></div>
     <div id="recovery-wrap"><div class="usage-empty">Search by ref or select an engineer to browse their shadow records.</div></div>
   </div>
+
+<div id="tab-activity" class="tab-pane" style="display:none">
+  <div class="note">Shows SR records created and closed (saved) by engineers, sourced from usage logs. Newest first.</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+    <button class="btn act-filter active" data-f="all" onclick="setActFilter('all',this)">All</button>
+    <button class="btn act-filter" data-f="created" onclick="setActFilter('created',this)">&#10010; Created</button>
+    <button class="btn act-filter" data-f="closed" onclick="setActFilter('closed',this)">&#10003; Closed</button>
+    <button class="btn" onclick="loadActivityLog(true)" style="margin-left:auto">&#8635; Refresh</button>
+  </div>
+  <div id="act-status" style="font-size:12px;color:var(--grey);margin-bottom:10px"></div>
+  <div id="act-table-wrap"></div>
+</div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -816,6 +831,7 @@ function switchMaintTab(name){
   if(name==='heatmap')renderHeatmap();
   if(name==='recovery')loadRecoveryUsers();
   if(name==='active')loadActiveUsers();
+  if(name==='activity')loadActivityLog();
 }
 
 async function loadUsageUsers(){
@@ -1451,6 +1467,66 @@ document.addEventListener('DOMContentLoaded',function(){
     document.getElementById('token-modal').style.display='flex';
   }
 });
+// ── SR Activity Tab ─────────────────────────────────────────────────────
+var _actFilter='all',_actCache=null,_actRecordsCache={};
+var ACT_CREATED=['record_created'];
+var ACT_CLOSED=['report_saved','report_saved_and_emailed'];
+
+function setActFilter(f,btn){
+  _actFilter=f;
+  document.querySelectorAll('.act-filter').forEach(function(b){b.classList.toggle('active',b.dataset.f===f);});
+  renderActivityTable();
+}
+
+async function loadActivityLog(forceRefresh){
+  var status=document.getElementById('act-status');
+  if(status)status.textContent='Loading…';
+  try{
+    var entries=await fetchAllUsageEntries(!!forceRefresh);
+    _actCache=entries
+      .filter(function(e){return (ACT_CREATED.includes(e.action)||ACT_CLOSED.includes(e.action))&&e.details&&e.details.ref;})
+      .map(function(e){return{ref:e.details.ref,type:ACT_CREATED.includes(e.action)?'created':'closed',loggedIn:e._user||'—',ts:e.timestamp||e.ts||'',recordEngineer:null};})
+      .sort(function(a,b){return (b.ts||'').localeCompare(a.ts||'');});
+
+    // Load records per prefix to look up engineer field
+    var prefixes={};
+    _actCache.forEach(function(e){var p=(e.ref.split('-')[0]||'WB').toUpperCase();if(!prefixes[p])prefixes[p]=true;});
+    await Promise.all(Object.keys(prefixes).map(async function(p){
+      if(_actRecordsCache[p])return;
+      try{var recs=await readJSON(p+'-records.json');_actRecordsCache[p]=Array.isArray(recs)?recs:[];}catch(e){_actRecordsCache[p]=[];}
+    }));
+    _actCache.forEach(function(e){
+      var p=(e.ref.split('-')[0]||'WB').toUpperCase();
+      var rec=(_actRecordsCache[p]||[]).find(function(r){return r.ref===e.ref;});
+      e.recordEngineer=rec?(rec.engineer||rec.engineerName||'—'):'—';
+    });
+
+    if(status)status.textContent=_actCache.length+' entries loaded';
+    renderActivityTable();
+  }catch(err){if(status)status.textContent='Failed: '+err.message;}
+}
+
+function renderActivityTable(){
+  var wrap=document.getElementById('act-table-wrap');
+  if(!wrap||!_actCache)return;
+  var rows=_actFilter==='created'?_actCache.filter(function(e){return e.type==='created';}):
+    _actFilter==='closed'?_actCache.filter(function(e){return e.type==='closed';}):_actCache;
+  if(!rows.length){wrap.innerHTML='<div class="usage-empty">No entries for this filter.</div>';return;}
+  var teal='var(--teal)',green='var(--green)';
+  var html='<table class="usage-table"><thead><tr><th>SR Ref</th><th>Event</th><th>Engineer (Record)</th><th>Logged In As</th><th>Date / Time</th></tr></thead><tbody>';
+  rows.forEach(function(e){
+    var created=e.type==='created';
+    var badge=created
+      ?'<span style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(0,241,193,.1);color:'+teal+';border:1px solid rgba(0,241,193,.25)">Created</span>'
+      :'<span style="padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:rgba(0,192,107,.1);color:'+green+';border:1px solid rgba(0,192,107,.3)">Closed</span>';
+    html+='<tr><td class="usage-action">'+e.ref+'</td><td>'+badge+'</td>'
+      +'<td style="color:var(--offwhite)">'+e.recordEngineer+'</td>'
+      +'<td style="color:var(--offwhite)">'+e.loggedIn+'</td>'
+      +'<td class="usage-time">'+usageFormatTime(e.ts)+'</td></tr>';
+  });
+  wrap.innerHTML=html+'</tbody></table>';
+}
+
 </script>
 </body>
 </html>
