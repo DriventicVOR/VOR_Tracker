@@ -401,6 +401,13 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 .photo-section{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px}
 .photo-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--txm);margin-bottom:12px}
 .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.pn-dropdown{position:fixed;z-index:9999;background:var(--surf);border:1px solid var(--bdr);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.15);max-height:320px;overflow-y:auto;overflow-x:hidden;display:none}
+.pn-opt{padding:7px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--bdr)}
+.pn-opt:last-child{border-bottom:none}
+.pn-opt:hover{background:var(--bg)}
+.pn-opt .pn-num{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx)}
+.pn-opt .pn-desc{color:var(--txm);font-size:12px;margin-left:8px}
 .photo-slot{border:1px dashed var(--bdr);border-radius:8px;overflow:hidden;background:var(--bg);position:relative;min-height:120px;display:flex;flex-direction:column}
 .photo-slot.has-photo{border-style:solid;border-color:var(--teal)}
 .photo-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;cursor:pointer}
@@ -422,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.270</span>
+        Engineer Report<span class="h-ver">v3.285</span>
       </div>
     </div>
     <div class="h-right">
@@ -1465,7 +1472,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.270';
+const APP_VERSION='3.285';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1527,6 +1534,65 @@ function clearIdentity(){localStorage.removeItem(IDENTITY_KEY);}
 const TOOL_NAME='engineer-report-mobile';
 const USAGE_LOG_MAX_ENTRIES=2000;
 const HEARTBEAT_LOG_MAX_ENTRIES=1000;
+function normPN(pn){return String(pn||'').trim().toLowerCase().replace(/\./g,'');}
+// ── Custom part number autocomplete ─────────────────────────────────────
+var _pnDropdown=null;
+var _pnActiveInput=null;
+function _getPNDropdown(){
+  if(!_pnDropdown){
+    _pnDropdown=document.createElement('div');
+    _pnDropdown.className='pn-dropdown';
+    _pnDropdown.id='pn-dropdown';
+    document.body.appendChild(_pnDropdown);
+    // Close on click outside
+    document.addEventListener('mousedown',function(e){
+      if(_pnDropdown&&!_pnDropdown.contains(e.target)&&e.target!==_pnActiveInput)
+        _pnDropdown.style.display='none';
+    });
+  }
+  return _pnDropdown;
+}
+function _selectPN(pn){
+  var _d=_getPNDropdown();
+  _d.style.display='none';
+  if(_d._scrollCb){window.removeEventListener('scroll',_d._scrollCb,true);_d._scrollCb=null;}
+  if(_pnActiveInput){
+    _pnActiveInput.value=pn;
+    // Trigger change only (not input, to avoid re-opening dropdown)
+    _pnActiveInput.dispatchEvent(new Event('change',{bubbles:true}));
+    _pnActiveInput.focus();
+  }
+}
+function updatePartDatalist(el){
+  _pnActiveInput=el;
+  var q=normPN(el.value);
+  var dd=_getPNDropdown();
+  if(!q){dd.style.display='none';return;}
+  var matches=(_partsListCache||[]).filter(function(p){return normPN(p.partNumber).includes(q);});
+  if(!matches.length){dd.style.display='none';return;}
+  // Always appended to body, positioned via fixed coords
+  if(dd.parentNode!==document.body)document.body.appendChild(dd);
+  function _positionPNDrop(){
+    var r=el.getBoundingClientRect();
+    dd.style.left=r.left+'px';
+    dd.style.top=(r.bottom+2)+'px';
+    dd.style.width=Math.max(r.width,280)+'px';
+  }
+  _positionPNDrop();
+  // Update on scroll (stored so we can remove it)
+  if(dd._scrollCb)window.removeEventListener('scroll',dd._scrollCb,true);
+  dd._scrollCb=_positionPNDrop;
+  window.addEventListener('scroll',dd._scrollCb,true);
+  dd.innerHTML=matches.map(function(p){
+    var pn=normPN(p.partNumber);
+    var desc=p.description?('<span class="pn-desc">'+p.description+'</span>'):'';
+    return '<div class="pn-opt" data-pn="'+pn+'" onmousedown="event.preventDefault();_selectPN(this.dataset.pn)">'
+      +'<span class="pn-num">'+pn+'</span>'+desc+'</div>';
+  }).join('');
+  dd.style.display='block';
+}
+function _stripPN(el){el.value=el.value.replace(/\./g,'');}
+
 const _logQueue=[];
 let _logRunning=false;
 async function _drainLogQueue(){
@@ -1744,7 +1810,7 @@ function compRowHTML(val,idx,partNum,symptom,rootCause){
   return`<div class="comp-row" id="comp-row-${idx}" style="border:1px solid var(--bdr);border-radius:6px;padding:10px;margin-bottom:8px;background:var(--surf2)">
     <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px">
       <select style="flex:1;min-width:120px;padding:7px 10px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:13px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);appearance:none;box-shadow:0 0 0 1px rgba(29,77,115,.08)" id="e-comp-${idx}" onchange="updateCompPNRequired(${idx})"><option value="">None</option>${opts}</select>
-      <input type="text" id="e-comp-pn-${idx}" value="${partNum||''}" placeholder="Part number *" list="pl-datalist" oninput="highlightMandatory()" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:13px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+      <input type="text" id="e-comp-pn-${idx}" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" onclick="updatePartDatalist(this)" value="${partNum||''}" placeholder="Part number *" style="flex:1;min-width:100px;padding:7px 10px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:13px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);box-shadow:0 0 0 1px rgba(29,77,115,.08)">
       ${rmBtn}
     </div>
     <div style="display:flex;gap:8px">
@@ -1838,7 +1904,7 @@ function getCompValues(){
     const pn=(document.getElementById('e-comp-pn-'+i)||{}).value||'';
     const sym=(document.getElementById('e-comp-sym-'+i)||{}).value||'';
     const rc=(document.getElementById('e-comp-rc-'+i)||{}).value||'';
-    if(name)vals.push({name,partNumber:pn,symptom:sym,rootCause:rc});
+    if(name)vals.push({name,partNumber:pn.replace(/\./g,''),symptom:sym,rootCause:rc});
     i++;
   }
   return vals;
@@ -2553,10 +2619,10 @@ function _renderPartsCard(list,item){
     +'<button type="button" onclick="removePartsOrdered('+i+')" style="font-size:11px;padding:3px 10px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit">Remove</button>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" oninput="highlightMandatory()" value="'+(item.partNumber||'')+'" placeholder="Part number…" list="pl-datalist" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
-    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" oninput="highlightMandatory()" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" onclick="updatePartDatalist(this)" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
+    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" oninput="highlightMandatory()" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
     +'</div>';
   list.appendChild(div);
 }
@@ -2655,8 +2721,8 @@ function _renderDataloggerCard(list,item){
   div.style.cssText='margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr)';
   div.innerHTML=
     '<div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Datalogger</div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" oninput="highlightMandatory()" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" oninput="highlightMandatory()" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
     +'<button type="button" onclick="removeDatalogger('+i+')" style="font-size:11px;padding:4px 12px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;width:100%">Remove</button>';
   list.appendChild(div);
 }
@@ -3065,7 +3131,7 @@ async function saveReport(){
     engineer:gv('e-engineer'),region:gv('e-region'),
     dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
-    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateReceived:document.getElementById('po-date-received-'+i)?.value||'',partNumber:document.getElementById('po-part-number-'+i)?.value||'',quantity:document.getElementById('po-quantity-'+i)?.value||'',requested:x.requested||false};}),rectified:rect,
+    interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateReceived:document.getElementById('po-date-received-'+i)?.value||'',partNumber:(document.getElementById('po-part-number-'+i)?.value||'').replace(/\./g,''),quantity:document.getElementById('po-quantity-'+i)?.value||'',requested:x.requested||false};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     faultCategory:gv('e-fault-category'),faultDetail:gv('e-fault-detail'),
     chargeableNumber:gv('e-comments'),chargeableInfo:(document.getElementById('chargeable-info')||{}).textContent||'',chargeableStatus:gv('e-comments').trim()?'Y':'N',components:getCompValues(),
@@ -4080,7 +4146,7 @@ async function _sendPartsRequestEmail(){
     const elQ=document.getElementById('po-quantity-'+p.idx);
     const qty=elQ?elQ.value.trim():p.quantity;
     const pn=el?el.value.trim():p.partNumber;
-    const _desc=(_partsListCache||[]).find(function(x){return String(x.partNumber||'').trim().toLowerCase()===pn.toLowerCase();});
+    const _desc=(_partsListCache||[]).find(function(x){return normPN(x.partNumber)===normPN(pn);});
     const desc=_desc?(_desc.description||'').trim():'';
     return (qty?qty+' x ':'')+pn+(desc?' - '+desc:'');
   });
@@ -4802,7 +4868,7 @@ function toolSearch(q){
     // Filter Available Tools list in-place
     var wrap=document.getElementById('tool-list-wrap');if(!wrap)return;
     var allItems=(_toolData['Available Tools']||[]).filter(function(t){
-      return (t.partNumber||'').toLowerCase().includes(q)||(t.name||'').toLowerCase().includes(q);
+      return normPN(t.partNumber).includes(normPN(q))||(t.name||'').toLowerCase().includes(q);
     });
     if(!allItems.length){wrap.innerHTML='<div style="color:var(--txm);font-size:13px">No matching tools.</div>';res.style.display='none';return;}
     var saved=_toolData['Available Tools'];
@@ -4817,7 +4883,7 @@ function toolSearch(q){
   Object.keys(_toolData||{}).forEach(function(eng){
     if(eng==='Available Tools')return;
     (_toolData[eng]||[]).forEach(function(t){
-      if(!((t.partNumber||'').toLowerCase().includes(q)||(t.name||'').toLowerCase().includes(q)))return;
+      if(!(normPN(t.partNumber).includes(normPN(q))||(t.name||'').toLowerCase().includes(q)))return;
       var key=t.partNumber||t.name||'';
       if(!toolMap[key])toolMap[key]={tool:t,engineers:[],totalQty:0};
       toolMap[key].engineers.push({eng:eng,qty:t.qty||1});
@@ -5015,7 +5081,7 @@ function toolAddSuggest(field,q){
   q=(q||'').trim().toLowerCase();
   if(!q){drop.style.display='none';return;}
   var matches=avail.filter(function(t){
-    return field==='pn'?(t.partNumber||'').toLowerCase().includes(q)
+    return field==='pn'?normPN(t.partNumber).includes(normPN(q))
                        :(t.name||'').toLowerCase().includes(q);
   });
   matches.sort(function(a,b){
@@ -5087,7 +5153,7 @@ async function toolAddConfirm(){
   } else {
     // Only allow tools that exist in Available Tools
     var availList=_toolData['Available Tools']||[];
-    var inAvail=availList.find(function(t){return (t.partNumber||'').toLowerCase()===(pn||'').toLowerCase();});
+    var inAvail=availList.find(function(t){return normPN(t.partNumber)===normPN(pn);});
     if(!inAvail){showToast('Tool not in Available Tools list — add it there first','error');return;}
     // Use canonical name from Available Tools
     name=inAvail.name||name;
