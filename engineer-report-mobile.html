@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.285</span>
+        Engineer Report<span class="h-ver">v3.286</span>
       </div>
     </div>
     <div class="h-right">
@@ -1472,7 +1472,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.285';
+const APP_VERSION='3.286';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -2620,9 +2620,9 @@ function _renderPartsCard(list,item){
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     +'<div class="fg" style="margin:0"><label>Part Number</label><input type="text" id="po-part-number-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" onclick="updatePartDatalist(this)" value="'+(item.partNumber||'')+'" placeholder="Part number…" style="width:100%;border-color:'+(item.requested?'#16a34a':'#dc2626')+';background:'+(item.requested?'#f0fdf4':'#fff5f5')+'"></div>'
-    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Quantity</label><input type="number" id="po-quantity-'+i+'" oninput="highlightMandatory()" value="'+(item.quantity||'')+'" min="1" placeholder="Qty" style="width:100%"></div>'
     +'<div class="fg" style="margin:0"><label>Date Ordered</label><input type="date" id="po-date-ordered-'+i+'" value="'+(item.date||item.dateOrdered||'')+'" onchange="updatePartsDate('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0"><label>Date Received</label><input type="date" id="po-date-received-'+i+'" oninput="highlightMandatory()" value="'+(item.dateReceived||'')+'" style="width:100%"></div>'
     +'</div>';
   list.appendChild(div);
 }
@@ -2721,8 +2721,8 @@ function _renderDataloggerCard(list,item){
   div.style.cssText='margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;border:1px solid var(--bdr)';
   div.innerHTML=
     '<div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Datalogger</div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
-    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" autocomplete="off" oninput="updatePartDatalist(this);highlightMandatory()" onfocus="updatePartDatalist(this)" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Fitted</label><input type="date" id="dl-date-fitted-'+i+'" oninput="highlightMandatory()" value="'+(item.dateFitted||'')+'" onchange="updateDataloggerFitted('+i+')" style="width:100%"></div>'
+    +'<div class="fg" style="margin:0 0 8px"><label>Date Removed</label><input type="date" id="dl-date-removed-'+i+'" oninput="highlightMandatory()" value="'+(item.dateRemoved||'')+'" style="width:100%"></div>'
     +'<button type="button" onclick="removeDatalogger('+i+')" style="font-size:11px;padding:4px 12px;border:1px solid var(--red-b);background:var(--red-l);color:var(--red);border-radius:4px;cursor:pointer;font-family:inherit;width:100%">Remove</button>';
   list.appendChild(div);
 }
