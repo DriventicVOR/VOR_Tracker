@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.286</span>
+        Engineer Report<span class="h-ver">v3.287</span>
       </div>
     </div>
     <div class="h-right">
@@ -627,17 +627,17 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
 
     <!-- Fault Codes card -->
     <div class="fc off" id="card-fault-codes">
-      <div class="fch"><div class="dot"></div><span>Fault Codes</span></div>
+      <div class="fch"><div class="dot"></div><span>Fault Codes &mdash; Enter actual codes / SPN FMI DTC code</span></div>
       <div class="fcb">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <input type="text" id="e-fc-1" placeholder="Code 1" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-2" placeholder="Code 2" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-3" placeholder="Code 3" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-4" placeholder="Code 4" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-5" placeholder="Code 5" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-6" placeholder="Code 6" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-7" placeholder="Code 7" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
-          <input type="text" id="e-fc-8" placeholder="Code 8" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-1" placeholder="Code 1" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-2" placeholder="Code 2" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-3" placeholder="Code 3" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-4" placeholder="Code 4" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-5" placeholder="Code 5" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-6" placeholder="Code 6" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-7" placeholder="Code 7" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
+          <input type="text" id="e-fc-8" placeholder="Code 8" maxlength="6" oninput="this.value=this.value.toUpperCase()" style="width:100%;padding:11px 14px;border:1.5px solid rgba(29,77,115,.5);border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;background:rgba(29,77,115,.06);color:var(--blu);min-height:48px;box-sizing:border-box;box-shadow:0 0 0 1px rgba(29,77,115,.08)">
         </div>
       </div>
     </div>
@@ -1472,7 +1472,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.286';
+const APP_VERSION='3.287';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
