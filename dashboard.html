@@ -43,10 +43,10 @@ header{
 .hrow2{display:none;align-items:center;gap:10px;padding:6px 0 2px;border-top:1px solid rgba(255,255,255,.07);flex-wrap:wrap}
 .logo{display:flex;align-items:center}
 .logo img{height:46px;width:auto;display:block;object-fit:contain}
-.logo span{font-size:8px;color:rgba(255,255,255,.35);font-family:'IBM Plex Mono',monospace;letter-spacing:.08em}
+.logo span{font-size:8px;color:rgba(255,255,255,.35);font-family:monospace;letter-spacing:.08em}
 .hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .htitle{font-size:13px;font-weight:600;color:var(--white);letter-spacing:.04em;text-transform:uppercase}
-.hstat{font-size:11px;color:var(--grey);font-family:'IBM Plex Mono',monospace}
+.hstat{font-size:11px;color:var(--grey);font-family:monospace}
 .hstat.warn{color:#f59e0b}
 .hstat.ok{color:var(--teal)}
 .btn{
@@ -101,7 +101,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .stat.orange::before{background:#ff8c00}
 .stat.orange .val{color:#ff8c00}
 .stat .lbl{font-size:10px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-.stat .val{font-size:22px;font-weight:300;color:var(--white);font-family:'IBM Plex Mono',monospace;line-height:1}
+.stat .val{font-size:22px;font-weight:300;color:var(--white);font-family:monospace;line-height:1}
 .stat.amber .val{color:var(--amber)}
 .stat.purple .val{color:var(--purple)}
 .stat.green .val{color:var(--green)}
@@ -150,10 +150,10 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .tbl tr:last-child td{border-bottom:none}
 .tbl tbody tr{cursor:pointer;transition:background .1s}
 .tbl tbody tr:hover td{background:rgba(255,255,255,.03)}
-.mono{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.mono{font-family:monospace;font-weight:500}
 .badge{
   display:inline-block;padding:2px 7px;border-radius:2px;
-  font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;font-weight:700;font-family:monospace;
   text-transform:uppercase;letter-spacing:.06em;
 }
 .b-open{background:rgba(88,166,255,.12);color:#58a6ff}
@@ -223,11 +223,11 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .htl-ruler-line{flex:1;height:2px;background:rgba(0,241,193,.35);position:relative}
 .htl-ruler-line:first-child::before{content:'';position:absolute;left:0;top:-3px;width:2px;height:8px;background:rgba(0,241,193,.6)}
 .htl-ruler-line:last-child::after{content:'';position:absolute;right:0;top:-3px;width:2px;height:8px;background:rgba(0,241,193,.6)}
-.htl-ruler-label{font-size:9px;color:var(--teal2);font-family:'IBM Plex Mono',monospace;white-space:nowrap;letter-spacing:.04em;padding:0 5px;flex-shrink:0}
+.htl-ruler-label{font-size:9px;color:var(--teal2);font-family:monospace;white-space:nowrap;letter-spacing:.04em;padding:0 5px;flex-shrink:0}
 .htl-tick{position:absolute;top:2px;display:flex;flex-direction:column;align-items:center}
 .htl-tick-line{display:none}
-.htl-tick-label{font-size:9px;color:var(--grey);font-family:'IBM Plex Mono',monospace;white-space:nowrap;letter-spacing:.02em}
-#htl-shared-tip{position:fixed;background:var(--navy3);border:1px solid var(--bdr2);color:var(--offwhite);padding:8px 12px;border-radius:3px;font-size:12px;pointer-events:none;z-index:9999;display:none;max-width:280px;font-family:'IBM Plex Mono',monospace}
+.htl-tick-label{font-size:9px;color:var(--grey);font-family:monospace;white-space:nowrap;letter-spacing:.02em}
+#htl-shared-tip{position:fixed;background:var(--navy3);border:1px solid var(--bdr2);color:var(--offwhite);padding:8px 12px;border-radius:3px;font-size:12px;pointer-events:none;z-index:9999;display:none;max-width:280px;font-family:monospace}
 .vtl{position:relative;padding:4px 0 4px 40px}
 .vtl-line{position:absolute;left:15px;top:0;bottom:0;width:2px;background:rgba(0,241,193,.15)}
 .vtl-item{position:relative;margin-bottom:12px;cursor:pointer}
@@ -247,10 +247,10 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .htl-v1{background:var(--teal)!important;box-shadow:0 0 6px rgba(0,241,193,.5)!important}
 .htl-v1:hover{box-shadow:0 0 12px rgba(0,241,193,.9)!important}
 .vtl-card{background:var(--navy3);border:1px solid var(--bdr);border-radius:3px;padding:10px 14px;transition:border-color .15s}
-.vtl-date{font-size:10px;color:var(--grey);margin-bottom:3px;font-family:'IBM Plex Mono',monospace}
+.vtl-date{font-size:10px;color:var(--grey);margin-bottom:3px;font-family:monospace}
 .vtl-ref{font-size:13px;font-weight:600;color:var(--white);display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .vtl-detail{font-size:11px;color:var(--grey);margin-top:4px}
-.vtl-badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.vtl-badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;font-weight:700;font-family:monospace;text-transform:uppercase;letter-spacing:.06em}
 .htl-iv{background:var(--grey2)!important;box-shadow:0 0 4px rgba(148,163,184,.4)!important}
 .htl-iv:hover{box-shadow:0 0 10px rgba(148,163,184,.8)!important}
 .vtl-iv{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr)}
@@ -267,7 +267,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
 .vtl-po{display:flex;align-items:center;gap:6px;margin-top:5px;padding-top:5px;border-top:1px solid var(--bdr)}
 .vtl-po-dot{width:7px;height:7px;border-radius:2px;background:#ff7f50;flex-shrink:0}
 .date-filter-wrap{display:flex;align-items:center;gap:8px}
-.date-filter-inp{padding:5px 9px;border:1px solid var(--bdr2);border-radius:3px;background:var(--navy3);color:var(--offwhite);font-size:11px;font-family:'IBM Plex Mono',monospace;cursor:pointer}
+.date-filter-inp{padding:5px 9px;border:1px solid var(--bdr2);border-radius:3px;background:var(--navy3);color:var(--offwhite);font-size:11px;font-family:monospace;cursor:pointer}
 .date-filter-inp:focus{outline:none;border-color:var(--teal)}
 .tab-nav{display:flex;flex-wrap:wrap;gap:0;flex-direction:row;align-items:stretch;border-bottom:1px solid var(--bdr)}
 .tab-btn{padding:0 18px;height:40px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;border:none;background:none;color:var(--grey);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:inherit}
@@ -360,14 +360,14 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
       <div class="logo">
         <img src="data:image/webp;base64,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" alt="Driventic">
       </div>
-      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.485</span></div>
+      <div class="htitle">VOR Dashboard <span style="font-size:10px;opacity:.6;font-weight:400;letter-spacing:.02em">v4.486</span></div>
     </div>
     <div class="hright">
       <button class="btn btn-ghost btn-sm" onclick="openExportModal()" id="export-btn" style="display:none">&#8681; Export CSV</button>
       <button class="btn btn-ghost btn-sm" onclick="generateReport()" id="report-btn" style="display:none">&#128196; Generate Report</button>
       <div style="width:2px;align-self:stretch;background:var(--teal);opacity:.4;flex-shrink:0;border-radius:2px"></div>
       <span class="hstat" id="hstat">Not connected</span>
-      <div id="identity-badge" style="display:none;align-items:center;gap:6px;font-size:11px;padding:5px 12px;border-radius:3px;border:1px solid var(--bdr2);background:rgba(0,241,193,.08);color:var(--teal);font-weight:600;font-family:'IBM Plex Mono',monospace">
+      <div id="identity-badge" style="display:none;align-items:center;gap:6px;font-size:11px;padding:5px 12px;border-radius:3px;border:1px solid var(--bdr2);background:rgba(0,241,193,.08);color:var(--teal);font-weight:600;font-family:monospace">
         <span id="identity-name"></span>
         <button onclick="switchUser()" style="background:none;border:none;color:var(--teal);text-decoration:underline;cursor:pointer;font-size:10px;font-family:inherit;padding:0;font-weight:600">Switch</button>
       </div>
@@ -417,6 +417,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('age')">Age</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('comp')">Components</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('parts')">Parts</button>
+    <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('faultcodes')">Fault Codes</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('fcrmap')">Failure Map</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('compfault')">Component Fault Map</button>
     <button class="tab-btn hidden" data-group="eng" onclick="switchDashTab('failurechain')">Failure Chain</button>
@@ -526,7 +527,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
         <div id="tl-vor-badge" style="display:none;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);
           border-radius:4px;padding:4px 10px;text-align:center">
           <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#ff4757">Reported VOR</div>
-          <div id="tl-vor-pct" style="font-size:15px;font-weight:700;color:#ff4757;font-family:'IBM Plex Mono',monospace">—</div>
+          <div id="tl-vor-pct" style="font-size:15px;font-weight:700;color:#ff4757;font-family:monospace">—</div>
         </div>
           <select id="tl-group-sel" onchange="this.dataset.userSet='1';updateDashboard(false)" style="font-size:11px;padding:3px 7px;border:1px solid rgba(255,255,255,.12);border-radius:4px;background:#1a2234;color:#8896a8;font-family:inherit;cursor:pointer">
             <option value="day">Day</option>
@@ -1260,7 +1261,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     <div style="flex:1"></div>
     <div style="text-align:center">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--grey);margin-bottom:2px">Overall Uptime</div>
-      <div id="uptime-overall-pct" style="font-size:22px;font-weight:700;color:var(--teal);font-family:'IBM Plex Mono',monospace">—</div>
+      <div id="uptime-overall-pct" style="font-size:22px;font-weight:700;color:var(--teal);font-family:monospace">—</div>
     </div>
     <div style="flex:1"></div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -1456,6 +1457,10 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     <div id="parts-table" style="overflow-x:auto"></div>
   </div>
 </div>
+<div id="tab-faultcodes" class="tab-pane">
+  <div id="tab-faultcodes-body" style="font-size:13px;color:var(--grey)">Loading…</div>
+</div>
+
 <div id="tab-map" class="tab-pane">
     <!-- Controls row -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
@@ -1733,7 +1738,7 @@ main{padding:24px 32px;display:flex;flex-direction:column;gap:20px;height:calc(1
     <h2>&#128100; Who's using this device?</h2>
     <p>Select your name. If a PIN has been set for you, enter it below. This is remembered on this device until you switch user.</p>
     <select id="identity-eng-sel" style="width:100%;padding:11px 14px;border:1px solid var(--bdr2);border-radius:2px;background:var(--navy3);color:var(--white);font-size:13px;font-family:'IBM Plex Sans',sans-serif;margin-bottom:12px;outline:none;box-sizing:border-box"><option value="">Select…</option></select>
-    <input type="password" id="identity-pin-inp" inputmode="numeric" maxlength="4" placeholder="PIN (if set)" autocomplete="new-password" style="width:100%;padding:11px 14px;border:1px solid var(--bdr2);border-radius:2px;background:var(--navy3);color:var(--white);font-size:13px;font-family:'IBM Plex Mono',monospace;letter-spacing:.3em;text-align:center;margin-bottom:12px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')document.getElementById('identity-submit-btn').click()">
+    <input type="password" id="identity-pin-inp" inputmode="numeric" maxlength="4" placeholder="PIN (if set)" autocomplete="new-password" style="width:100%;padding:11px 14px;border:1px solid var(--bdr2);border-radius:2px;background:var(--navy3);color:var(--white);font-size:13px;font-family:monospace;letter-spacing:.3em;text-align:center;margin-bottom:12px;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')document.getElementById('identity-submit-btn').click()">
     <button class="btn btn-primary" id="identity-submit-btn" type="button" style="width:100%">Continue</button>
     <div class="tok-err" id="identity-error"></div>
     <div style="margin-top:16px;text-align:center">
@@ -3408,7 +3413,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='4.485';
+const APP_VERSION='4.486';
 const APP_TOOL_KEY='dashboard';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -4532,6 +4537,8 @@ function switchDashTab(tab){
   const _mapEl=document.getElementById('tab-map');if(_mapEl)_mapEl.classList.toggle('active',tab==='map');
   const _ptsEl=document.getElementById('tab-parts');if(_ptsEl)_ptsEl.classList.toggle('active',tab==='parts');
   if(tab==='parts')renderPartsTab();
+  const _fcEl=document.getElementById('tab-faultcodes');if(_fcEl)_fcEl.classList.toggle('active',tab==='faultcodes');
+  if(tab==='faultcodes')renderFaultCodesTab();
   const _rtEl=document.getElementById('tab-repairtime');if(_rtEl)_rtEl.classList.toggle('active',tab==='repairtime');
   if(tab==='repairtime')renderRepairTimeTab();
   const _vcEl=document.getElementById('tab-vorclosed');if(_vcEl)_vcEl.classList.toggle('active',tab==='vorclosed');
@@ -5160,9 +5167,9 @@ function renderPartsPerfTab(){
     +'</tr></thead><tbody>';
   sorted.forEach(o=>{
     html+='<tr style="border-bottom:1px solid var(--bdr)">'
-      +`<td style="padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal)">${o.ref}</td>`
+      +`<td style="padding:7px 10px;font-family:monospace;font-size:11px;color:var(--teal)">${o.ref}</td>`
       +`<td style="padding:7px 10px;color:var(--offwhite)">${o.customer}</td>`
-      +`<td style="padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px">${o.partNumber}</td>`
+      +`<td style="padding:7px 10px;font-family:monospace;font-size:11px">${o.partNumber}</td>`
       +`<td style="padding:7px 10px;color:var(--grey)">${o.engineer}</td>`
       +`<td style="padding:7px 10px;color:var(--grey);white-space:nowrap">${o.dateOrdered}</td>`
       +`<td style="padding:7px 10px;color:var(--grey);white-space:nowrap">${o.dateReceived}</td>`
@@ -8592,6 +8599,93 @@ function renderFTFRTable(recs){
   wrap.querySelectorAll('tr.ftfr-row').forEach(function(tr){
     tr.addEventListener('click',function(){openVehicleFTFRTimeline(tr.dataset.vid);});
   });
+}
+
+// ── Fault Codes Tab ───────────────────────────────────────────────────────
+var _fcExpanded={};
+
+function renderFaultCodesTab(){
+  var el=document.getElementById('tab-faultcodes-body');
+  if(!el)return;
+  var recs=allRecords||[];
+
+  // Group by failure → code → [refs]
+  var byFailure={};
+  recs.forEach(function(r){
+    var codes=(r.faultCodes||[]).map(function(v){return(v||'').trim().toUpperCase();}).filter(Boolean);
+    if(!codes.length)return;
+    var fail=((r.failure||r.defect||'')).trim()||'(No failure description)';
+    if(!byFailure[fail])byFailure[fail]={};
+    codes.forEach(function(code){
+      if(!byFailure[fail][code])byFailure[fail][code]=[];
+      if(r.ref&&byFailure[fail][code].indexOf(r.ref)<0)byFailure[fail][code].push(r.ref);
+    });
+  });
+
+  var failures=Object.keys(byFailure);
+  if(!failures.length){
+    el.innerHTML='<div style="color:var(--grey);padding:20px 0">No fault codes found in loaded records.</div>';
+    return;
+  }
+
+  // Sort failures by total code occurrences desc
+  failures.sort(function(a,b){
+    var sumA=Object.values(byFailure[a]).reduce(function(s,refs){return s+refs.length;},0);
+    var sumB=Object.values(byFailure[b]).reduce(function(s,refs){return s+refs.length;},0);
+    return sumB-sumA;
+  });
+
+  var html='';
+  failures.forEach(function(fail,fi){
+    var codeMap=byFailure[fail];
+    // Sort codes by occurrence desc
+    var sortedCodes=Object.keys(codeMap).sort(function(a,b){return codeMap[b].length-codeMap[a].length;});
+
+    html+='<div style="background:var(--navy2);border:1px solid var(--bdr2);border-radius:8px;margin-bottom:12px;overflow:hidden">';
+    // Failure header
+    html+='<div style="padding:10px 14px;background:var(--blu);display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:13px;font-weight:700;color:#fff;flex:1">'+fail+'</span>'
+      +'<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px;background:rgba(255,255,255,.2);color:#fff">'+sortedCodes.length+' code'+(sortedCodes.length===1?'':'s')+'</span>'
+      +'</div>';
+
+    // Code rows
+    sortedCodes.forEach(function(code,ci){
+      var refs=codeMap[code].slice().sort();
+      var rowKey='fc-'+fi+'-'+ci;
+      var isOpen=!!_fcExpanded[rowKey];
+      html+='<div>'
+        +'<div class="fc-row" data-rowkey="'+rowKey+'" onclick="toggleFCRow(this.dataset.rowkey)" style="display:flex;align-items:center;gap:12px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--bdr2);transition:background .1s">'
+        +'<span style="font-family:monospace;font-weight:700;font-size:13px;color:var(--teal);min-width:70px">'+code+'</span>'
+        +'<span style="font-size:12px;color:var(--grey)">'+refs.length+'×</span>'
+        +'<span style="font-size:12px;color:var(--txm);flex:1">'+refs.length+' record'+(refs.length===1?'':'s')+'</span>'
+        +'<span id="fc-arr-'+rowKey+'" style="color:var(--grey);font-size:11px">'+(isOpen?'&#9650;':'&#9660;')+'</span>'
+        +'</div>'
+        +'<div id="fc-exp-'+rowKey+'" style="display:'+(isOpen?'block':'none')+';padding:8px 14px 10px;background:rgba(0,0,0,.15);border-bottom:1px solid var(--bdr2)">'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:6px">SR Records</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:6px">'
+        +refs.map(function(ref){
+          return '<span class="fc-ref-chip" data-ref="'+ref+'" onclick="event.stopPropagation();openFCRecord(this.dataset.ref)" style="font-family:monospace;font-size:11px;background:var(--navy3);border:1px solid var(--bdr2);border-radius:4px;padding:3px 8px;cursor:pointer;color:var(--teal)">'+ref+'</span>';
+        }).join('')
+        +'</div>'
+        +'</div>'
+        +'</div>';
+    });
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+function toggleFCRow(rowKey){
+  _fcExpanded[rowKey]=!_fcExpanded[rowKey];
+  var exp=document.getElementById('fc-exp-'+rowKey);
+  var arr=document.getElementById('fc-arr-'+rowKey);
+  if(exp)exp.style.display=_fcExpanded[rowKey]?'block':'none';
+  if(arr)arr.innerHTML=_fcExpanded[rowKey]?'&#9650;':'&#9660;';
+}
+
+function openFCRecord(ref){
+  var rec=(allRecords||[]).find(function(r){return r.ref===ref;});
+  if(rec)openDetail(JSON.stringify(rec));
 }
 </script>
 
