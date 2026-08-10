@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.287</span>
+        Engineer Report<span class="h-ver">v3.288</span>
       </div>
     </div>
     <div class="h-right">
@@ -1472,7 +1472,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.287';
+const APP_VERSION='3.288';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1913,7 +1913,24 @@ function getCompValues(){
 
 
 
-function applyConfig(){fillSel('e-engineer',config.engineers,'Select…');fillSel('e-region',config.region,'Select…');fillSel('e-warranty',config.warranty,'Select…');fillSel('e-voith',config.liability,'Select…');refreshCompOptions();fillSel('e-sw-init',config.software,'Select…');fillSel('e-sw-fin',config.software,'Select…')}
+function applySoftwareOptions(subType){
+  var subs=config.softwareSubtypes||{};
+  var all=config.software||[];
+  var filtered=subType
+    ? all.filter(function(v){var mapped=subs[v];return !mapped||mapped===subType;})
+    : all;
+  var prev_init=document.getElementById('e-sw-init')?.value||'';
+  var prev_fin=document.getElementById('e-sw-fin')?.value||'';
+  fillSel('e-sw-init',filtered,'Select…');
+  fillSel('e-sw-fin',filtered,'Select…');
+  var si=document.getElementById('e-sw-init');
+  var sf=document.getElementById('e-sw-fin');
+  if(si&&filtered.includes(prev_init))si.value=prev_init;
+  if(sf&&filtered.includes(prev_fin))sf.value=prev_fin;
+}
+
+
+function applyConfig(){fillSel('e-engineer',config.engineers,'Select…');fillSel('e-region',config.region,'Select…');fillSel('e-warranty',config.warranty,'Select…');fillSel('e-voith',config.liability,'Select…');refreshCompOptions();applySoftwareOptions(window._currentProductSubType||'')}
 
 // ── Custom fields rendering ────────────────────────────────────────
 function renderCustomEngineerFields(existingData){
@@ -2301,7 +2318,7 @@ function emobSRChanged(){
     tab.querySelectorAll('input[type="text"],textarea').forEach(function(el){if(el.id!=='emob-search-inp'){el.value='';el.style.outline='';}});
     tab.querySelectorAll('select:not(#emob-sr-select)').forEach(function(el){el.value='';el.style.outline='';});
   }
-  if(hasSR){var rec=allRecords.find(function(r){return r.ref===sel.value;});if(rec)updateEmobCanVisibility(rec.productType,rec.productSubType);}
+  if(hasSR){var rec=allRecords.find(function(r){return r.ref===sel.value;});if(rec){updateEmobCanVisibility(rec.productType,rec.productSubType);applySoftwareOptions(rec.productSubType||'');}}
   else{updateEmobCanVisibility('','');}
   if(!hasSR){
     var si=document.getElementById('emob-search-inp');if(si)si.value='';
@@ -2861,6 +2878,7 @@ async function loadRecord(){
 
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
+  applySoftwareOptions(window._currentProductSubType);
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
   loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();highlightMandatory();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
