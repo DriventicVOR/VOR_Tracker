@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.288</span>
+        Engineer Report<span class="h-ver">v3.289</span>
       </div>
     </div>
     <div class="h-right">
@@ -1472,7 +1472,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.288';
+const APP_VERSION='3.289';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1606,8 +1606,9 @@ async function _drainLogQueue(){
       const safeName=name.replace(/[^A-Za-z0-9 _-]/g,'').trim();
       if(!safeName)continue;
       const path='usage-logs/'+safeName+'.json';
-      let log=[];
-      try{ const existing=await readJSON(path); if(Array.isArray(existing))log=existing; }catch(e){}
+      let log;
+      try{const existing=await readJSON(path);log=Array.isArray(existing)?existing:[];}
+      catch(e){console.warn('Usage log read failed — skipping write to prevent data loss:',e);continue;}
       log.push({tool,action,details:details||null,timestamp:ts});
       if(log.length>USAGE_LOG_MAX_ENTRIES)log=log.slice(log.length-USAGE_LOG_MAX_ENTRIES);
       await writeJSON(path,log);
@@ -1628,8 +1629,9 @@ async function logHeartbeat(tool, details){
     // One file per user per tool — eliminates write collisions when a user
     // has multiple tools open simultaneously (each tool owns its own file).
     const path='usage-logs/heartbeats/'+safeName+'-'+tool+'.json';
-    let log=[];
-    try{ const existing=await readJSON(path); if(Array.isArray(existing))log=existing; }catch(e){}
+    let log;
+    try{const existing=await readJSON(path);log=Array.isArray(existing)?existing:[];}
+    catch(e){console.warn('Heartbeat log read failed — skipping write:',e);return;}
     log.push({tool,action:'heartbeat',details:details||null,timestamp:new Date().toISOString()});
     if(log.length>HEARTBEAT_LOG_MAX_ENTRIES)log=log.slice(log.length-HEARTBEAT_LOG_MAX_ENTRIES);
     await writeJSON(path,log);
