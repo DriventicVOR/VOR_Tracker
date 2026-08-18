@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.289</span>
+        Engineer Report<span class="h-ver">v3.294</span>
       </div>
     </div>
     <div class="h-right">
@@ -543,7 +543,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <div class="fcb">
         <div class="fg">
           <label>Date First Attended <span style="color:var(--red);margin-left:2px">*</span></label>
-          <input type="date" id="e-date-att" oninput="updateVisitCount();highlightMandatory()" required>
+          <input type="date" id="e-date-att" oninput="updateVisitCount();onRectifiedChange();highlightMandatory()" required>
         </div>
         <button type="button" id="e-unavail-att" onclick="this.classList.toggle('on');updateVisitCount()" class="emob-check-btn" style="width:100%;margin:8px 0">Vehicle Unavailable on Attendance</button>
         <div class="fg">
@@ -584,12 +584,9 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
       <div class="fcb">
         <div class="fg">
           <label>Defect Rectified <span class="req">*</span></label>
-          <select id="e-rectified" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option><option>ONGOING</option></select>
+          <select id="e-rectified" onchange="onRectifiedChange()" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option><option>ONGOING</option></select>
         </div>
-        <div class="fg">
-          <label>Inverter Serial Number <span class="req">*</span></label>
-          <input type="text" id="e-inverter" oninput="highlightMandatory()" placeholder="Serial number" required>
-        </div>
+      <div class="fg" id="ongoing-status-wrap"><label>Ongoing Status <span class="req">*</span></label><select id="e-ongoing-status"><option value="">Select…</option></select></div>
         <div class="fg">
           <label>Warranty <span class="req">*</span></label>
           <select id="e-warranty" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option></select>
@@ -597,6 +594,10 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         <div class="fg">
           <label>Liability <span class="req">*</span></label>
           <select id="e-voith" onchange="highlightMandatory()"><option value="">Select…</option></select>
+        </div>
+        <div class="fg">
+          <label>Inverter Serial Number <span class="req">*</span></label>
+          <input type="text" id="e-inverter" oninput="highlightMandatory()" placeholder="Serial number" required>
         </div>
         <div class="fg" style="margin-top:8px">
           <label>Diagnosis and Comments <span style="color:var(--red)">*</span></label>
@@ -1472,7 +1473,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.289';
+const APP_VERSION='3.294';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1915,6 +1916,21 @@ function getCompValues(){
 
 
 
+function onRectifiedChange(){
+  var val=(document.getElementById('e-rectified')?.value||'');
+  var sel=document.getElementById('e-ongoing-status');
+  var wrap=document.getElementById('ongoing-status-wrap');
+  var isOngoing=val==='ONGOING';
+  if(sel){sel.disabled=!isOngoing;sel.style.opacity=isOngoing?'1':'0.4';}
+  if(wrap)wrap.style.opacity=isOngoing?'1':'0.4';
+  if(!isOngoing&&sel)sel.value='';
+  var attDate=document.getElementById('e-date-att')?.value||'';
+  var star=document.getElementById('rectified-req-star');
+  if(star)star.style.display=attDate?'inline':'none';
+}
+
+
+
 function applySoftwareOptions(subType){
   var subs=config.softwareSubtypes||{};
   var all=config.software||[];
@@ -1932,7 +1948,7 @@ function applySoftwareOptions(subType){
 }
 
 
-function applyConfig(){fillSel('e-engineer',config.engineers,'Select…');fillSel('e-region',config.region,'Select…');fillSel('e-warranty',config.warranty,'Select…');fillSel('e-voith',config.liability,'Select…');refreshCompOptions();applySoftwareOptions(window._currentProductSubType||'')}
+function applyConfig(){fillSel('e-engineer',config.engineers,'Select…');fillSel('e-region',config.region,'Select…');fillSel('e-warranty',config.warranty,'Select…');fillSel('e-voith',config.liability,'Select…');fillSel('e-ongoing-status',config.ongoingStatuses||[],'Select…');refreshCompOptions();applySoftwareOptions(window._currentProductSubType||'')}
 
 // ── Custom fields rendering ────────────────────────────────────────
 function renderCustomEngineerFields(existingData){
@@ -2882,7 +2898,7 @@ async function loadRecord(){
   window._currentProductSubType=rec.productSubType||'';
   applySoftwareOptions(window._currentProductSubType);
   sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
-  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();highlightMandatory();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);
+  loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();highlightMandatory();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);sv('e-rectified',rec.rectified);sv('e-ongoing-status',rec.ongoingStatus||'');syncRectifiedOptions();onRectifiedChange();
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
     sv('e-fc-3',rec.faultCodes&&rec.faultCodes[2]||'');
@@ -2915,6 +2931,8 @@ function syncRectifiedOptions(){
     // Repair date set — Y and N only, clear ONGOING
     sel.innerHTML = '<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option>';
     sel.value = (cur==='Y'||cur==='N') ? cur : '';
+    var os=document.getElementById('e-ongoing-status');if(os)os.value='';
+    onRectifiedChange();
   } else {
     // No repair date — all three options
     sel.innerHTML = '<option value="">Select…</option><option value="Y">Y</option><option value="N">N</option><option value="ONGOING">ONGOING</option>';
@@ -3052,13 +3070,16 @@ function hideForm(){
 function validate(strict){
   // Always required (any save)
   const alwaysRequired=['e-engineer','e-region'];
+  const attDate=document.getElementById('e-date-att')?.value||'';
+  const rectVal=document.getElementById('e-rectified')?.value||'';
+  const attendRequired=[...(attDate?['e-rectified']:[]),...(attDate&&rectVal==='ONGOING'?['e-ongoing-status']:[])];
   // Only required when repair date is filled (strict mode)
   const strictRequired=['e-rectified','e-inverter','e-warranty','e-voith',
     'e-diagnosis','e-sw-init','e-sw-fin'];
-  const toCheck=strict?[...alwaysRequired,...strictRequired]:alwaysRequired;
+  const toCheck=[...alwaysRequired,...attendRequired,...(strict?strictRequired:[])];
   let ok=true;
   // Clear all errors first
-  [...alwaysRequired,...strictRequired].forEach(id=>{
+  [...alwaysRequired,...attendRequired,...strictRequired].forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.classList.remove('err');
   });
@@ -3149,7 +3170,7 @@ async function saveReport(){
   // Build the updated record but don't save yet
   _pendingRecord={...allRecords[idx],
     engineer:gv('e-engineer'),region:gv('e-region'),
-    dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),
+    dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),ongoingStatus:gv('e-rectified')==='ONGOING'?gv('e-ongoing-status')||undefined:undefined,
     warranty:gv('e-warranty'),voithFault:gv('e-voith'),
     interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateReceived:document.getElementById('po-date-received-'+i)?.value||'',partNumber:(document.getElementById('po-part-number-'+i)?.value||'').replace(/\./g,''),quantity:document.getElementById('po-quantity-'+i)?.value||'',requested:x.requested||false};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
