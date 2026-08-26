@@ -429,7 +429,7 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
   <div class="hrow1">
     <div class="h-left">
       <div class="h-title" style="display:flex;align-items:baseline;gap:0">
-        Engineer Report<span class="h-ver">v3.299</span>
+        Engineer Report<span class="h-ver">v3.300</span>
       </div>
     </div>
     <div class="h-right">
@@ -588,8 +588,12 @@ input[type='checkbox'].iv-unavail{-webkit-appearance:none;appearance:none;width:
         </div>
       <div class="fg" id="ongoing-status-wrap"><label>Ongoing Status <span class="req">*</span></label><select id="e-ongoing-status"><option value="">Select…</option></select></div>
         <div class="fg">
-          <label>Warranty <span class="req">*</span></label>
-          <select id="e-warranty" onchange="highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option></select>
+          <label>Are costs covered by warranty? <span class="req">*</span></label>
+          <select id="e-warranty" onchange="_onWarrantyChange();highlightMandatory()"><option value="">Select…</option><option>Y</option><option>N</option></select>
+        </div>
+        <div class="fg" id="warranty-refusal-wrap" style="opacity:.4;pointer-events:none">
+          <label>Reason for warranty refusal <span class="req" id="warranty-refusal-req" style="display:none">*</span></label>
+          <textarea id="e-warranty-refusal" rows="2" placeholder="Enter reason for warranty refusal…" style="width:100%;resize:vertical" oninput="_onWarrantyRefusalInput()"></textarea>
         </div>
         <div class="fg">
           <label>Liability <span class="req">*</span></label>
@@ -1473,7 +1477,7 @@ async function writeJSON(filename,data){
 // file. If this file is older than what's recorded, the record is
 // updated. If this file is older than the recorded version, the user
 // is warned that a newer version is available and to refresh.
-const APP_VERSION='3.299';
+const APP_VERSION='3.300';
 const APP_TOOL_KEY='engineer-report-mobile';
 const VERSIONS_FILE='latest-versions.json';
 
@@ -1964,6 +1968,20 @@ function applySoftwareOptions(subType){
   if(sf&&filtered.includes(prev_fin))sf.value=prev_fin;
 }
 
+
+function _onWarrantyChange(){
+  var val=document.getElementById('e-warranty').value;
+  var wrap=document.getElementById('warranty-refusal-wrap');
+  var req=document.getElementById('warranty-refusal-req');
+  var ta=document.getElementById('e-warranty-refusal');
+  if(!wrap)return;
+  var active=val==='N';
+  wrap.style.opacity=active?'1':'.4';
+  wrap.style.pointerEvents=active?'':'none';
+  if(req)req.style.display=active?'':'none';
+  if(!active&&ta)ta.value='';
+}
+function _onWarrantyRefusalInput(){}
 
 function applyConfig(){fillSel('e-engineer',config.engineers,'Select…');fillSel('e-region',config.region,'Select…');fillSel('e-warranty',config.warranty,'Select…');fillSel('e-voith',config.liability,'Select…');fillSel('e-ongoing-status',config.ongoingStatuses||[],'Select…');refreshCompOptions();applySoftwareOptions(window._currentProductSubType||'')}
 
@@ -2914,7 +2932,7 @@ async function loadRecord(){
   window._currentProductType=rec.productType||'VEDS';
   window._currentProductSubType=rec.productSubType||'';
   applySoftwareOptions(window._currentProductSubType);
-  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
+  sv('e-engineer',rec.engineer);sv('e-region',rec.region);sv('e-date-att',rec.dateAttended);sv('e-date-expected-att',rec.dateExpectedAtt);const _uaEl=document.getElementById('e-unavail-att');if(_uaEl)_uaEl.classList.toggle('on',rec.vehicleUnavailableOnAttend==='Y');sv('e-actually-vor',rec.actuallyVor||rec.vor||'');sv('e-date-repair',rec.dateRepair);sv('e-warranty',rec.warranty);_onWarrantyChange();if(rec.warrantyRefusal)sv('e-warranty-refusal',rec.warrantyRefusal);sv('e-voith',rec.voithFault);loadInterimVisits(rec.interimVisits||[]);loadPartsOrdered(rec.partsOrdered||[]);
   loadDatalogger(rec.datalogger||[]);loadEmobRequests(rec.emobRequests||[]);_sortCombinedByDate();renderCombinedList();highlightMandatory();updateVisitCount();sv('e-rectified',rec.rectified);syncRectifiedOptions();sv('e-inverter',rec.inverter);sv('e-diagnosis',rec.diagnosis);sv('e-comments',rec.chargeableNumber||rec.comments||'');sv('e-fault-category',rec.faultCategory||'');onFaultCategoryChange(rec.faultDetail||'');buildCompRows(Array.isArray(rec.components)?rec.components:[rec.comp1,rec.comp2,rec.comp3].filter(Boolean));sv('e-sw-init',rec.swInitial);sv('e-sw-fin',rec.swFinal);sv('e-rectified',rec.rectified);sv('e-ongoing-status',rec.ongoingStatus||'');syncRectifiedOptions();onRectifiedChange();
   sv('e-fc-1',rec.faultCodes&&rec.faultCodes[0]||'');
     sv('e-fc-2',rec.faultCodes&&rec.faultCodes[1]||'');
@@ -3091,6 +3109,7 @@ function validate(strict){
   const rectVal=document.getElementById('e-rectified')?.value||'';
   const attendRequired=[...(attDate?['e-rectified']:[]),...(attDate&&rectVal==='ONGOING'?['e-ongoing-status']:[])];
   // Only required when repair date is filled (strict mode)
+  if(gv('e-warranty')==='N'&&!gv('e-warranty-refusal').trim()){showToast('Please enter a reason for warranty refusal','error');var el=document.getElementById('e-warranty-refusal');if(el){el.focus();el.style.borderColor='var(--red)';}return false;}
   const strictRequired=['e-rectified','e-inverter','e-warranty','e-voith',
     'e-diagnosis','e-sw-init','e-sw-fin'];
   const toCheck=[...alwaysRequired,...attendRequired,...(strict?strictRequired:[])];
@@ -3188,7 +3207,7 @@ async function saveReport(){
   _pendingRecord={...allRecords[idx],
     engineer:gv('e-engineer'),region:gv('e-region'),
     dateAttended:gv('e-date-att'),dateExpectedAtt:gv('e-date-expected-att'),vehicleUnavailableOnAttend:document.getElementById('e-unavail-att')?.classList.contains('on')?'Y':'N',actuallyVor:gv('e-actually-vor'),dateRepair:gv('e-date-repair'),ongoingStatus:gv('e-rectified')==='ONGOING'?gv('e-ongoing-status')||undefined:undefined,
-    warranty:gv('e-warranty'),voithFault:gv('e-voith'),
+    warranty:gv('e-warranty'),warrantyRefusal:gv('e-warranty-refusal')||undefined,voithFault:gv('e-voith'),
     interimVisits:_combinedItems.filter(function(x){return x.type==='interim';}).map(function(x){var i=x.idx;return{date:document.getElementById('interim-date-'+i)?.value||'',comments:document.getElementById('interim-comments-'+i)?.value||'',vehicleUnavailable:document.getElementById('interim-unavail-'+i)?.checked?'Y':'N'};}),datalogger:_combinedItems.filter(function(x){return x.type==='datalogger';}).map(function(x){var i=x.idx;return{dateFitted:document.getElementById('dl-date-fitted-'+i)?.value||'',dateRemoved:document.getElementById('dl-date-removed-'+i)?.value||''};}),partsOrdered:_combinedItems.filter(function(x){return x.type==='parts';}).map(function(x){var i=x.idx;return{dateOrdered:document.getElementById('po-date-ordered-'+i)?.value||'',dateReceived:document.getElementById('po-date-received-'+i)?.value||'',partNumber:(document.getElementById('po-part-number-'+i)?.value||'').replace(/\./g,''),quantity:document.getElementById('po-quantity-'+i)?.value||'',requested:x.requested||false};}),rectified:rect,
     inverter:gv('e-inverter'),diagnosis:gv('e-diagnosis'),
     faultCategory:gv('e-fault-category'),faultDetail:gv('e-fault-detail'),
@@ -3631,7 +3650,8 @@ async function sendReportEmail(rec){
   if(inc('dateAttended')||inc('interimVisits')||inc('dateRepair')){
     _buildAttendanceLines(rec,'items',inc('partsOrdered')).forEach(function(x){lines.push(x.label);});
   }
-  if(inc('warranty'))    add('Warranty',rec.warranty);
+  if(inc('warranty'))    add('Are costs covered by warranty?',rec.warranty);
+  if(inc('warranty')&&rec.warrantyRefusal) add('Reason for warranty refusal',rec.warrantyRefusal);
   if(inc('voithFault'))  add('Liability',rec.voithFault);
   if(inc('rectified'))   add('Defect Rectified',rec.rectified);
   if(inc('inverter'))    add('Inverter S/N',rec.inverter);
@@ -4007,7 +4027,7 @@ function openEngPopup(rec){
       <div class="popup-grid">
         ${pi('Engineer', rec.engineer)}
         ${pi('Attendance',_buildAttendanceLines(rec,'html'),true)}
-        ${pi('Warranty', rec.warranty)}
+        ${pi('Are costs covered by warranty?', rec.warranty)}${rec.warrantyRefusal?pi('Reason for warranty refusal',rec.warrantyRefusal,true):''}
         ${pi('Liability', rec.voithFault)}
         ${pi('Defect Rectified', rec.rectified)}
         ${pi('Inverter S/N', rec.inverter)}
@@ -4705,7 +4725,7 @@ openEngPopup = function(rec, viewOnly) {
     <div class='igrid' style='margin-bottom:16px'>
       ${pi(lbl('e-rectified','Defect Rectified'), rec.rectified)}
       ${pi(lbl('e-inverter','Inverter Serial Number'), rec.inverter)}
-      ${pi(lbl('e-warranty','Warranty'), rec.warranty)}
+      ${pi(lbl('e-warranty','Are costs covered by warranty?'), rec.warranty)}${rec.warrantyRefusal?pi('Reason for warranty refusal',rec.warrantyRefusal,true):''}
       ${pi(lbl('e-voith','Liability'), rec.voithFault)}
       ${pi(lbl('e-diagnosis','Diagnosis and Comments'), rec.diagnosis, true)}
         ${rec.faultCategory?pi('Fault Category', rec.faultCategory):''}
